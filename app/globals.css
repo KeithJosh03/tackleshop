@@ -1,22 +1,27 @@
 @import "tailwindcss";
 
-.tertiarybase{
-  background-color: #252728;
+@theme {
+  --color-primaryColor: #E89347;
+  --color-tertiaryColor: #fafaf9;
+  --color-mainBackgroundColor:#131D29;
+  --color-greyColor: oklch(37.3% 0.034 259.733);
 }
 
-.primarybase{
-  background-color: #E89347;
+@layer components{
+  .nav-link {
+    @apply rounded-md px-3 py-2 hover:bg-primaryColor hover:text-tertiaryColor cursor-pointer;
+  }
 }
 
-.secondarybase{
-  background-color: #010101;
+body {
+  background-color: #131D29;
 }
 
-
-body{
-  background-color: #010101;
+.brandsBackGround {
+  background: linear-gradient(0deg,rgba(232, 147, 71, 1) 8%, rgba(13, 31, 51, 1) 80%);
 }
 
-.primaryTextColor{
-  color: #E89347
+.hover\:gradientborder:hover {
+  border-image: linear-gradient(19deg,rgba(232, 147, 71, 1) 46%, rgba(13, 31, 51, 1) 52%);
+  border-image-slice: 1;
 }
