@@ -1,6 +1,6 @@
-import { monts } from "@/utils/fonts";
+import { monts } from "@/types/fonts";
 
-import { brands } from '@/utils/brands';
+import { brands } from '@/types/brands';
 
 import Image from "next/image";
 

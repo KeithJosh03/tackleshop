@@ -1,4 +1,4 @@
-import { monts,inter } from "@/utils/fonts";
+import { monts,inter } from "@/types/fonts";
 
 export default function Introduction() {
   return (

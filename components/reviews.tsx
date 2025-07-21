@@ -1,4 +1,4 @@
-import { monts } from "@/utils/fonts";
+import { monts } from "@/types/fonts";
 
 import {ReviewCard} from "./index";
 

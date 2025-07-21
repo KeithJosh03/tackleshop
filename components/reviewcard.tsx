@@ -1,4 +1,4 @@
-import { inter } from "@/utils/fonts";
+import { inter } from "@/types/fonts";
 
 import Image from "next/image";
 import { profile } from "@/public";

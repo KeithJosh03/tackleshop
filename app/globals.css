@@ -24,4 +24,5 @@ body {
 .hover\:gradientborder:hover {
   border-image: linear-gradient(19deg,rgba(232, 147, 71, 1) 46%, rgba(13, 31, 51, 1) 52%);
   border-image-slice: 1;
+  border-radius: inherit;
 }

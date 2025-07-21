@@ -1,4 +1,4 @@
-import { monts } from "@/utils/fonts"
+import { monts } from "@/types/fonts"
 
 export default function Footer() {
   return (

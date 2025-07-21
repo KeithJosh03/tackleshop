@@ -12,7 +12,7 @@ export default function Home() {
       <Introduction />
       <Brands />
       <HighLight />
-      <Reviews />
+      {/* <Reviews /> */}
     </main>
   );
 }

@@ -3,9 +3,9 @@
 import Image from 'next/image'
 import Link from 'next/link';         
 
-import { imagesAsset } from '@/utils/image'
+import { imagesAsset } from '@/types/image'
 
-import { monts } from '@/utils/fonts';
+import { monts } from '@/types/fonts';
 
 
 function NavBar() {
