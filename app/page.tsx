@@ -3,7 +3,8 @@ import {
   Brands,
   Reviews,
   HighLight,
-  Footer
+  Footer,
+  Collections
 } from "@/components";
 
 export default function Home() {
@@ -11,7 +12,8 @@ export default function Home() {
     <main className="flex flex-col items-center relative z-10 gap-y-10 mb-20">
       <Introduction />
       <Brands />
-      <HighLight />
+      {/* <HighLight /> */}
+      <Collections />
       {/* <Reviews /> */}
     </main>
   );

@@ -18,7 +18,6 @@ export default function Brands() {
           className='object-fill'
           />
         </div>
-
         <div className="relative rounded h-20 w-36">
           <Image
           src={brands.svgg}
