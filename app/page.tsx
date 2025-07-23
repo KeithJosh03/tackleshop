@@ -1,20 +1,21 @@
 import { 
-  Introduction,
+  Header,
+  Hero,
   Brands,
   Reviews,
   HighLight,
-  Footer,
   Collections
 } from "@/components";
 
 export default function Home() {
   return (
-    <main className="flex flex-col items-center relative z-10 gap-y-10 mb-20">
-      <Introduction />
-      <Brands />
-      {/* <HighLight /> */}
-      <Collections />
-      {/* <Reviews /> */}
-    </main>
+  <>
+  <Header />
+  <main className="flex flex-col items-center relative z-10 gap-y-10 mb-20">
+    <Hero />
+    <Brands />
+    <Collections />
+  </main>
+  </>
   );
 }

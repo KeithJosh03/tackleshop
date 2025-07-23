@@ -5,13 +5,13 @@ import Link from 'next/link';
 
 import { imagesAsset } from '@/types/image'
 
-import { monts } from '@/types/fonts';
+import { worksans } from '@/types/fonts';
 
 
-function NavBar() {
+export default function Header() {
   return (
   <header className='top-0 fixed w-full z-50'>
-    <nav className={`${monts.className} text-primaryColor flex flex-col items-center bg-mainBackgroundColor`}>
+    <nav className={`${worksans.className} text-primaryColor flex flex-col items-center bg-mainBackgroundColor`}>
       <div className='flex flex-col items-center text-center w-2/4'>
         <div className="relative w-72 h-36 self-center">
           <Link href='/'>
@@ -23,7 +23,7 @@ function NavBar() {
             />
           </Link>
         </div>
-        <div className='flex relative text-sm font-extrabold'>
+        <div className='flex relative text-md font-extrabold'>
           <span className="nav-link">
             <Link href='/newarrival'>
             NEW ARRIVALS
@@ -45,6 +45,4 @@ function NavBar() {
 
   )
 }
-
-export default NavBar;
 

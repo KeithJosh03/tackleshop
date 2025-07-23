@@ -18,7 +18,7 @@ body {
 }
 
 .brandsBackGround {
-  background: linear-gradient(0deg,rgba(232, 147, 71, 1) 8%, rgba(13, 31, 51, 1) 80%);
+  background: linear-gradient(0deg,rgba(232, 147, 71, 1) 0%, rgba(19, 29, 41, 1) 81%);
 }
 
 .hover\:gradientborder:hover {

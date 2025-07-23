@@ -1,16 +1,16 @@
-import Introduction from './introduction';
-import Brands from './Brands';
-import Reviews from './reviews';
-import HighLight from './highlights';
-import HighLightCards from './highlighcards';
-import ReviewCard from './reviewcard';
-import Footer from './footer';
-import NavBar from './Navbar';
+import Hero from './layout/Hero';
+import Brands from './layout/Brands';
+import Reviews from './review/Reviews';
+import HighLight from './hightlight/Highlight';
+import HighLightCards from './hightlight/Highlightcard';
+import ReviewCard from './review/Reviecard';
+import Footer from './layout/Footer';
+import Header from './layout/Header';
 import Collections from './collections/page';
 
 export {
-    NavBar,
-    Introduction,
+    Header,
+    Hero,
     HighLight,
     Brands,
     Collections,

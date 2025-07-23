@@ -1,11 +1,11 @@
-import { monts,inter } from "@/types/fonts";
+import { worksans,inter } from "@/types/fonts";
 
-export default function Introduction() {
+export default function Hero() {
   return (
-    <div className={`${monts.className} relative h-screen w-full flex flex-col justify-center items-center`}>
+    <div className={`${worksans.className} relative h-screen w-full flex flex-col justify-center items-center`}>
       <div className="text-primaryColor text-center flex flex-col gap-y-2 px-4 z-50 absolute">
         <h1 className="text-7xl font-extrabold">BRANDED FISHING GEARS</h1>
-        <h3 className={`${inter.className} text-tertiaryColor text-lg font-normal max-w-xl mx-auto`}>
+        <h3 className={`${inter.className} text-tertiaryColor text-lg font-bold max-w-xl mx-auto`}>
           SMOOTH CASTING TACKLES SHOP OFFERS A WIDE SELECTION OF AFFORDABLE BRANDED AND PREMIUM-QUALITY FISHING GEAR FOR EVERY ANGLER.
         </h3>
       </div>
