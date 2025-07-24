@@ -18,11 +18,11 @@ body {
 }
 
 .brandsBackGround {
-  background: linear-gradient(0deg,rgba(232, 147, 71, 1) 0%, rgba(19, 29, 41, 1) 81%);
+  background:  linear-gradient(0deg,rgba(232, 147, 71, 1) 2%, rgba(19, 29, 41, 1) 90%);
 }
 
-.hover\:gradientborder:hover {
-  border-image: linear-gradient(19deg,rgba(232, 147, 71, 1) 46%, rgba(13, 31, 51, 1) 52%);
+/* .hover\:gradientborder:hover {
+  border-image: linear-gradient(180deg,rgba(232, 147, 71, 1) 2%, rgba(19, 29, 41, 1) 70%);
   border-image-slice: 1;
   border-radius: inherit;
-}
+} */

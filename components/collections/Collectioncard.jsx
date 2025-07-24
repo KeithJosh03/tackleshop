@@ -6,7 +6,7 @@ import { worksans,inter } from "@/types/fonts";
 export default function CollectionCard() {
   return (
     <>
-    <div className='h-fit basis-1/4 border px-4 py-2 flex flex-col gap-y-2 items-center justify-between border-greyColor transition-all hover:gradientborder'>
+    <div className='h-fit basis-1/4 border-2 px-4 py-2 flex flex-col gap-y-2 items-center justify-between border-greyColor transition-all rounded-xl hover:border-primaryColor'>
         <div className="relative w-full aspect-[4/4] overflow-hidden rounded">
             <Image
             src={products.shimano}
@@ -25,7 +25,7 @@ export default function CollectionCard() {
             <p className={`${inter.className} font-bold`}>₱ 12,500</p>
         </div>
     </div>
-    <div className={`${worksans.className} h-fit basis-1/4 border px-4 py-2 flex flex-col gap-y-2 items-center justify-between border-greyColor transition-all hover:gradientborder`}>
+    <div className={`${worksans.className} h-fit basis-1/4 border-2 px-4 py-2 flex flex-col gap-y-2 items-center justify-between border-greyColor transition-all rounded-xl hover:border-primaryColor`}>
         <div className="relative w-full aspect-[4/4] overflow-hidden rounded">
             <Image
             src={products.graphiteleader}
