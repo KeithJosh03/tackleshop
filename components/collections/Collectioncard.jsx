@@ -12,8 +12,6 @@ export default function CollectionCard() {
             src={products.shimano}
             alt="Shimano Rod 3000"
             fill
-            layout="fill"
-            objectFit="fit"
             className="object-cover" 
             />
         </div>
@@ -31,8 +29,6 @@ export default function CollectionCard() {
             src={products.graphiteleader}
             alt="Shimano Rod 3000"
             fill
-            layout="fill"
-            objectFit="fit"
             className="object-cover" 
             />
         </div>
