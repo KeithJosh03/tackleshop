@@ -23,6 +23,10 @@ export default function Header() {
     axios.get('/api/categories')
     .then(res => setCategories(res.data.categories))
     .catch(err => console.log(err));
+
+     axios.get('/api/categories/getapparel')
+    .then(res => setCategories(res))
+    .catch(err => console.log(err));
   },[])
 
   console.log(brands);

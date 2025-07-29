@@ -30,7 +30,7 @@ export default function Footer() {
         <div className="flex flex-row relative items-center justify-between gap-x-6">
           {
           socials.map((social,key) => (
-            <div className="relative w-10 h-10 self-center hover:animate-bounce hover:cursor-pointer"
+            <div className="relative w-10 h-10 self-center hover:cursor-pointer"
             key={key}
             onClick={() => { window.open(social.url,'_blank')}}
             >
