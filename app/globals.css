@@ -3,13 +3,14 @@
 @theme {
   --color-primaryColor: #E89347;
   --color-tertiaryColor: #fafaf9;
+  --color-katulo:#835d32;
   --color-mainBackgroundColor:#131D29;
   --color-greyColor: oklch(37.3% 0.034 259.733);
 }
 
 @layer components{
   .nav-link {
-    @apply rounded-md px-3 py-2 hover:bg-primaryColor hover:text-tertiaryColor cursor-pointer;
+    @apply rounded-t-md px-3 py-2 hover:text-tertiaryColor hover:bg-primaryColor cursor-pointer;
   }
 }
 
