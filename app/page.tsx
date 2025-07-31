@@ -4,7 +4,8 @@ import {
   Brands,
   Reviews,
   HighLight,
-  Collections
+  Collections,
+  Footer
 } from "@/components";
 
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
     <Brands />
     <Collections />
   </main>
+  <Footer />
   </>
   );
 }

@@ -30,6 +30,7 @@ export default function Header() {
     
   },[])
 
+  console.log(brands);
 
   return (
   <header className='top-0 fixed w-full z-50'>
@@ -56,12 +57,13 @@ export default function Header() {
             <div className='absolute top-full left-1/2 transform -translate-x-1/2 hidden group-hover:block text-md gap-y-2 rounded-b-md text-tertiaryColor bg-katulo'>
               <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-b-8 border-b-katulo"></div>
               {brands.map((brand) => (
-              <p 
+              <Link 
               className='px-2 py-2 hover:text-primaryColor' 
+              href={`brands/${brand.brand_name}`}
               key={brand.brand_ID}
               >
-              {brand.brand_name}
-              </p>
+              <h4>{brand.brand_name}</h4>
+              </Link>
               ))}
             </div>
           </span>
