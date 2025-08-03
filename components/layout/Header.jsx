@@ -54,11 +54,11 @@ export default function Header() {
           </span>
           <span className="nav-link relative group">
             <p className='cursor-pointer'>BRANDS</p>
-            <div className='absolute top-full left-1/2 transform -translate-x-1/2 hidden group-hover:block text-md gap-y-2 rounded-b-md text-tertiaryColor bg-katulo'>
+            <div className='absolute top-full left-1/2 transform -translate-x-1/2 hidden group-hover:block text-md py-2 px-4 rounded-b-md text-tertiaryColor bg-katulo'>
               <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-b-8 border-b-katulo"></div>
               {brands.map((brand) => (
               <Link 
-              className='px-2 py-2 hover:text-primaryColor' 
+              className='hover:text-primaryColor' 
               href={`brands/${brand.brand_name}`}
               key={brand.brand_ID}
               >
@@ -69,13 +69,16 @@ export default function Header() {
           </span>
           <span className="nav-link relative group">
             <p className='cursor-pointer'>CATEGORIES</p>
-            <div className='absolute w-full top-full left-0 right-0 hidden group-hover:block text-md gap-y-2 rounded-b-md  text-tertiaryColor bg-katulo'>
-              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-b-8 border-b-katulo"></div>
+            <div className='absolute w-full top-full left-0 right-0 hidden group-hover:block text-md gap-y-2 rounded-b-md py-2 px-4 text-tertiaryColor bg-katulo'>
+              <div className="absolute -top-2 left-1/2 tran22222222222sform -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-b-8 border-b-katulo"></div>
               {categories.map((category) => (
-              <p 
-              className='px-2 py-2 hover:text-primaryColor'
+              <Link 
+              className='hover:text-primaryColor' 
+              href={`category/${category.category_ID}`}
               key={category.category_ID}
-              >{category.category_name}</p>
+              >
+              <p>{category.category_name}</p>
+              </Link>
               ))}
             </div>
           </span>
