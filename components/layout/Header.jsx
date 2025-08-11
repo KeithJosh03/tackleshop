@@ -1,11 +1,9 @@
 'use client';
-
-
+import axios from 'axios';
 import Image from 'next/image'
-import Link from 'next/link';         
+import Link from 'next/link';
 
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 
 import { imagesAsset } from '@/types/image'
 import { worksans } from '@/types/fonts';
@@ -13,7 +11,6 @@ import { worksans } from '@/types/fonts';
 export default function Header() {
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
-
 
   useEffect(() => {
     axios.get('/api/brands')
@@ -25,12 +22,11 @@ export default function Header() {
     .catch(err => console.log(err));
 
      axios.get('/api/categories/getapparel')
-    .then(res => console.log(res))
+    .then(res => console.log(res.data))
     .catch(err => console.log(err));
     
   },[])
 
-  console.log(brands);
 
   return (
   <header className='top-0 fixed w-full z-50'>
@@ -60,7 +56,7 @@ export default function Header() {
               <Link 
               className='hover:text-primaryColor' 
               href={`brands/${brand.brand_name}`}
-              key={brand.brand_ID}
+              key={brand.brand_id}
               >
               <h4>{brand.brand_name}</h4>
               </Link>
@@ -73,9 +69,9 @@ export default function Header() {
               <div className="absolute -top-2 left-1/2 tran22222222222sform -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-b-8 border-b-katulo"></div>
               {categories.map((category) => (
               <Link 
-              className='hover:text-primaryColor' 
-              href={`category/${category.category_ID}`}
-              key={category.category_ID}
+                className='hover:text-primaryColor' 
+                href={`category/${category.category_name}`}
+                key={category.category_id}
               >
               <p>{category.category_name}</p>
               </Link>

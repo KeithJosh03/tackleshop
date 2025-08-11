@@ -9,7 +9,7 @@ export default function Footer() {
   return (
     <div className={`${inter.className} text-white h-fit w-full flex flex-col items-center border-t border-greyColor`}>
       <div className="w-full flex flex-col justify-items-center text-center items-center gap-y-2">
-        <div className="flex flex-col items-center justify-items-center">
+        {/* <div className="flex flex-col items-center justify-items-center">
           <div className="relative w-60 h-24 self-center">
             <Link href='/'>
               <Image 
@@ -20,7 +20,7 @@ export default function Footer() {
               />
             </Link>
           </div>
-        </div>
+        </div> */}
         <div className='flex flex-col text-tertiaryColor font-normal text-md'>
           <h5><span className={`${worksans.className} font-extrabold text-primaryColor`}>Location: </span>Falcata St, Buhangin, Davao City, 8000 Davao del Sur</h5>
           <h5><span className={`${worksans.className} font-extrabold text-primaryColor`}>Email: </span>joshuaengoc1@gmail.com</h5>
