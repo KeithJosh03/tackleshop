@@ -30,8 +30,18 @@ export default function Header() {
 
   return (
   <header className='top-0 fixed w-full z-50'>
-    <nav className={`${worksans.className} text-primaryColor flex flex-col items-center bg-mainBackgroundColor`}>
-      <div className='flex flex-col items-center text-center'>
+    <nav className={`${worksans.className} text-primaryColor grid grid-cols-3 place-items-center content-between bg-mainBackgroundColor px-14`}>
+      <div className="col-span-1 relative w-1/2 self-center text-primaryColor">
+        <label className="absolute -top-3 left-3 px-1 text-sm bg-mainBackgroundColor">
+          Search
+        </label>
+        <input
+          id="name"
+          type="text"
+          className="w-full rounded-md border border-katulo bg-transparent px-3 py-2 placeholder-katulo focus:border-primaryColor focus:outline-none"
+        />
+      </div>
+      <div className='col-span-1 flex flex-col items-center text-center'>
         <div className="relative w-72 h-36 self-center">
           <Link href='/'>
             <Image 
@@ -82,6 +92,9 @@ export default function Header() {
             APPAREL
           </span>
         </div>
+      </div>
+      <div className='col-span-1  flex items-center text-center self-center'>
+        Hello
       </div>
     </nav>
   </header>

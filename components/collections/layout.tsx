@@ -1,6 +1,8 @@
-import { worksans } from "@/types/fonts";
+import React from 'react'
 
-export default function MainLayout({
+import { worksans } from '@/types/fonts'
+
+export default function MainLayoutCollection({
     children,
 }:{
     children:React.ReactNode

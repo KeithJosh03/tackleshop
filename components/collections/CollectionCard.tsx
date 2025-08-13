@@ -1,7 +1,7 @@
+import Image from "next/image"
+import { worksans,inter } from "@/types/fonts"
 import { products } from "@/types/products";
-import Image from "next/image";
 
-import { worksans,inter } from "@/types/fonts";
 
 export default function CollectionCard() {
   return (
