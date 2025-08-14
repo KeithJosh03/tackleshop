@@ -3,40 +3,39 @@
 import MainLayoutCollection from "./layout";
 import CollectionComponent from './CollectionComponent';
 import CollectionCard from "./CollectionCard";
-import { worksans,inter } from "@/types/fonts";
-import { products } from "@/types/products";
-import Image from "next/image";
 
+import { CategoryCollectionProps } from "@/types/dataprops";
 
 import axios from "axios";
 import { useState, useEffect } from "react";
 
 export default function Collection() {
-  const [categoryProducts, setcategoryProducts] = useState([]);
+  const [categoryProducts, setcategoryProducts] = useState<CategoryCollectionProps[]>([]);
 
+  
   useEffect(() => {
-    axios.get('/api/categories/categoryproduct')
+    axios.get('/api/categories/categorycollection')
         .then(res => setcategoryProducts(res.data))
         .catch(err => console.log(err));
   },[])
 
-  console.log(products);
+  console.log(categoryProducts)
   return (
   <MainLayoutCollection>
-    {
-    categoryProducts.map(categoryproduct => (
-    <CollectionComponent
-      key={categoryproduct.category_id}
-      categoryname={categoryproduct.category_name}
+    {categoryProducts.map((category) => (
+    <CollectionComponent 
+    key={category.category_id} 
+    category={category}
     >
-      <h1>Hello</h1>
+    {category.product.map((product) => (
+        <CollectionCard 
+          key={product.product_id}
+          product={product}
+        />
+    ))}    
     </CollectionComponent>
-    ))
-    }
+    ))}
     
-    <CollectionComponent>
-      <h1>Hello</h1>
-    </CollectionComponent>
   </MainLayoutCollection>
   )
 }

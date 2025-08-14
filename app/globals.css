@@ -12,6 +12,10 @@
   .nav-link {
     @apply rounded-t-md px-3 py-2 hover:text-tertiaryColor hover:bg-primaryColor cursor-pointer;
   }
+
+  .button-view {
+    @apply rounded-md px-3 py-2 hover:px-4 hover:py-3 text-tertiaryColor bg-primaryColor cursor-pointer;
+  }
 }
 
 body {
