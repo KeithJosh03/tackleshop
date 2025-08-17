@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 
 export default function Brand() {
   const [productsBrand, setproductsBrand] = useState([]);
-  const {brand} = useParams();
+  const { brand } = useParams();
 
   useEffect(() => {
     axios.get(`/api/brands/specificbrand/${brand}`)

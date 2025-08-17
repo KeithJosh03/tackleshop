@@ -2,14 +2,14 @@ import { worksans,inter } from "@/types/fonts";
 
 export default function Hero() {
   return (
-    <div className={`${worksans.className} relative h-screen w-full flex flex-col justify-center items-center`}>
+    <div className={`${worksans.className} relative min-h-screen w-full flex flex-col justify-center items-center mt-[-72px]`}>
       <div className="text-primaryColor text-center flex flex-col gap-y-2 px-4 z-50 absolute">
         <h1 className="text-7xl font-extrabold">BRANDED FISHING GEARS</h1>
         <h3 className={`${inter.className} text-tertiaryColor text-lg font-bold max-w-xl mx-auto`}>
           SMOOTH CASTING TACKLES SHOP OFFERS A WIDE SELECTION OF AFFORDABLE BRANDED AND PREMIUM-QUALITY FISHING GEAR FOR EVERY ANGLER.
         </h3>
       </div>
-      <div className="absolute top-16 w-full h-full z-10">
+      <div className="absolute w-full h-full z-10">
         <svg width="100%" height="100%" viewBox="0 0 1440 590" xmlns="http://www.w3.org/2000/svg">
           <style>
             {`

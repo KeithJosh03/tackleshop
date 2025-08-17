@@ -24,12 +24,11 @@ export default function Header() {
      axios.get('/api/categories/getapparel')
     .then(res => console.log(res.data))
     .catch(err => console.log(err));
-    
   },[])
 
 
   return (
-  <header className='top-0 fixed w-full z-50'>
+  <header className='top-0 sticky w-full z-999'>
     <nav className={`${worksans.className} text-primaryColor grid grid-cols-3 place-items-center content-between bg-mainBackgroundColor px-14`}>
       <div className="col-span-1 relative w-1/2 self-center text-primaryColor">
         <label className="absolute -top-3 left-3 px-1 text-sm bg-mainBackgroundColor">

@@ -12,7 +12,8 @@ export default function CollectionComponent({
   }:{
   children:React.ReactNode,
   category: CategoryCollectionProps
-}){
+  }
+){
   return (
     <div className={`${worksans.className} h-hit w-full flex flex-col items-center justify-center px-40`}>
       <h1 className='text-primaryColor font-extrabold text-4xl'>{`${category.category_name} Collection`}</h1>

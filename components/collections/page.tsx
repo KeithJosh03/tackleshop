@@ -19,23 +19,21 @@ export default function Collection() {
         .catch(err => console.log(err));
   },[])
 
-  console.log(categoryProducts)
   return (
   <MainLayoutCollection>
     {categoryProducts.map((category) => (
     <CollectionComponent 
-    key={category.category_id} 
-    category={category}
+      key={category.category_id} 
+      category={category}
     >
-    {category.product.map((product) => (
-        <CollectionCard 
-          key={product.product_id}
-          product={product}
-        />
-    ))}    
+      {category.product.map((product) => (
+      <CollectionCard 
+        key={product.product_id}
+        product={product}
+      />
+      ))}    
     </CollectionComponent>
     ))}
-    
   </MainLayoutCollection>
   )
 }
