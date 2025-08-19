@@ -64,7 +64,7 @@ export default function Header() {
               {brands.map((brand) => (
               <Link 
               className='hover:text-primaryColor' 
-              href={`brands/${brand.brand_name}`}
+              href={`/brands/${brand.brand_name}`}
               key={brand.brand_id}
               >
               <h4>{brand.brand_name}</h4>
@@ -79,7 +79,7 @@ export default function Header() {
               {categories.map((category) => (
               <Link 
                 className='hover:text-primaryColor' 
-                href={`category/${category.category_name}`}
+                href={`/category/${category.category_name}`}
                 key={category.category_id}
               >
               <p>{category.category_name}</p>
