@@ -16,6 +16,10 @@
   .button-view {
     @apply rounded-md px-3 py-2 hover:px-4 hover:py-3 text-tertiaryColor bg-primaryColor cursor-pointer;
   }
+
+  .collection-card{
+    @apply h-fit basis-1/4 border-2 px-4 py-2 flex flex-col gap-y-2 items-center border-greyColor transition-all rounded-xl hover:border-primaryColor;
+  }
 }
 
 body {

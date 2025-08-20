@@ -16,8 +16,6 @@ export default function Product() {
             .catch(err => console.log(err))
     },[])
 
-
-  console.log(productDetails);
   return (
   <>
   <div className="">Hello</div>

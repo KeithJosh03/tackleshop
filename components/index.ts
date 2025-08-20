@@ -5,7 +5,7 @@ import Reviews from './review/Reviews';
 import ReviewCard from './review/Reviecard';
 import Footer from './layout/Footer';
 import Header from './layout/Header';
-import Collections from './collections/page';
+import Collections from './collections';
 
 export {
     Header,

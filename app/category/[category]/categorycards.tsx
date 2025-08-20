@@ -11,7 +11,7 @@ export default function CategoryCards(
   console.log(product.product_name)
   return (
   <Link href={`/product/${product.product_name.replace(/ /g, '-').toLowerCase()}`}>
-    <div className={`${worksans.className} h-fit basis-1/4 border-2 px-4 py-2 flex flex-col gap-y-2 items-center border-greyColor transition-all rounded-xl hover:border-primaryColor`}>
+    <div className={`${worksans.className} collection-card`}>
         <div className="relative w-full aspect-[4/4] overflow-hidden rounded">
             <Image
             src={products.shimano}

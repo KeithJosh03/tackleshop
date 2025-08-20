@@ -1,16 +1,21 @@
 'use client';
+
+import React from 'react';
 import axios from 'axios';
 import Image from 'next/image'
 import Link from 'next/link';
 
 import { useEffect, useState } from 'react';
 
+import { BrandProps, CategoryProps, ProductProps } from '@/types/dataprops';
 import { imagesAsset } from '@/types/image'
 import { worksans } from '@/types/fonts';
 
 export default function Header() {
-  const [brands, setBrands] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [productSearched, setproductSearch] = useState<ProductProps[]>([]);
+  const [search, setSearch] = useState<string>('');
+  const [brands, setBrands] = useState<BrandProps[]>([]);
+  const [categories, setCategories] = useState<CategoryProps[]>([]);
 
   useEffect(() => {
     axios.get('/api/brands')
@@ -26,19 +31,46 @@ export default function Header() {
     .catch(err => console.log(err));
   },[])
 
+  useEffect(() => {
+    if (!search) return;
+
+    console.log(search)
+
+    const delayDebounce = setTimeout(() => {
+      axios.get(`/api/products/productsearch/${search}`)
+        .then(res => setproductSearch(res.data.products))
+        .catch(err => console.error(err));
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
+
+
+
+
+
+
+  console.log(productSearched);
 
   return (
   <header className='top-0 sticky w-full z-999'>
     <nav className={`${worksans.className} text-primaryColor grid grid-cols-3 place-items-center content-between bg-mainBackgroundColor px-14`}>
-      <div className="col-span-1 relative w-1/2 self-center text-primaryColor">
+      <div className="col-span-1 relative w-1/2 self-center text-primaryColor inline-block">
         <label className="absolute -top-3 left-3 px-1 text-sm bg-mainBackgroundColor">
           Search
         </label>
         <input
-          id="name"
-          type="text"
-          className="w-full rounded-md border border-katulo bg-transparent px-3 py-2 placeholder-katulo focus:border-primaryColor focus:outline-none"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        type="text"
+        className="w-full rounded-md border border-katulo bg-transparent px-3 py-2 placeholder-katulo focus:border-primaryColor focus:outline-none"
         />
+        <div className='relative'>
+          {productSearched.map((productsearch) => (
+            <h1 key={productsearch.product_id}>{productsearch.product_name}</h1>
+          ))
+          }
+        </div>
       </div>
       <div className='col-span-1 flex flex-col items-center text-center'>
         <div className="relative w-72 h-36 self-center">
@@ -79,7 +111,7 @@ export default function Header() {
               {categories.map((category) => (
               <Link 
                 className='hover:text-primaryColor' 
-                href={`/category/${category.category_name}`}
+                href={`/category/${category.category_name.toLowerCase()}`}
                 key={category.category_id}
               >
               <p>{category.category_name}</p>

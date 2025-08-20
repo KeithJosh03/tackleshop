@@ -1,5 +1,7 @@
 // Collections
 
+import { inter } from "./fonts";
+
 
 export interface BrandProps {
   brand_id:number;
@@ -16,6 +18,12 @@ export interface ProductProps {
   type_id:number
   brand: BrandProps;
 }
+
+export interface CategoryProps{
+  category_id:number;
+  category_name:string;
+}
+
 
 export interface CategoryCollectionProps {
   category_id:number;
