@@ -26,15 +26,13 @@ export default function Header() {
     .then(res => setCategories(res.data.categories))
     .catch(err => console.log(err));
 
-     axios.get('/api/categories/getapparel')
-    .then(res => console.log(res.data))
-    .catch(err => console.log(err));
   },[])
 
   useEffect(() => {
-    if (!search) return;
-
-    console.log(search)
+    if (!search && search.length === 0){
+      setproductSearch([]);
+      return;
+    }
 
     const delayDebounce = setTimeout(() => {
       axios.get(`/api/products/productsearch/${search}`)
@@ -44,13 +42,6 @@ export default function Header() {
 
     return () => clearTimeout(delayDebounce);
   }, [search]);
-
-
-
-
-
-
-  console.log(productSearched);
 
   return (
   <header className='top-0 sticky w-full z-999'>
@@ -67,7 +58,11 @@ export default function Header() {
         />
         <div className='relative'>
           {productSearched.map((productsearch) => (
-            <h1 key={productsearch.product_id}>{productsearch.product_name}</h1>
+          <h1 key={productsearch.product_id}>
+            <Link href={`/product/${productsearch.product_name.replace(/ /g, '-').toLowerCase()}`} >
+              {productsearch.product_name}
+            </Link>
+          </h1>
           ))
           }
         </div>
@@ -120,7 +115,9 @@ export default function Header() {
             </div>
           </span>
           <span className="nav-link relative group">
+            <Link href='/category/apparel'>
             APPAREL
+            </Link>
           </span>
         </div>
       </div>

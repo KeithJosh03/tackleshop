@@ -4,6 +4,8 @@
   --color-primaryColor: #E89347;
   --color-tertiaryColor: #fafaf9;
   --color-katulo:#835d32;
+  --color-secondary:#835d32;
+
   --color-mainBackgroundColor:#131D29;
   --color-greyColor: oklch(37.3% 0.034 259.733);
 }
