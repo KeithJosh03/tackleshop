@@ -5,7 +5,6 @@
   --color-tertiaryColor: #fafaf9;
   --color-katulo:#835d32;
   --color-secondary:#835d32;
-
   --color-mainBackgroundColor:#131D29;
   --color-greyColor: oklch(37.3% 0.034 259.733);
 }
@@ -13,6 +12,10 @@
 @layer components{
   .nav-link {
     @apply rounded-t-md px-3 py-2 hover:text-tertiaryColor hover:bg-primaryColor cursor-pointer;
+  }
+
+  .nav-drop {
+    @apply absolute left-1/2 -translate-x-1/2 mt-2 min-w-full w-max bg-secondary text-white rounded-b-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition;
   }
 
   .button-view {
