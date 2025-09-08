@@ -1,7 +1,7 @@
 'use client';
 
 import MainLayoutCollection from "./layout";
-import CollectionComponent from './CollectionComponent';
+import CollectionComponent from './CollectionComponentLayout';
 import CollectionCard from "./CollectionCard";
 
 import { CategoryCollectionProps } from "@/types/dataprops";
@@ -11,7 +11,6 @@ import { useState, useEffect } from "react";
 
 export default function Collection() {
   const [categoryProducts, setcategoryProducts] = useState<CategoryCollectionProps[]>([]);
-
   
   useEffect(() => {
     axios.get('/api/categories/categorycollection')

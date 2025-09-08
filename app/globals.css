@@ -19,7 +19,7 @@
   }
 
   .button-view {
-    @apply rounded-md px-3 py-2 hover:px-4 hover:py-3 text-tertiaryColor bg-primaryColor cursor-pointer;
+    @apply rounded-md px-3 py-2 text-primaryColor hover:text-tertiaryColor hover:bg-primaryColor bg-secondary cursor-pointer;
   }
 
   .collection-card{
@@ -34,3 +34,32 @@ body {
 .brandsBackGround {
   background:  linear-gradient(0deg,rgba(232, 147, 71, 1) 2%, rgba(19, 29, 41, 1) 90%);
 }
+
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  animation: marquee 35s linear infinite;
+}
+
+@media (min-width: 640px) {
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+}
+
+@media (min-width: 1024px) {
+  .animate-marquee {
+    animation: marquee 25s linear infinite;
+  }
+}
+/* 
+640px - sm
+768px - md
+1024px - lg
+1280px - xl
+1536px - 2xl */
