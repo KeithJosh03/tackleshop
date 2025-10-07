@@ -23,7 +23,7 @@ export default function Footer() {
         </div> */}
         <div className='flex flex-col text-tertiaryColor font-normal text-md'>
           <h5><span className={`${worksans.className} font-extrabold text-primaryColor`}>Location: </span>Falcata St, Buhangin, Davao City, 8000 Davao del Sur</h5>
-          <h5><span className={`${worksans.className} font-extrabold text-primaryColor`}>Email: </span>joshuaengoc1@gmail.com</h5>
+          <h5><span className={`${worksans.className} font-extrabold text-primaryColor`}>Email: </span>smoothcastingtackleshop@gmail.com</h5>
           <h5><span className={`${worksans.className} font-extrabold text-primaryColor`}>Contact Number: </span>0977 059 8624</h5>
           <h5><span className={`${worksans.className} font-extrabold text-primaryColor`}>Store Hours: </span> Monday - Saturday (9:30 AM–5:30 PM)</h5>
         </div>

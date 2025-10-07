@@ -3,11 +3,12 @@ import { worksans, inter } from "@/types/fonts";
 export default function Hero() {
   return (
     <section
-      className={`${worksans.className} relative min-h-screen w-full flex flex-col justify-center items-center overflow-hidden`}
+    className={`${worksans.className} relative min-h-screen w-full flex flex-col justify-center items-center overflow-hidden`}
     >
       <div className="text-primaryColor text-center flex flex-col gap-y-4 px-4 z-20 relative">
         <h1 className="font-extrabold text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
-          BRANDED FISHING GEARS
+          <p>BRANDED & AFFORDABLE</p> 
+          <p>FISHING GEARS</p>
         </h1>
         <h3
           className={`${inter.className} text-tertiaryColor text-sm sm:text-base md:text-lg lg:text-xl font-bold max-w-xl mx-auto`}

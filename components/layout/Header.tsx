@@ -5,87 +5,63 @@ import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import slugify from 'slugify';
 
-import { BrandProps, CategoryProps, ProductProps } from '@/types/dataprops';
+import {
+  BrandProps,
+  CategoryProps
+} from '@/types/dataprops';
+
 import { imagesAsset } from '@/types/image';
 import { worksans } from '@/types/fonts';
+import SearchBar from './SearchBar';
+
+interface HeaderBrandTest {
+  status: boolean;
+  brands: BrandProps[];
+}
+
+interface HeaderCategoryTest {
+  status: boolean;
+  categories: CategoryProps[];
+}
 
 export default function Header() {
-  const [productSearched, setproductSearch] = useState<ProductProps[]>([]);
-  const [search, setSearch] = useState<string>('');
   const [brands, setBrands] = useState<BrandProps[]>([]);
   const [categories, setCategories] = useState<CategoryProps[]>([]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const pathname = usePathname();
   const isHome = pathname === '/';
 
   useEffect(() => {
-    if (!isHome) {
-    return;
-    }
+    if (!isHome) return;
   }, [isHome]);
 
   useEffect(() => {
-    axios.get('/api/brands')
+    axios.get<HeaderBrandTest>('/api/brands/headerbrand/')
       .then(res => setBrands(res.data.brands))
       .catch(err => console.log(err));
 
-    axios.get('/api/categories')
+    axios.get<HeaderCategoryTest>('/api/categories')
       .then(res => setCategories(res.data.categories))
       .catch(err => console.log(err));
   }, []);
 
-  useEffect(() => {
-    if (!search || search.length === 0) {
-      setproductSearch([]);
-      return;
-    }
-
-    const delayDebounce = setTimeout(() => {
-      axios.get(`/api/products/productsearch/${search}`)
-        .then(res => setproductSearch(res.data.products))
-        .catch(err => console.error(err));
-    }, 500);
-
-    return () => clearTimeout(delayDebounce);
-  }, [search]);
-
   return (
-    <header className="top-0 sticky w-full z-999">
-      <nav className={`${worksans.className} overflow-visible text-primaryColor grid grid-cols-3 place-items-center content-between bg-mainBackgroundColor px-14`}>
+    <header className="top-0 sticky w-full z-[999]">
+      <nav className={`${worksans.className} overflow-visible text-primaryColor grid grid-cols-3 place-items-center content-between bg-mainBackgroundColor px-6 md:px-14`}>
+        
+        {/* Left column */}
         {isHome ? (
-          <div className="col-span-1 relative max-w-md self-center text-primaryColor flex flex-col text-base font-bold">
-            <div>
-              <label className="absolute -top-3 left-3 px-1 text-sm bg-mainBackgroundColor">
-                Search
-              </label>
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                type="text"
-                className="w-full rounded-md border border-katulo bg-transparent px-3 py-2 placeholder-katulo focus:border-primaryColor focus:outline-none"
-              />
-            </div>
-            <div className="relative bg-secondary overflow-visible z-10">
-              {productSearched.length > 0 && (
-                <div className="absolute top-full left-0 w-full bg-katulo text-tertiaryColor rounded-b-md text-sm z-20 px-2">
-                  {productSearched.map((productsearch) => (
-                    <h1 key={productsearch.product_id} className="p-2 hover:text-primaryColor">
-                      <Link href={`/product/${productsearch.product_name.replace(/ /g, '-').toLowerCase()}`}>
-                        {productsearch.product_name}
-                      </Link>
-                    </h1>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <SearchBar />
         ) : (
           <div className="col-span-1"></div>
         )}
 
+        {/* Logo & Nav */}
         <div className="col-span-1 flex flex-col items-center text-center">
-          <div className="relative w-72 h-36 self-center">
+          <div className="relative w-40 h-20 md:w-72 md:h-36 self-center">
             <Link href="/">
               <Image
                 src={imagesAsset.logo}
@@ -96,55 +72,59 @@ export default function Header() {
             </Link>
           </div>
 
+          {/* Desktop Nav */}
           {isHome && (
-            <div className="grid grid-cols-4 text-md font-extrabold w-full container whitespace-nowrap">
+            <div className="hidden md:grid grid-cols-4 text-md font-extrabold w-full container whitespace-nowrap">
               <span className="nav-link">
-                <Link href="/newarrival">
-                  NEW ARRIVALS
-                </Link>
+                <Link href="/newarrival">NEW ARRIVALS</Link>
               </span>
+
               <span className="nav-link relative group cursor-pointer">
                 <button>BRANDS</button>
                 <div className="nav-drop">
-                  <ul className="flex flex-col items-center gap-y-1 px-4 py-2">
-                    {brands.map((brand) => (
+                  <ul className="flex flex-col items-start gap-y-1 px-4 py-2">
+                    {brands?.map(({ brandName, brandId }) => (
                       <Link
-                        className="hover:text-primaryColor"
-                        href={`/brands/${brand.brand_name}`}
-                        key={brand.brand_id}
+                        className="nav-drop-list"
+                        href={`/brand/${slugify(brandName).toLowerCase()}`}
+                        key={brandId}
                       >
-                        <li>{brand.brand_name}</li>
+                        <li>{brandName}</li>
                       </Link>
                     ))}
                   </ul>
                 </div>
               </span>
+
               <span className="nav-link relative group">
                 <button>CATEGORIES</button>
                 <div className="nav-drop">
-                  <ul className="flex flex-col items-center gap-y-1 px-4 py-2">
-                    {categories.map((category) => (
+                  <ul className="flex flex-col items-start gap-y-1 px-4 py-2">
+                    {categories.map(({ categoryName, categoryId }) => (
                       <Link
-                        className="hover:text-primaryColor"
-                        href={`/category/${category.category_name.toLowerCase()}`}
-                        key={category.category_id}
+                        className="nav-drop-list flex-1"
+                        href={`/category/${categoryName.toLowerCase()}`}
+                        key={categoryId}
                       >
-                        <li>{category.category_name}</li>
+                        <li>{categoryName}</li>
                       </Link>
                     ))}
                   </ul>
                 </div>
               </span>
+
               <span className="nav-link relative group">
-                <Link href="/category/apparel">
-                  APPAREL
-                </Link>
+                <Link href="/category/apparel">APPAREL</Link>
               </span>
             </div>
           )}
-        </div>
 
-        <div className="col-span-1 flex items-center text-center self-center"></div>
+          {!isHome ? (
+            <SearchBar />
+          ) : (
+            <div className="col-span-1"></div>
+          )}
+        </div>
       </nav>
     </header>
   );

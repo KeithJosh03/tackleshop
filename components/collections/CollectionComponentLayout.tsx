@@ -1,19 +1,18 @@
 "use client";
 
 import { worksans } from "@/types/fonts";
-import { CategoryCollectionProps } from "@/types/dataprops";
 import Link from "next/link";
+import slugify from "slugify";
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 
 export default function CollectionComponentLayout({
-  category,
+  categoryName,
   children,
 }: {
   children: React.ReactNode;
-  category: CategoryCollectionProps;
+  categoryName: string;
 }) {
   const { ref, isVisible } = useIntersectionObserver<HTMLDivElement>();
-
   return (
     <div
       ref={ref}
@@ -23,15 +22,13 @@ export default function CollectionComponentLayout({
       `}
     >
       <h1 className="text-primaryColor font-extrabold text-2xl md:text-4xl">
-        {`${category.category_name} Collection`}
+        {`${categoryName} Collection`}
       </h1>
-
-      <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6 mt-10">
+      <div className="w-full grid grid-cols-1 2xl:px-24 xl:px-20 sm:px-20 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-2 mt-10">
         {children}
       </div>
-
       <Link
-        href={`/category/${category.category_name.replace(/ /g, "_").toLowerCase()}`}
+        href={`/category/${slugify(categoryName).toLowerCase()}`}
       >
         <button className="button-view text-md font-extrabold mt-8">
           View All

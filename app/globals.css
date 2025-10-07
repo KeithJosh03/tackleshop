@@ -11,11 +11,19 @@
 
 @layer components{
   .nav-link {
-    @apply rounded-t-md px-3 py-2 hover:text-tertiaryColor hover:bg-primaryColor cursor-pointer;
+    @apply rounded-md px-3 py-2 hover:text-tertiaryColor hover:bg-primaryColor cursor-pointer;
   }
 
   .nav-drop {
-    @apply absolute left-1/2 -translate-x-1/2 mt-2 min-w-full w-max bg-secondary text-white rounded-b-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition;
+    @apply absolute top-full mt-1 left-1/2 -translate-x-1/2 
+          bg-mainBackgroundColor text-primaryColor shadow-lg 
+          rounded-md min-w-[11rem] max-w-max opacity-0 
+          group-hover:opacity-100 invisible group-hover:visible transition;
+  }
+  .nav-drop-list {
+    @apply w-full flex justify-center items-center text-center 
+          hover:bg-primaryColor bg-secondary hover:text-tertiaryColor 
+          rounded px-2 py-2 transition break-words;
   }
 
   .button-view {
@@ -25,6 +33,11 @@
   .collection-card{
     @apply h-fit basis-1/4 border-2 px-4 py-2 flex flex-col gap-y-2 items-center border-greyColor transition-all rounded-xl hover:border-primaryColor;
   }
+
+  .brand-logo-text {
+    @apply absolute inset-0 flex items-center justify-center rounded-md bg-primaryColor text-tertiaryColor text-2xl sm:text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300;
+  }
+  
 }
 
 body {
@@ -57,6 +70,7 @@ body {
     animation: marquee 25s linear infinite;
   }
 }
+
 /* 
 640px - sm
 768px - md
