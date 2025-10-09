@@ -62,6 +62,7 @@ productVariant: ProductDetailVariantProps[];
 export interface ProductCollectionProps{
 productId:number;
 basePrice:number;
+categoryType:string;
 brandName:string;
 productName:string;
 url:string
@@ -96,4 +97,43 @@ export interface CategoryProducts {
 categoryId:number;
 categoryName:string;
 products: CategorizeProduct[];
+}
+
+
+
+// SetupCollection
+type discountType = "Unit" | "Percentage";
+
+export interface SetupPackage {
+    variantId:number;
+    setupId:number;
+    productName:string;
+    categorytypeName:string;
+}
+
+
+export interface SetupCollection {
+setupId:number;
+setupName:string;
+valueDiscount:string;
+codeName:string;
+typeDiscount: discountType;
+inclusion: string | null;
+setupImageThumbNail:string;
+totalProductPrice:number;
+packages: SetupPackage[];
+}
+
+
+// DiscountedProductCollection
+export interface DiscountProductCollection {
+discountId:number;
+variantId:number;
+productId:number;
+discountType: discountType;
+discountValue: string;
+productModel:string;
+productPrice:string;
+imageThumbNail:string;
+brandName:string;
 }

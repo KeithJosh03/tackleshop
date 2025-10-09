@@ -2,6 +2,8 @@ import {
   Hero,
   Brands,
   Collections,
+  Setups,
+  Discounts
 } from "@/components";
 
 export default function Home() {
@@ -9,6 +11,8 @@ export default function Home() {
   <>
     <Hero />
     <Brands />
+    <Discounts />
+    <Setups />
     <Collections />
   </>
   );

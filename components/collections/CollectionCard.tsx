@@ -1,43 +1,60 @@
-import Image from "next/image"
-import { worksans, inter } from "@/types/fonts"
-
-import { ProductCollectionProps } from "@/types/dataprops";
-
+import Image from "next/image";
 import Link from "next/link";
+import { worksans, inter } from "@/types/fonts";
+import { ProductCollectionProps } from "@/types/dataprops";
 import { slugify } from "@/utils/slugify";
 
 export default function CollectionCard({ product }: { product: ProductCollectionProps }) {
-  let {
-  productId,
-  basePrice,
-  brandName,
-  productName,
-  url
-  } = product;
+  const { productId, basePrice, brandName, productName, url,categoryType } = product;
   return (
-    <Link 
-    href={`/product/${productId}/${slugify(productName)}`}
-    >
+    <Link href={`/product/${productId}/${slugify(productName)}`}>
       <div
-        className={`${worksans.className} collection-card flex flex-col items-center justify-between rounded-lg shadow p-3 h-full`}
+        className={`
+          ${worksans.className}
+          group relative flex flex-col items-center justify-start
+          rounded-xl border border-greyColor hover:border-primaryColor
+          transition-all duration-300 hover:-translate-y-1
+          bg-mainBackgroundColor p-5 h-full
+        `}
       >
-        <div className="relative w-full aspect-square overflow-hidden rounded">
+        
+        <div
+          className="
+            relative w-full aspect-square flex items-center justify-center
+            overflow-hidden rounded-lg bg-blackgroundColor
+          "
+        >
           <Image
             src={`/product${url}`}
-            alt={`${brandName}`}
+            alt={brandName || productName}
             fill
-            className="object-contain"
+            className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+            
           />
+          <div className="absolute top-2 left-2 bg-primaryColor text-white text-base font-bold px-3 py-1 rounded-md shadow">
+              {brandName}
+          </div>
         </div>
 
-        <div className="flex flex-col flex-grow justify-between items-center text-center text-tertiaryColor w-full mt-3">
-          <h3 className="font-bold text-lg text-primaryColor line-clamp-2">
+        <div className="flex flex-col items-center justify-center text-center mt-5 w-full">
+          <h3
+          className="
+            font-bold text-[0.95rem] sm:text-[1.05rem] text-primaryColor 
+            leading-snug line-clamp-2 h-[2.7rem]
+          "
+          >
             {productName}
           </h3>
-          <p className="font-normal">{brandName}</p>
-          <p className={`${inter.className} font-medium text-base text-primaryColor`}>₱ {basePrice}</p>
+          <p className="font-medium text-[0.85rem] text-gray-400 mt-1">
+            {categoryType}
+          </p>
+          <p
+          className={`${inter.className} font-semibold text-[1rem] sm:text-[1.0rem] text-primaryColor mt-2`}
+          >
+            ₱ {basePrice.toLocaleString('en-PH', {currency: 'PHP', style: 'currency'})}
+          </p>
         </div>
       </div>
     </Link>
-  )
+  );
 }

@@ -6,6 +6,7 @@
   --color-katulo:#835d32;
   --color-secondary:#835d32;
   --color-mainBackgroundColor:#131D29;
+  --color-blackgroundColor: #111A2D;
   --color-greyColor: oklch(37.3% 0.034 259.733);
 }
 
@@ -31,13 +32,17 @@
   }
 
   .collection-card{
-    @apply h-fit basis-1/4 border-2 px-4 py-2 flex flex-col gap-y-2 items-center border-greyColor transition-all rounded-xl hover:border-primaryColor;
+    @apply h-fit basis-1/4 border-2 px-4 transition-transform hover:-translate-y-1 py-2 flex flex-col gap-y-2 items-center border-greyColor rounded-xl hover:border-primaryColor;
   }
 
   .brand-logo-text {
     @apply absolute inset-0 flex items-center justify-center rounded-md bg-primaryColor text-tertiaryColor text-2xl sm:text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300;
   }
   
+  .setup-card {
+    @apply  bg-mainBackgroundColor border border-greyColor hover:border-primaryColor rounded-xl transition-transform hover:-translate-y-1;
+  }
+
 }
 
 body {
@@ -70,6 +75,18 @@ body {
     animation: marquee 25s linear infinite;
   }
 }
+
+
+@media (max-width: 768px) {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 
 /* 
 640px - sm
