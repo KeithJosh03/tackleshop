@@ -31,6 +31,10 @@
     @apply rounded-md px-3 py-2 text-primaryColor hover:text-tertiaryColor hover:bg-primaryColor bg-secondary cursor-pointer;
   }
 
+  .cards-tag {
+    @apply bg-primaryColor text-white text-base font-bold px-3 py-1 rounded-md shadow;
+  }
+
   .collection-card{
     @apply h-fit basis-1/4 border-2 px-4 transition-transform hover:-translate-y-1 py-2 flex flex-col gap-y-2 items-center border-greyColor rounded-xl hover:border-primaryColor;
   }
@@ -40,8 +44,9 @@
   }
   
   .setup-card {
-    @apply  bg-mainBackgroundColor border border-greyColor hover:border-primaryColor rounded-xl transition-transform hover:-translate-y-1;
+    @apply bg-mainBackgroundColor border border-greyColor hover:border-primaryColor rounded-xl transition-transform hover:-translate-y-1;
   }
+
 
 }
 
@@ -52,6 +57,12 @@ body {
 .brandsBackGround {
   background:  linear-gradient(0deg,rgba(232, 147, 71, 1) 2%, rgba(19, 29, 41, 1) 90%);
 }
+
+.gradientBackGround {
+background: linear-gradient(50deg,rgba(19, 29, 41, 1) 63%, rgba(232, 147, 71, 1) 100%);
+}
+
+
 
 
 @keyframes marquee {

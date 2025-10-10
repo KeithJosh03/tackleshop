@@ -6,32 +6,34 @@ import { slugify } from "@/utils/slugify";
 
 export default function CollectionCard({ product }: { product: ProductCollectionProps }) {
   const { productId, basePrice, brandName, productName, url,categoryType } = product;
+
+  let numericPrice = Number(basePrice);
+
+  let formattedPrice = numericPrice.toLocaleString("en-PH", {
+    style: "currency",
+    currency: "PHP"
+  });
+
   return (
     <Link href={`/product/${productId}/${slugify(productName)}`}>
       <div
-        className={`
-          ${worksans.className}
-          group relative flex flex-col items-center justify-start
-          rounded-xl border border-greyColor hover:border-primaryColor
-          transition-all duration-300 hover:-translate-y-1
-          bg-mainBackgroundColor p-5 h-full
-        `}
-      >
-        
+      className={`
+      ${worksans.className}
+      group relative flex flex-col items-center justify-start
+      rounded-xl border border-greyColor hover:border-primaryColor
+      transition-all duration-300 hover:-translate-y-1
+      p-5 h-full `}>
         <div
-          className="
-            relative w-full aspect-square flex items-center justify-center
-            overflow-hidden rounded-lg bg-blackgroundColor
-          "
+        className="relative w-full aspect-square flex items-center justify-center
+        overflow-hidden rounded-lg bg-blackgroundColor"
         >
           <Image
             src={`/product${url}`}
             alt={brandName || productName}
             fill
             className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
-            
           />
-          <div className="absolute top-2 left-2 bg-primaryColor text-white text-base font-bold px-3 py-1 rounded-md shadow">
+          <div className="absolute top-2 left-2 cards-tag">
               {brandName}
           </div>
         </div>
@@ -51,7 +53,7 @@ export default function CollectionCard({ product }: { product: ProductCollection
           <p
           className={`${inter.className} font-semibold text-[1rem] sm:text-[1.0rem] text-primaryColor mt-2`}
           >
-            ₱ {basePrice.toLocaleString('en-PH', {currency: 'PHP', style: 'currency'})}
+           {formattedPrice}
           </p>
         </div>
       </div>

@@ -16,17 +16,29 @@ export default function SetupsCards({ setupProduct }: { setupProduct: SetupColle
     packages,
   } = setupProduct;
 
-  const discountedPrice = (parseFloat(totalProductPrice) - parseFloat(valueDiscount)).toFixed(2);
-  const savings = parseFloat(valueDiscount);
+  let numericConverter = (number:string) => {
+      let numericPrice = Number(number)
+      let formattedNumber = numericPrice.toLocaleString("en-PH", {
+          style: "currency",
+          currency: "PHP",
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+      });
+      return formattedNumber;
+  }
 
+  let UnitPriceDiscount: any = () => {
+      const discountedPrice = (parseFloat(totalProductPrice) - parseFloat(valueDiscount)).toFixed(2);
+      console.log(discountedPrice);
+      return numericConverter(discountedPrice);
+  };
 
   return (
     <>
     <Link href={`/setup/setup-${setupId}`}>
       <div
-        className={`${worksans.className} setup-card p-2 items-center justify-items-center`}
+        className={`${worksans.className} setup-card p-2 items-center justify-items-center group`}
       >
-        {/* Image Section */}
         <div className="relative w-full aspect-[4/3]">
           <Image
             src={`/setups${setupImageThumbNail}`}
@@ -35,36 +47,32 @@ export default function SetupsCards({ setupProduct }: { setupProduct: SetupColle
             className="object-cover rounded-t-xl"
             sizes="(max-width: 768px) 100vw, 33vw"
           />
-          <div className="absolute top-2 left-2 bg-primaryColor text-white text-base font-bold px-3 py-1 rounded-md shadow">
+          <div className="absolute top-2 left-2 cards-tag">
             CODE: {codeName}
           </div>
         </div>
 
-        {/* Details Section */}
         <div className="flex flex-col gap-2 px-4 py-3 text-center text-tertiaryColor">
           <h3 className="text-lg font-semibold text-primaryColor">{`${setupName} Setup`}</h3>
 
-          {/* Price + Discount */}
           <div className="flex flex-col items-center">
-            <p className="text-sm line-through opacity-70">₱ {totalProductPrice.toLocaleString()}</p>
-            <p className="text-xl font-bold text-primaryColor">₱ {discountedPrice.toLocaleString()}</p>
+            <p className="text-sm line-through opacity-70">{numericConverter(totalProductPrice)}</p>
+            <p className="text-xl font-bold text-primaryColor">{UnitPriceDiscount()}</p>
             <p className="text-xs text-green-400 font-medium">
-              You save ₱{savings.toLocaleString()}!
+              You save {numericConverter(valueDiscount)}!
             </p>
           </div>
-
-          {/* Package Items */}
           <div className="mt-1 text-left bg-blackgroundColor rounded-lg p-3 space-y-1 border border-greyColor">
             <p className="text-sm text-gray-400 font-semibold">In this setup:</p>
             {packages.slice(0, 3).map((pkg, i) => (
-              <div key={i} className="text-sm text-gray-300">
+              <div key={i} className="text-sm text-gray-300 text-wrap">
                 <span className="font-medium text-primaryColor">{pkg.categorytypeName}:</span>{' '}
                 {pkg.productName}
               </div>
             ))}
           </div>
         </div>
-        <button className='button-view text-md font-extrabold self-center m-auto'>Click for more Info</button>
+        <button className='button-view text-md font-extrabold self-center m-auto group-hover:text-tertiaryColor group-hover:bg-primaryColor'>Click for more Info</button>
       </div>
     </Link>
     </>

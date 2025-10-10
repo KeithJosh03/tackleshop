@@ -1,3 +1,7 @@
+type discountType = "Unit" | "Percent";
+
+
+
 export interface BrandProps {
 brandId: number;
 brandName: string;
@@ -40,6 +44,9 @@ productId:number;
 variantId:number;
 name:string;
 price:string;
+discountPrice:string;
+discountType:discountType;
+discountEnd:Date;
 allImage: ProductDetailImageProps[]
 }
 
@@ -102,7 +109,6 @@ products: CategorizeProduct[];
 
 
 // SetupCollection
-type discountType = "Unit" | "Percentage";
 
 export interface SetupPackage {
     variantId:number;
@@ -120,7 +126,7 @@ codeName:string;
 typeDiscount: discountType;
 inclusion: string | null;
 setupImageThumbNail:string;
-totalProductPrice:number;
+totalProductPrice:string;
 packages: SetupPackage[];
 }
 

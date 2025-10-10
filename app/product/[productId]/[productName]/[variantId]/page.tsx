@@ -96,6 +96,8 @@ export default function Product() {
   }, [selectedVariant, productDetails?.productVariant]);
 
 
+
+
   const variantButton = (variantId: number) => {
     if (!productDetails) return;
 
@@ -113,6 +115,18 @@ export default function Product() {
     }
   };
 
+  const UnitDiscount = (price: string, discountPrice: string) => {
+    const discountedPrice = (parseFloat(price) - parseFloat(discountPrice)).toFixed(2);
+    return discountedPrice;
+  };
+
+  const PercentageDiscount = (price: string, discountPercentage: string) => {
+    const discountedPrice = (parseFloat(price) * (1 - parseFloat(discountPercentage) / 100)).toFixed(2);
+    return discountedPrice;
+  };
+
+
+
   return (
     <>
       <motion.div
@@ -121,20 +135,43 @@ export default function Product() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className={`flex flex-col ${worksans.className} px-10 gap-y-2`}
       >
-        <div className="container flex flex-col gap-y-1">
+        <div className="container flex flex-col gap-y-1 mb-4">
           <h4 className="text-tertiaryColor font-bold">
             {productDetails?.brandName.toUpperCase()}
           </h4>
           <h1 className="text-primaryColor text-4xl font-bold">
             {productDetails?.productName}
           </h1>
-          <h2 className="text-tertiaryColor text-xl font-bold">
-            ₱ {selectedVariant?.price} PHP
-          </h2>
           {productDetails?.typeName && (
             <h3 className="text-secondary text-lg font-bold">
               {productDetails?.typeName}
             </h3>
+          )}
+          {selectedVariant?.discountPrice !== null && selectedVariant?.discountType === "Unit" ? (
+            <>
+              <h2 className="text-tertiaryColor text-base font-bold line-through opacity-70">
+                ₱ {selectedVariant?.price}
+              </h2>
+              <h2 className="text-primaryColor text-xl font-bold">
+                ₱ {UnitDiscount(selectedVariant?.price, selectedVariant?.discountPrice)}
+              </h2>
+              <p className="text-xs text-green-400 font-medium">
+              Discounted ₱ {selectedVariant?.discountPrice.toLocaleString()} !
+              </p>
+            </>
+          ) : selectedVariant?.discountPrice !== null && selectedVariant?.discountType === "Percent" ? (
+            <>
+              <h2 className="text-tertiaryColor text-base font-bold line-through opacity-70">
+                ₱ {selectedVariant?.price} PHP
+              </h2>
+              <h2 className="text-primaryColor text-xl font-bold">
+                ₱ {PercentageDiscount(selectedVariant?.price, selectedVariant?.discountPrice)} PHP
+              </h2>
+            </>
+          ) : (
+            <h2 className="text-primaryColor text-xl font-bold">
+              ₱ {selectedVariant?.price} PHP
+            </h2>
           )}
           {productDetails?.productVariant.length === 1 ? (
             <></>
