@@ -62,7 +62,7 @@ export default function SetupsCards({ setupProduct }: { setupProduct: SetupColle
               You save {numericConverter(valueDiscount)}!
             </p>
           </div>
-          <div className="mt-1 text-left bg-blackgroundColor rounded-lg p-3 space-y-1 border border-greyColor">
+          <div className="mt-1 text-left bg-blackgroundColor rounded-lg p-1 border border-greyColor">
             <p className="text-sm text-gray-400 font-semibold">In this setup:</p>
             {packages.slice(0, 3).map((pkg, i) => (
               <div key={i} className="text-sm text-gray-300 text-wrap">

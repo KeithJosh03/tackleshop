@@ -48,7 +48,7 @@ export default function DiscountProductCards({ discountProduct }: { discountProd
     return (
         <Link href={`/product/${productId}/${slugify(productModel)}/${variantId}`}>
             <div
-            className={`${worksans.className} setup-card p-4 items-center justify-items-center group gradientBackGround`}
+            className={`${worksans.className} setup-card p-4 items-start justify-items-center group gradientBackGround`}
             >
                 <div className="relative w-full aspect-[4/3]">
                     <Image
@@ -62,14 +62,13 @@ export default function DiscountProductCards({ discountProduct }: { discountProd
                     SALE
                     </div>
                 </div>
-                <div className="flex flex-col gap-2 px-4 py-3 text-center text-tertiaryColor">
+                <div className="flex flex-col gap-2 px-4 py-3 text-left text-tertiaryColor">
                     <h3 className="text-lg font-semibold text-primaryColor">{productModel}</h3>
                     <div className="flex flex-col items-center">
                         <p className="text-sm line-through opacity-70">{numericConverter(productPrice)}</p>
                         <p className="text-xl font-bold text-primaryColor">{discountType === 'Unit' ? UnitPriceDiscount() : PercentPriceDiscount()}</p>
                         <p className="text-Base text-green-400 font-medium">
                         {discountType === 'Unit' ? `Discounted ${numericConverter(discountValue)}` : `%${discountValue} OFF`}
-                        
                         </p>
                     </div>
                 </div>

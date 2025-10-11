@@ -24,9 +24,12 @@ interface ProductDetailsPropsResponse {
 
 
 export default function Product() {
-  const params = useParams<{ productId: string; variantId: string }>();
+  const params = useParams<{ productId: string; variantId: string; productName:string; }>();
+
   const productId = Number(params.productId);
   const variantId = Number(params.variantId);
+  const productName = params.productName;
+
 
   const [productDetails, setProductDetail] = useState<ProductDetailsProps>();
   const [selectedImage, setSelectedImage] = useState<string>();
@@ -34,7 +37,7 @@ export default function Product() {
   const [selectedPrice, setPrice] = useState<number>();
   const [imageOption, setImageOption] = useState<ProductDetailImageProps[]>();
 
-  
+
   useEffect(() => {
   axios
       .get<ProductDetailsPropsResponse>(`/api/products/productdetail/${params.productId}`)
@@ -44,7 +47,7 @@ export default function Product() {
       setProductDetail(detail);
       })
       .catch((err) => console.log(err));
-  }, [params.productId]);
+  }, [params.productId,productName]);
 
 
   useEffect(() => {
@@ -91,11 +94,7 @@ export default function Product() {
         setSelectedImage(undefined);
       }
     }
-
-    setPrice(Number(selectedVariant.price));
   }, [selectedVariant, productDetails?.productVariant]);
-
-
 
 
   const variantButton = (variantId: number) => {
@@ -115,16 +114,34 @@ export default function Product() {
     }
   };
 
+  let numericConverter = (number: string | undefined) => {
+    if (number === undefined) {
+      return "₱ 0.00"; // Handle undefined case
+    }
+    
+    let numericPrice = Number(number);
+    let formattedNumber = numericPrice.toLocaleString("en-PH", {
+      style: "currency",
+      currency: "PHP",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    return formattedNumber;
+  };
+
+
   const UnitDiscount = (price: string, discountPrice: string) => {
     const discountedPrice = (parseFloat(price) - parseFloat(discountPrice)).toFixed(2);
     return discountedPrice;
   };
 
-  const PercentageDiscount = (price: string, discountPercentage: string) => {
+  const PercentageDiscount = (price: string, discountPercentage: string ) => {
     const discountedPrice = (parseFloat(price) * (1 - parseFloat(discountPercentage) / 100)).toFixed(2);
     return discountedPrice;
   };
 
+  console.log(`${selectedVariant?.price} ${typeof selectedVariant?.price}`)
 
 
   return (
@@ -136,6 +153,7 @@ export default function Product() {
         className={`flex flex-col ${worksans.className} px-10 gap-y-2`}
       >
         <div className="container flex flex-col gap-y-1 mb-4">
+
           <h4 className="text-tertiaryColor font-bold">
             {productDetails?.brandName.toUpperCase()}
           </h4>
@@ -143,36 +161,40 @@ export default function Product() {
             {productDetails?.productName}
           </h1>
           {productDetails?.typeName && (
-            <h3 className="text-secondary text-lg font-bold">
+            <h3 className={`text-lg font-bold ${selectedVariant?.discountType === null ? 'text-tertiaryColor' : 'text-secondary'}`}>
               {productDetails?.typeName}
             </h3>
           )}
-          {selectedVariant?.discountPrice !== null && selectedVariant?.discountType === "Unit" ? (
-            <>
-              <h2 className="text-tertiaryColor text-base font-bold line-through opacity-70">
-                ₱ {selectedVariant?.price}
-              </h2>
+
+
+          {
+            selectedVariant?.price !== null && selectedVariant?.discountType !== null ? (
+              <>
+                <h2 className="text-tertiaryColor text-sm font-bold line-through opacity-70">
+                  {numericConverter(selectedVariant?.price)}
+                </h2>
+                <h2 className="text-primaryColor text-xl font-extrabold">
+                  {selectedVariant?.discountType === 'Unit' ? 
+                    numericConverter(UnitDiscount(selectedVariant?.price, selectedVariant?.discountPrice)) 
+                    : 
+                    numericConverter(PercentageDiscount(selectedVariant?.price, selectedVariant?.discountPrice))}
+                </h2>
+                <p className="text-xs text-green-400 font-medium">
+                  {selectedVariant?.discountType == 'Unit' ? 
+                    `Discounted ${numericConverter(selectedVariant?.discountPrice)}` :
+                    `${selectedVariant?.discountPrice} % Off`}
+                </p>
+              </>
+            ) : (
               <h2 className="text-primaryColor text-xl font-bold">
-                ₱ {UnitDiscount(selectedVariant?.price, selectedVariant?.discountPrice)}
-              </h2>
-              <p className="text-xs text-green-400 font-medium">
-              Discounted ₱ {selectedVariant?.discountPrice.toLocaleString()} !
-              </p>
-            </>
-          ) : selectedVariant?.discountPrice !== null && selectedVariant?.discountType === "Percent" ? (
-            <>
-              <h2 className="text-tertiaryColor text-base font-bold line-through opacity-70">
                 ₱ {selectedVariant?.price} PHP
               </h2>
-              <h2 className="text-primaryColor text-xl font-bold">
-                ₱ {PercentageDiscount(selectedVariant?.price, selectedVariant?.discountPrice)} PHP
-              </h2>
-            </>
-          ) : (
-            <h2 className="text-primaryColor text-xl font-bold">
-              ₱ {selectedVariant?.price} PHP
-            </h2>
-          )}
+            )
+          }
+
+
+
+
           {productDetails?.productVariant.length === 1 ? (
             <></>
           ) : (
@@ -193,7 +215,10 @@ export default function Product() {
               ))}
             </div>
           )}
+
+          
         </div>
+
         <div className="container flex flex-col text-primaryColor text-base font-semibold gap-y-4">
           <div>
             {productDetails?.description && (
@@ -214,6 +239,7 @@ export default function Product() {
             <p className="whitespace-pre-line">{productDetails?.specification}</p>
           </div>
         </div>
+
       </motion.div>
 
       <motion.div

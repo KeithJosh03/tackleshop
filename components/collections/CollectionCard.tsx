@@ -21,6 +21,7 @@ export default function CollectionCard({ product }: { product: ProductCollection
       ${worksans.className}
       group relative flex flex-col items-center justify-start
       rounded-xl border border-greyColor hover:border-primaryColor
+      text-left
       transition-all duration-300 hover:-translate-y-1
       p-5 h-full `}>
         <div
