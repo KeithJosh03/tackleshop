@@ -34,7 +34,6 @@ export default function Product() {
   const [productDetails, setProductDetail] = useState<ProductDetailsProps>();
   const [selectedImage, setSelectedImage] = useState<string>();
   const [selectedVariant, setVariant] = useState<ProductDetailVariantProps>();
-  const [selectedPrice, setPrice] = useState<number>();
   const [imageOption, setImageOption] = useState<ProductDetailImageProps[]>();
 
 
@@ -103,7 +102,7 @@ export default function Product() {
     window.history.replaceState(
       null,
       "",
-      `/product/${productId}/${slugify(productDetails.productName.toLowerCase() ?? "unknown")}/${variantId}`
+      `/product/${productId}/${slugify(productDetails.productName.toLowerCase() ?? "unknown")}/variant/${variantId}`
     );
 
     const foundVariant = productDetails.productVariant.find(
@@ -152,7 +151,7 @@ export default function Product() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className={`flex flex-col ${worksans.className} px-10 gap-y-2`}
       >
-        <div className="container flex flex-col gap-y-1 mb-4">
+        <div className="container flex flex-col gap-y-1 mb-4  gradientBackGround rounded-xl shadow-2xl px-4 py-2">
 
           <h4 className="text-tertiaryColor font-bold">
             {productDetails?.brandName.toUpperCase()}
@@ -165,10 +164,8 @@ export default function Product() {
               {productDetails?.typeName}
             </h3>
           )}
-
-
-          {
-            selectedVariant?.price !== null && selectedVariant?.discountType !== null ? (
+          
+          {selectedVariant?.price !== null && selectedVariant?.discountType !== null ? (
               <>
                 <h2 className="text-tertiaryColor text-sm font-bold line-through opacity-70">
                   {numericConverter(selectedVariant?.price)}
@@ -182,12 +179,12 @@ export default function Product() {
                 <p className="text-xs text-green-400 font-medium">
                   {selectedVariant?.discountType == 'Unit' ? 
                     `Discounted ${numericConverter(selectedVariant?.discountPrice)}` :
-                    `${selectedVariant?.discountPrice} % Off`}
+                    `${selectedVariant?.discountPrice}% Off`}
                 </p>
               </>
             ) : (
               <h2 className="text-primaryColor text-xl font-bold">
-                ₱ {selectedVariant?.price} PHP
+                {numericConverter(selectedVariant?.price)}
               </h2>
             )
           }
@@ -219,7 +216,8 @@ export default function Product() {
           
         </div>
 
-        <div className="container flex flex-col text-primaryColor text-base font-semibold gap-y-4">
+        {productDetails?.description !== null || productDetails?.specification !== null ? (
+        <div className="container flex flex-col text-primaryColor text-base font-semibold gap-y-4  border border-greyColor bg-blackgroundColor rounded-xl shadow-2xl px-4 py-2">
           <div>
             {productDetails?.description && (
               <p className="text-tertiaryColor text-lg">Description</p>
@@ -239,7 +237,9 @@ export default function Product() {
             <p className="whitespace-pre-line">{productDetails?.specification}</p>
           </div>
         </div>
-
+        ) :
+        <></>
+        }
       </motion.div>
 
       <motion.div

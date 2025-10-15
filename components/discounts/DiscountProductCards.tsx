@@ -11,6 +11,7 @@ import slugify from 'slugify';
 
 export default function DiscountProductCards({ discountProduct }: { discountProduct: DiscountProductCollection }) {
     const { 
+        productName,
         brandName, 
         discountType, 
         discountValue,
@@ -45,8 +46,11 @@ export default function DiscountProductCards({ discountProduct }: { discountProd
         return numericConverter(discountedPrice);
     };
 
+    console.log(productModel);
+
+
     return (
-        <Link href={`/product/${productId}/${slugify(productModel)}/${variantId}`}>
+        <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}/variant/${variantId}`}>
             <div
             className={`${worksans.className} setup-card p-4 items-start justify-items-center group gradientBackGround`}
             >

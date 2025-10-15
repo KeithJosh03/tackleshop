@@ -15,7 +15,7 @@ export default function CollectionCard({ product }: { product: ProductCollection
   });
 
   return (
-    <Link href={`/product/${productId}/${slugify(productName)}`}>
+    <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}`}>
       <div
       className={`
       ${worksans.className}

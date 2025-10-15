@@ -142,4 +142,37 @@ productModel:string;
 productPrice:string;
 imageThumbNail:string;
 brandName:string;
+productName:string;
+}
+
+
+
+
+// SetupDetails
+export interface SetupPackageDetails {
+variantId:number;
+productId:number;
+productName:string;
+categoryType:string;
+}
+
+export interface SetupImageDetails {
+url:string;
+isMain:number;
+imageId:number;
+}
+
+
+export interface SetupDetails {
+setupId:number;
+setupName:string;
+codeName:string;
+description:string;
+endDate:string;
+startDate:string;
+valueDiscount:string;
+typeDiscount:discountType;
+totalSetupPrice:number;
+package:SetupPackageDetails[];
+images:SetupImageDetails[];
 }

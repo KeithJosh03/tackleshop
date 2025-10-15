@@ -26,7 +26,6 @@ export default function Discounts() {
         .catch(err => console.error(err));
     }, []);
 
-    console.log(discountProducts);
     return (
         <MainLayoutDiscount>
             <DiscountComponentLayout 

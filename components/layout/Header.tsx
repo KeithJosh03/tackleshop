@@ -82,7 +82,7 @@ export default function Header() {
               <span className="nav-link relative group cursor-pointer">
                 <button>BRANDS</button>
                 <div className="nav-drop">
-                  <ul className="flex flex-col items-start gap-y-1 px-4 py-2">
+                  <ul className="flex flex-col items-start gap-y-1 px-4 py-2 bg-blackgroundColor">
                     {brands?.map(({ brandName, brandId }) => (
                       <Link
                         className="nav-drop-list"
@@ -99,7 +99,7 @@ export default function Header() {
               <span className="nav-link relative group">
                 <button>CATEGORIES</button>
                 <div className="nav-drop">
-                  <ul className="flex flex-col items-start gap-y-1 px-4 py-2">
+                  <ul className="flex flex-col items-start gap-y-1 px-4 py-2 bg-blackgroundColor">
                     {categories.map(({ categoryName, categoryId }) => (
                       <Link
                         className="nav-drop-list flex-1"

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { worksans } from '@/types/fonts';
 import { SetupCollection } from '@/types/dataprops';
+import slugify from 'slugify';
 
 export default function SetupsCards({ setupProduct }: { setupProduct: SetupCollection }) {
   const {
@@ -29,13 +30,12 @@ export default function SetupsCards({ setupProduct }: { setupProduct: SetupColle
 
   let UnitPriceDiscount: any = () => {
       const discountedPrice = (parseFloat(totalProductPrice) - parseFloat(valueDiscount)).toFixed(2);
-      console.log(discountedPrice);
       return numericConverter(discountedPrice);
   };
 
   return (
     <>
-    <Link href={`/setup/setup-${setupId}`}>
+    <Link href={`/promo/code=${slugify(codeName).toLowerCase()}/set/${setupId}`}>
       <div
         className={`${worksans.className} setup-card p-2 items-center justify-items-center group`}
       >

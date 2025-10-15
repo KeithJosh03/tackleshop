@@ -26,8 +26,6 @@ export default function Setups() {
         .catch(err => console.error(err));
     }, []);
 
-    console.log(setupProducts);
-
     return (
         <MainLayoutSetups>
             <SetupsComponentLayout 
