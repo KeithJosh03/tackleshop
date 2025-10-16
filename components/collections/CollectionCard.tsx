@@ -29,7 +29,7 @@ export default function CollectionCard({ product }: { product: ProductCollection
         overflow-hidden rounded-lg bg-blackgroundColor"
         >
           <Image
-            src={`/product${url}`}
+            src={`/product/${url}`}
             alt={brandName || productName}
             fill
             className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"

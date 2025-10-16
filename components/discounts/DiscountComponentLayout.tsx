@@ -12,7 +12,7 @@ export default function DiscountComponentLayout({
     className={`${worksans.className} h-fit w-full flex flex-col items-center justify-center 
     transition-all duration-700 ease-out`}
     >
-      <h1 className="text-primaryColor font-extrabold text-2xl md:text-4xl">
+      <h1 className="text-primaryColor font-extrabold text-2xl mb-4 md:text-4xl">
         Discounts
       </h1>
       <div className="relative w-full">

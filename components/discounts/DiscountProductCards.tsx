@@ -46,38 +46,36 @@ export default function DiscountProductCards({ discountProduct }: { discountProd
         return numericConverter(discountedPrice);
     };
 
-    console.log(productModel);
-
 
     return (
-        <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}/variant/${variantId}`}>
-            <div
-            className={`${worksans.className} setup-card p-4 items-start justify-items-center group gradientBackGround`}
-            >
-                <div className="relative w-full aspect-[4/3]">
-                    <Image
-                    src={`/product${imageThumbNail}`}
-                    alt={productModel}
-                    fill
-                    className="object-cover rounded-t-xl"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    />
-                    <div className="absolute top-2 left-2 cards-tag">
-                    SALE
-                    </div>
+    <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}/variant/${variantId}`}>
+        <div
+        className={`${worksans.className} col-span-1 setup-card p-4 items-start justify-items-center group bg-mainBackgroundColor flex flex-col h-full`}
+        >
+            <div className="relative w-full aspect-[4/3] bg-blackgroundColor rounded-t-xl overflow-hidden">
+                <Image
+                src={`/product/${imageThumbNail}`}
+                alt={productModel}
+                fill
+                className="object-contain p-2"
+                sizes="(max-width: 768px) 100vw, 33vw"
+                />
+                <div className="absolute top-2 left-2 cards-tag">
+                SALE
                 </div>
-                <div className="flex flex-col gap-2 px-4 py-3 text-left text-tertiaryColor">
-                    <h3 className="text-lg font-semibold text-primaryColor">{productModel}</h3>
-                    <div className="flex flex-col items-center">
-                        <p className="text-sm line-through opacity-70">{numericConverter(productPrice)}</p>
-                        <p className="text-xl font-bold text-primaryColor">{discountType === 'Unit' ? UnitPriceDiscount() : PercentPriceDiscount()}</p>
-                        <p className="text-Base text-green-400 font-medium">
-                        {discountType === 'Unit' ? `Discounted ${numericConverter(discountValue)}` : `%${discountValue} OFF`}
-                        </p>
-                    </div>
-                </div>
-                <button className='button-view text-md font-extrabold self-center m-auto group-hover:text-tertiaryColor group-hover:bg-primaryColor'>Click for more Info</button>
             </div>
-        </Link>
+            <div className="flex flex-col gap-2 px-4 py-3 text-left text-tertiaryColor flex-1 w-full">
+                <h3 className="text-lg font-semibold text-primaryColor min-h-[3.25rem] text-center overflow-hidden">{productModel}</h3>
+                <div className="flex flex-col items-center">
+                    <p className="text-sm line-through opacity-70">{numericConverter(productPrice)}</p>
+                    <p className="text-xl font-bold text-primaryColor">{discountType === 'Unit' ? UnitPriceDiscount() : PercentPriceDiscount()}</p>
+                    <p className="text-Base text-green-400 font-medium">
+                    {discountType === 'Unit' ? `Discounted ${numericConverter(discountValue)}` : `%${discountValue} OFF`}
+                    </p>
+                </div>
+            </div>
+            <button className='button-view text-md font-extrabold self-center mt-auto group-hover:text-tertiaryColor group-hover:bg-primaryColor'>Click for more Info</button>
+        </div>
+    </Link>
     );
 }

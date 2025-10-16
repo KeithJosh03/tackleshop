@@ -151,8 +151,7 @@ export default function Product() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className={`flex flex-col ${worksans.className} px-10 gap-y-2`}
       >
-        <div className="container flex flex-col gap-y-1 mb-4  gradientBackGround rounded-xl shadow-2xl px-4 py-2">
-
+        <div className="container flex flex-col gap-y-1 gradientBackGround rounded-xl px-4 py-2 border border-greyColor">
           <h4 className="text-tertiaryColor font-bold">
             {productDetails?.brandName.toUpperCase()}
           </h4>
@@ -217,7 +216,7 @@ export default function Product() {
         </div>
 
         {productDetails?.description !== null || productDetails?.specification !== null ? (
-        <div className="container flex flex-col text-primaryColor text-base font-semibold gap-y-4  border border-greyColor bg-blackgroundColor rounded-xl shadow-2xl px-4 py-2">
+        <div className="container flex flex-col text-primaryColor text-base font-semibold gap-y-4  border border-greyColor bg-mainBackgroundColor rounded-xl px-4 py-2">
           <div>
             {productDetails?.description && (
               <p className="text-tertiaryColor text-lg">Description</p>
@@ -251,7 +250,7 @@ export default function Product() {
         <div className="w-full max-w-[auto] h-[700px] relative">
           {selectedImage && (
             <Image
-              src={`/product${selectedImage}`}
+              src={`/product/${selectedImage}`}
               alt={productDetails?.productName || "Product"}
               fill
               className="object-contain rounded-lg"
@@ -276,7 +275,7 @@ export default function Product() {
                   }`}
               >
                 <Image
-                  src={`/product${img.url}`}
+                  src={`/product/${img.url}`}
                   alt={`Thumbnail ${idx + 1}`}
                   fill
                   className="object-cover"

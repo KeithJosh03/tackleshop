@@ -37,14 +37,14 @@ export default function SetupsCards({ setupProduct }: { setupProduct: SetupColle
     <>
     <Link href={`/promo/code=${slugify(codeName).toLowerCase()}/set/${setupId}`}>
       <div
-        className={`${worksans.className} setup-card p-2 items-center justify-items-center group`}
+        className={`${worksans.className} setup-card p-2 items-center justify-items-center group flex flex-col h-full`}
       >
-        <div className="relative w-full aspect-[4/3]">
+        <div className="relative w-full aspect-[4/3] bg-blackgroundColor rounded-t-xl overflow-hidden">
           <Image
-            src={`/setups${setupImageThumbNail}`}
+            src={`/setups/${setupImageThumbNail}`}
             alt={codeName}
             fill
-            className="object-cover rounded-t-xl"
+            className="object-contain p-2"
             sizes="(max-width: 768px) 100vw, 33vw"
           />
           <div className="absolute top-2 left-2 cards-tag">
@@ -52,8 +52,8 @@ export default function SetupsCards({ setupProduct }: { setupProduct: SetupColle
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 px-4 py-3 text-center text-tertiaryColor">
-          <h3 className="text-lg font-semibold text-primaryColor">{`${setupName} Setup`}</h3>
+        <div className="flex flex-col gap-2 px-4 py-2 text-center text-tertiaryColor flex-1 w-full">
+          <h3 className="text-lg font-semibold text-primaryColor min-h-[3.25rem] overflow-hidden">{`${setupName} Setup`}</h3>
 
           <div className="flex flex-col items-center">
             <p className="text-sm line-through opacity-70">{numericConverter(totalProductPrice)}</p>
@@ -71,8 +71,8 @@ export default function SetupsCards({ setupProduct }: { setupProduct: SetupColle
               </div>
             ))}
           </div>
+          <button className='button-view text-md font-extrabold self-center mt-auto group-hover:text-tertiaryColor group-hover:bg-primaryColor'>Click for more Info</button>
         </div>
-        <button className='button-view text-md font-extrabold self-center m-auto group-hover:text-tertiaryColor group-hover:bg-primaryColor'>Click for more Info</button>
       </div>
     </Link>
     </>

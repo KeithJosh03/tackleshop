@@ -93,8 +93,8 @@ export default function Promo() {
 
     return (
     <>
-    <div className='flex flex-col px-10 gap-y-2'>
-        <div className="container flex flex-col gap-y-1 mb-4 gradientBackGround rounded-xl shadow-2xl px-4 py-2">
+    <div className='flex flex-col px-10 gap-y-4'>
+        <div className="container flex flex-col gap-y-1 gradientBackGround rounded-xl px-4 py-2 border border-greyColor">
             <h4 className="text-tertiaryColor font-bold">
             {setupDetails?.codeName}
             </h4>
@@ -114,8 +114,8 @@ export default function Promo() {
                 <h1 className="font-extrabold text-xl text-primaryColor">Package Items</h1>
                 <div className="flex flex-col">
                     {setupDetails?.package?.map(({variantId,productId,productName,categoryType}, key) => (
-                    <Link href={`/product/${productId}/${slugify(productName)}/variant/${variantId}`} key={variantId}>
-                    <p className="flex-1 w-fit hover:bg-primaryColor group hover:text-tertiaryColor px-1 py-2 rounded-xl transition-all duration-200">
+                    <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}/variant/${variantId}`} key={variantId}>
+                    <p className="flex-1 w-1/2 hover:bg-primaryColor bg-blackgroundColor group hover:text-tertiaryColor px-1 py-2 rounded-xl transition-all duration-200">
                     <span className="text-tertiaryColor text-sm group-hover:text-secondary">{categoryType}</span>
                     {` : ${productName}`}
                     </p>
@@ -125,7 +125,7 @@ export default function Promo() {
             </div>
         </div>
 
-        <div className="container flex flex-col text-primaryColor text-base font-semibold gap-y-4 border border-greyColor bg-blackgroundColor rounded-xl shadow-2xl px-4 py-2">
+        <div className="container flex flex-col text-primaryColor text-base font-semibold gap-y-4 border border-greyColor bg-mainBackgroundColor rounded-xl px-4 py-2">
             <div>
                 <p className="text-tertiaryColor text-lg">Description</p>
                 <p className="whitespace-pre-line align-top">{setupDetails?.description}</p>
@@ -138,7 +138,7 @@ export default function Promo() {
         <div className="w-full max-w-[auto] h-[700px] relative">
             {displayImage && (
             <Image
-                src={`/setups${displayImage.url}`}
+                src={`/setups/${displayImage.url}`}
                 alt={setupDetails?.codeName || "Product"}
                 fill
                 className="object-contain rounded-lg"

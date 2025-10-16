@@ -17,14 +17,14 @@ export default function CategoryCards({ product, index } : { product: Categorize
         animate={{ opacity: 1, y: 0 }}
         transition={{
           duration: 0.5,
-          delay: index * 0.15, // stagger effect
+          delay: index * 0.15,
           ease: "easeOut",
         }}
         className={`${worksans.className} collection-card flex flex-col items-center justify-between rounded-lg shadow p-3 h-full`}
       >
         <div className="relative w-full aspect-square overflow-hidden rounded">
           <Image
-            src={`/product${product.imageThumbNail}`}
+            src={`/product/${product.imageThumbNail}`}
             alt={product.productName}
             fill
             className="object-cover"
