@@ -1,5 +1,6 @@
 import React from 'react'
 import { worksans } from '@/types/fonts';
+import Link from 'next/link';
 
 export default function SetupsComponentLayout({
   children,
@@ -26,6 +27,11 @@ export default function SetupsComponentLayout({
           {children}
         </div>
       </div>
+      <Link href={`/setups/`}>
+        <button className="button-view text-md px-6 py-3 font-extrabold mt-8">
+          View Setups
+        </button>
+      </Link>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import React from 'react'
 import { worksans } from '@/types/fonts';
 
+import Link from 'next/link';
+import slugify from 'slugify';
 export default function DiscountComponentLayout({
   children,
 }: {
@@ -26,6 +28,12 @@ export default function DiscountComponentLayout({
           {children}
         </div>
       </div>
+
+      <Link href={`/discount/`}>
+        <button className="button-view text-md px-6 py-3 font-extrabold mt-8">
+          View Discounts
+        </button>
+      </Link>
     </div>
   );
 }
