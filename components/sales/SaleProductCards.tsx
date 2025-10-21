@@ -9,10 +9,9 @@ import slugify from 'slugify';
 
 
 
-export default function DiscountProductCards({ discountProduct }: { discountProduct: DiscountProductCollection }) {
+export default function SaleProductCards({ discountProduct }: { discountProduct: DiscountProductCollection }) {
     const { 
         productName,
-        brandName, 
         discountType, 
         discountValue,
         imageThumbNail, 
@@ -50,7 +49,7 @@ export default function DiscountProductCards({ discountProduct }: { discountProd
     return (
     <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}/variant/${variantId}`}>
         <div
-        className={`${worksans.className} col-span-1 setup-card p-4 items-start justify-items-center group bg-mainBackgroundColor flex flex-col h-full`}
+        className={`${worksans.className} group bg-mainBackgroundColor flex flex-col h-full rounded-lg border border-greyColor hover:border-primaryColor transition-all duration-300 hover:-translate-y-1`}
         >
             <div className="relative w-full aspect-[4/3] bg-blackgroundColor rounded-t-xl overflow-hidden">
                 <Image
@@ -64,17 +63,17 @@ export default function DiscountProductCards({ discountProduct }: { discountProd
                 SALE
                 </div>
             </div>
-            <div className="flex flex-col gap-2 px-4 py-3 text-left text-tertiaryColor flex-1 w-full">
+            <div className="flex flex-col gap-2 p-4 text-left text-tertiaryColor flex-1 w-full">
                 <h3 className="text-lg font-semibold text-primaryColor min-h-[3.25rem] text-center overflow-hidden">{productModel}</h3>
                 <div className="flex flex-col items-center">
                     <p className="text-sm line-through opacity-70">{numericConverter(productPrice)}</p>
                     <p className="text-xl font-bold text-primaryColor">{discountType === 'Unit' ? UnitPriceDiscount() : PercentPriceDiscount()}</p>
-                    <p className="text-Base text-green-400 font-medium">
+                    <p className="text-sm text-green-400 font-medium">
                     {discountType === 'Unit' ? `Discounted ${numericConverter(discountValue)}` : `%${discountValue} OFF`}
                     </p>
                 </div>
             </div>
-            <button className='button-view text-md font-extrabold self-center mt-auto group-hover:text-tertiaryColor group-hover:bg-primaryColor'>Click for more Info</button>
+            <button className='button-view text-md font-extrabold self-center mt-auto mb-4 group-hover:text-tertiaryColor group-hover:bg-primaryColor'>Click for more Info</button>
         </div>
     </Link>
     );

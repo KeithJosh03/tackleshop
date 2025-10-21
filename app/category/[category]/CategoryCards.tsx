@@ -9,9 +9,24 @@ import { slugify } from "@/utils/slugify";
 import { motion } from "framer-motion";
 
 export default function CategoryCards({ product, index } : { product: CategorizeProduct; index: number }) {
+  const {basePrice, brandName, discountValue, discountType, imageThumbNail, productId, productName, typeName} = product;
+
+
+  let numericConverter = (number: string | undefined) => {
+    let numericPrice = Number(number);
+    let formattedNumber = numericPrice.toLocaleString("en-PH", {
+      style: "currency",
+      currency: "PHP",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    return formattedNumber;
+  };
+
 
   return (
-    <Link href={`/product/${product.productId}/${slugify(product.productName)}`}>
+    <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}`}>
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -24,21 +39,26 @@ export default function CategoryCards({ product, index } : { product: Categorize
       >
         <div className="relative w-full aspect-square overflow-hidden rounded">
           <Image
-            src={`/product/${product.imageThumbNail}`}
-            alt={product.productName}
+            src={`/product/${imageThumbNail}`}
+            alt={productName}
             fill
             className="object-cover"
           />
+          {discountType && 
+            <div className="absolute top-2 left-2 cards-tag">
+            Sale
+            </div>
+          }
         </div>
         <div className="flex flex-col flex-grow justify-between items-center text-center text-tertiaryColor w-full mt-3">
           <h3 className="font-bold text-lg text-primaryColor line-clamp-1">
-            {product.brandName}
+            {brandName}
           </h3>
-          <p className="font-normal line-clamp-2">{product.productName}</p>
+          <p className="font-normal line-clamp-2">{productName}</p>
           <p className={`${inter.className} font-medium text-base text-primaryColor`}>
-            ₱ {product.basePrice}
+            {numericConverter(basePrice)}
           </p>
-          <p className='text-secondary'>{product.typeName}</p>
+          <p className='text-secondary'>{typeName}</p>
         </div>
       </motion.div>
     </Link>

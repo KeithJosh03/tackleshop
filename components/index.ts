@@ -5,7 +5,7 @@ import Footer from './layout/Footer';
 import Header from './layout/Header';
 import Collections from './collections';
 import Setups from './setups';
-import Discounts from './discounts';
+import Discounts from './sales';
 
 
 export {

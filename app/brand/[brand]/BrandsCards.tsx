@@ -10,7 +10,21 @@ import { slugify } from "@/utils/slugify";
 import { motion } from "framer-motion";
 
 export default function BrandsCards({ product, index }: { product: BrandProducts; index: number }) {
-  let {basePrice ,categoryType ,mainImage ,productId ,productName} = product
+
+  let numericConverter = (number: number | undefined) => {
+    let numericPrice = Number(number);
+    let formattedNumber = numericPrice.toLocaleString("en-PH", {
+      style: "currency",
+      currency: "PHP",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    return formattedNumber;
+  };
+
+
+  const {basePrice ,categoryType ,mainImage ,productId ,productName, discount} = product
   return (
     <Link href={`/product/${productId}/${slugify(productName)}`}>
       <motion.div
@@ -25,11 +39,16 @@ export default function BrandsCards({ product, index }: { product: BrandProducts
       >
         <div className="relative w-full aspect-square overflow-hidden rounded">
           <Image
-            src={`/product${mainImage}`}
+            src={`/product/${mainImage}`}
             alt={productName}
             fill
             className="object-cover"
           />
+          {discount && (
+          <div className="absolute top-2 left-2 cards-tag">
+            Sale
+          </div>
+          )}
         </div>
         <div className="flex flex-col flex-grow justify-between items-center text-center text-tertiaryColor w-full mt-3">
           <h3 className="font-bold text-lg text-primaryColor line-clamp-1">
@@ -37,7 +56,7 @@ export default function BrandsCards({ product, index }: { product: BrandProducts
           </h3>
           <p className="font-normal line-clamp-2">{categoryType}</p>
           <p className={`${inter.className} font-medium text-base text-primaryColor`}>
-            ₱ {basePrice}
+          {numericConverter(basePrice)}
           </p>
         </div>
       </motion.div>

@@ -140,7 +140,7 @@ export default function Product() {
     return discountedPrice;
   };
 
-  console.log(`${selectedVariant?.price} ${typeof selectedVariant?.price}`)
+  console.log(productDetails);
 
 
   return (

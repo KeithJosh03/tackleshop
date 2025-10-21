@@ -5,8 +5,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 import MainLayoutDiscount from './layout';
-import DiscountComponentLayout from './DiscountComponentLayout';
-import DiscountProductCards from './DiscountProductCards';
+import SaleComponentLayout from './SaleComponentLayout';
+import SaleProductCards from './SaleProductCards';
 
 import { DiscountProductCollection } from '@/types/dataprops';
 
@@ -28,15 +28,15 @@ export default function Discounts() {
 
     return (
         <MainLayoutDiscount>
-            <DiscountComponentLayout 
+            <SaleComponentLayout 
             >
               {discountProducts?.map((discountProduct) => (
-                <DiscountProductCards 
+                <SaleProductCards 
                   key={discountProduct.discountId}
                   discountProduct={discountProduct}
                 />
               ))}    
-            </DiscountComponentLayout>
+            </SaleComponentLayout>
         </MainLayoutDiscount>
     );
 }

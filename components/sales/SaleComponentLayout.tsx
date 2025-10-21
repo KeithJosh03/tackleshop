@@ -3,7 +3,7 @@ import { worksans } from '@/types/fonts';
 
 import Link from 'next/link';
 import slugify from 'slugify';
-export default function DiscountComponentLayout({
+export default function SaleComponentLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ export default function DiscountComponentLayout({
     transition-all duration-700 ease-out`}
     >
       <h1 className="text-primaryColor font-extrabold text-2xl mb-4 md:text-4xl">
-        Discounts
+        Sales
       </h1>
       <div className="relative w-full">
         <div
@@ -29,9 +29,9 @@ export default function DiscountComponentLayout({
         </div>
       </div>
 
-      <Link href={`/discount/`}>
+      <Link href={`/sales/`}>
         <button className="button-view text-md px-6 py-3 font-extrabold mt-8">
-          View Discounts
+          View Sales
         </button>
       </Link>
     </div>

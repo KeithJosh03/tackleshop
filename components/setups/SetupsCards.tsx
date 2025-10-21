@@ -35,7 +35,7 @@ export default function SetupsCards({ setupProduct }: { setupProduct: SetupColle
 
   return (
     <>
-    <Link href={`/promo/code=${slugify(codeName).toLowerCase()}/set/${setupId}`}>
+    <Link href={`/promo/code-${slugify(codeName).toLowerCase()}/set/${setupId}`}>
       <div
         className={`${worksans.className} setup-card p-2 items-center justify-items-center group flex flex-col h-full`}
       >

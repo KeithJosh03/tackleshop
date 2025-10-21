@@ -24,6 +24,9 @@ export default function Promo() {
     const params = useParams<{ setName: string; setId: string;}>();
     let setName = params.setName;
     let setId = params.setId;
+    
+    // Extract code name from setName (e.g., "code-ml1" -> "ml1")
+    const codeName = setName.startsWith('code-') ? setName.replace('code-', '') : setName;
 
     useEffect(() =>  {
         axios

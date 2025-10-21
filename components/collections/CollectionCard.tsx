@@ -5,7 +5,7 @@ import { ProductCollectionProps } from "@/types/dataprops";
 import { slugify } from "@/utils/slugify";
 
 export default function CollectionCard({ product }: { product: ProductCollectionProps }) {
-  const { productId, basePrice, brandName, productName, url,categoryType } = product;
+  const { productId, basePrice, brandName, productName, url,categoryType, discount } = product;
 
   let numericPrice = Number(basePrice);
 
@@ -13,6 +13,8 @@ export default function CollectionCard({ product }: { product: ProductCollection
     style: "currency",
     currency: "PHP"
   });
+
+  console.log(url);
 
   return (
     <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}`}>
@@ -34,9 +36,11 @@ export default function CollectionCard({ product }: { product: ProductCollection
             fill
             className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
           />
+          {discount && (
           <div className="absolute top-2 left-2 cards-tag">
-              {brandName}
+            Sale
           </div>
+          )}
         </div>
 
         <div className="flex flex-col items-center justify-center text-center mt-5 w-full">

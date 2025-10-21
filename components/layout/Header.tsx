@@ -104,7 +104,7 @@ export default function Header() {
 
         {/* Desktop Nav */}
         {isHome && (
-          <div className="hidden md:flex items-center justify-center gap-12 text-md font-extrabold w-full whitespace-nowrap mt-2">
+          <div className="hidden md:flex items-center justify-center gap-4 text-md font-extrabold w-full whitespace-nowrap mt-2">
             <span className="nav-link">
               <Link href="/newarrival">NEW ARRIVALS</Link>
             </span>
