@@ -64,7 +64,11 @@ export default function SaleProductCards({ discountProduct }: { discountProduct:
                 </div>
             </div>
             <div className="flex flex-col gap-2 p-4 text-left text-tertiaryColor flex-1 w-full">
-                <h3 className="text-lg font-semibold text-primaryColor min-h-[3.25rem] text-center overflow-hidden">{productModel}</h3>
+                <h3 className="text-lg  text-primaryColor min-h-[3.25rem] text-center overflow-hidden">
+                    <p className='font-semibold text-primaryColor'>{productName}</p>
+                    <p className='font-normal text-secondary'>{productModel}</p>
+                </h3>
+                <h3 className=" min-h-[3.25rem] text-center overflow-hidden">{productModel}</h3>
                 <div className="flex flex-col items-center">
                     <p className="text-sm line-through opacity-70">{numericConverter(productPrice)}</p>
                     <p className="text-xl font-bold text-primaryColor">{discountType === 'Unit' ? UnitPriceDiscount() : PercentPriceDiscount()}</p>

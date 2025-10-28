@@ -1,7 +1,6 @@
 type discountType = "Unit" | "Percent";
 
 
-
 export interface BrandProps {
 brandId: number;
 brandName: string;
@@ -13,8 +12,20 @@ categoryId: number;
 categoryName: string;
 }
 
-// BrandProducts 
+export interface SubCategoryProps {
+categoryId: number;
+subCategoryId: number;
+subCategoryName: string;
+}
 
+export interface CategorySubProps {
+categoryId:number;
+categoryName:string;
+subCategories:SubCategoryProps[];
+}
+
+
+// BrandProducts 
 export interface BrandProducts {
 productId:number;
 productName:string;
@@ -70,9 +81,10 @@ export interface ProductCollectionProps{
 productId:number;
 basePrice:number;
 categoryType:string;
+discountType: discountType | null;
 brandName:string;
 productName:string;
-url:string
+imageThumbNail:string
 }
 
 
@@ -97,6 +109,8 @@ basePrice:string;
 brandName:string;
 typeName:string
 imageThumbNail:string;
+discountType: discountType | null;
+discountValue: string;
 }
 
 
@@ -111,10 +125,10 @@ products: CategorizeProduct[];
 // SetupCollection
 
 export interface SetupPackage {
-    variantId:number;
-    setupId:number;
-    productName:string;
-    categorytypeName:string;
+variantId:number;
+setupId:number;
+productName:string;
+categorytypeName:string;
 }
 
 
@@ -175,4 +189,17 @@ typeDiscount:discountType;
 totalSetupPrice:number;
 package:SetupPackageDetails[];
 images:SetupImageDetails[];
+}
+
+
+
+// New Arrival
+export interface NewArrivalProduct {
+productId:number;
+productName:string;
+basePrice:string;
+brandName:string;
+typeName:string
+imageThumbNail:string;
+discountType: discountType | null;
 }

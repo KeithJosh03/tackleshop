@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import slugify from 'slugify';
+import CustomButton from '@/components/CustomButton';
 
 import {
   BrandProps,
@@ -91,9 +92,10 @@ export default function Header() {
 
           {/* Message button right */}
           <div className="flex justify-end items-center">
-            <button className='button-view text-md font-extrabold'>
-              MESSAGE US
-            </button>
+            <CustomButton
+            text='MESSAGE US'
+            onClick={() => console.log('Message US')}
+            />
           </div>
         </div>
 

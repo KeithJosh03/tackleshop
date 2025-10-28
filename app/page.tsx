@@ -9,11 +9,11 @@ import {
 export default function Home() {
   return (
   <>
-    <Hero />
-    <Brands />
-    <Discounts />
-    <Setups />
-    <Collections />
+  <Hero />
+  <Brands />
+  <Discounts />
+  <Setups />
+  <Collections />
   </>
   );
 }

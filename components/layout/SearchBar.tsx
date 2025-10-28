@@ -7,9 +7,9 @@ import Image from "next/image";
 
 import { searchicon } from "@/public"; 
 import { motion, AnimatePresence } from "framer-motion";
-// import { Product } from "@/types/dataprop";
 
 import { ProductSearchProps } from "@/types/dataprops";
+import slugify from "slugify";
 
 
 interface ProductSearchResponse {
@@ -100,9 +100,7 @@ export default function SearchBar() {
           {results.map(({productName, productId}) => (
             <Link
               key={productId}
-              href={`/product/${productName
-                .replace(/ /g, "-")
-                .toLowerCase()}`}
+              href={`/product/${productId}/${slugify(productName).toLowerCase()}`}
               className="block px-4 py-2 text-primaryColor bg-secondary rounded hover:bg-primaryColor hover:text-tertiaryColor "
             >
               {productName}

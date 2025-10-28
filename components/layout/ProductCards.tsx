@@ -1,19 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { worksans, inter } from "@/types/fonts";
-import { ProductCollectionProps } from "@/types/dataprops";
+import { NewArrivalProduct } from "@/types/dataprops";
 import { slugify } from "@/utils/slugify";
 
-export default function CollectionCard({ product }: { product: ProductCollectionProps }) {
-  console.log(product);
-  const { 
-  productId, 
-  basePrice, 
-  brandName, 
-  productName, 
-  imageThumbNail,
-  categoryType, 
-  discountType } = product;
+export default function ProductCards({ product, index }: { product: NewArrivalProduct, index:number }) {
+    const { 
+    productId,
+    basePrice, 
+    brandName, 
+    productName, 
+    imageThumbNail,
+    typeName,
+    discountType, 
+    } = product;
 
   let numericPrice = Number(basePrice);
 
@@ -21,6 +21,7 @@ export default function CollectionCard({ product }: { product: ProductCollection
     style: "currency",
     currency: "PHP"
   });
+
 
   return (
     <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}`}>
@@ -59,7 +60,7 @@ export default function CollectionCard({ product }: { product: ProductCollection
             {productName}
           </h3>
           <p className="font-medium text-[0.85rem] text-gray-400 mt-1">
-            {categoryType}
+            {typeName}
           </p>
           <p
           className={`${inter.className} font-semibold text-[1rem] sm:text-[1.0rem] text-primaryColor mt-2`}

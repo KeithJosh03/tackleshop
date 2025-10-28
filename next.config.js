@@ -1,6 +1,5 @@
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
 
   async rewrites() {
@@ -11,6 +10,10 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  images: {
+    domains: ['localhost'], 
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

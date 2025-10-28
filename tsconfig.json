@@ -29,6 +29,6 @@
   "**/*.tsx",
   ".next/types/**/*.ts",
   "global.d.ts"
-  ],
+, "app/admin/dashboard/DashboardSubCategorytsx"  ],
   "exclude": ["node_modules"]
 }

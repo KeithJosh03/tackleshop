@@ -47,7 +47,6 @@
     @apply bg-mainBackgroundColor border border-greyColor hover:border-primaryColor rounded-xl transition-transform hover:-translate-y-1;
   }
 
-
 }
 
 body {
