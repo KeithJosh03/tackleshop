@@ -18,6 +18,7 @@ import {
   BrandProps,
   CategorySubProps,
 } from '@/types/dataprops';
+import { form } from 'framer-motion/client';
 
 type Discount = 
   null | 'Percentage' | 'Unit'
@@ -127,24 +128,20 @@ action: ProductDetailActions
         formData.append('features', state.features || '');
 
         if (state.variantProducts && state.variantProducts.length > 0) {
-          const variantData = state.variantProducts.map((variant,index) => {
-            formData.append(`variants[${index}]`)
-            // const discountData = variant.discount ? {
-            //   discountType: variant.discount.discountType || null,
-            //   discountValue: variant.discount.discountValue || "0",
-            //   startDate: variant.discount.startDate ? variant.discount.startDate.toISOString() : null,
-            //   endDate: variant.discount.endDate ? variant.discount.endDate.toISOString() : null,
-            // } : null;
+          state.variantProducts.map((variant,index) => {
+            formData.append(`variants[${index}].variant_name`,variant.variantName)
+            formData.append(`variants[${index}].variant_price`,variant.variantPrice)
+            if(variant.discount){
+              formData.append(`variants[${index}].discount.discountType`,variant.discount.discountType || '')
+              formData.append(`variants[${index}].discount.discountValue`,variant.discount.discountValue || '')
+            }
 
-            // return {
-            //   variantName: variant.variantName || "",
-            //   variantPrice: variant.variantPrice || "0.00",
-            //   discount: discountData,
-            //   variantImages: variant.variantImages ? variant.variantImages.map((image, index) => ({
-            //     url: image.url,
-            //     isMain: image.isMain,
-            //   })) : [],
-            // };
+            if(variant.variantImages){
+              variant.variantImages.map((images,indexImg) => {
+              formData.append(`variants[${index}].variantImage[${images}].url`,images.url)
+              formData.append(`variants[${index}].variantImage[${images}].isMain`, String(images.isMain || ''))
+              })
+            }
           });
         }
         
@@ -152,11 +149,11 @@ action: ProductDetailActions
           console.log(pair[0] + ": " + pair[1]);
         }
 
-        axios.post('/api/products', formData)
-          .then((response) => {
-            console.log(response.data);
-          })
-          .catch((error) => console.error('Error fetching brands:', error));
+        // axios.post('/api/products', formData)
+        //   .then((response) => {
+        //     console.log(response.data);
+        //   })
+        //   .catch((error) => console.error('Error fetching brands:', error));
       }
 
     case 'REMOVE_VARIANT':
