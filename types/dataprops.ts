@@ -1,3 +1,5 @@
+import { number } from "framer-motion";
+
 type discountType = "Unit" | "Percent";
 
 
@@ -86,6 +88,13 @@ brandName:string;
 productName:string;
 imageThumbNail:string
 }
+
+export interface ProductVariantProps {
+productId:number;
+fullmodelname:string;
+productprice:number;
+}
+
 
 
 export interface CategoryCollectionProps {

@@ -1,6 +1,6 @@
 import React from 'react'
-import DashboardBrand from '../DashboardBrand'
-import DashboardCategory from '../DashboardCategory'
+import DashboardBrand from '@/app/admin/components/DashboardBrand';
+import DashboardCategory from '@/app/admin/components/DashboardCategory';
 
 export default function page() {
     return (

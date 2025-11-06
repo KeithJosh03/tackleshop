@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 
 interface CustomButtonProps {
   text: string; 
@@ -13,11 +12,12 @@ interface CustomButtonProps {
 const CustomButton: React.FC<CustomButtonProps> = ({
   text,
   onClick,
+  className = 'button-view text-md font-extrabold'
 }) => {
   return (
     <button
       onClick={onClick}
-      className='button-view text-md font-extrabold'
+      className={`${className}`}
     >
     {text}
     </button>

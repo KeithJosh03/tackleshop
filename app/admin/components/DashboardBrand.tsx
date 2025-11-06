@@ -151,10 +151,10 @@ const DashboardBrand: React.FC = () => {
       </div>
 
       {filteredBrands.length > 0 && (
-        <div className="border border-primaryColor rounded-md max-h-40 overflow-y-auto">
+        <ul className="list-none bg-secondary border rounded border-primaryColor text-base max-h-40 overflow-y-auto">
           {filteredBrands.map((brand) => (
             <DropDownText 
-            onCLick={() => {
+            onClick={() => {
             handleSelectBrand(brand)
             setIsCreating(false)
             setSearchTerm('')
@@ -164,7 +164,7 @@ const DashboardBrand: React.FC = () => {
             listName={brand.brandName}
             />
           ))}
-        </div>
+        </ul>
       )}
 
       {selectedBrand && (

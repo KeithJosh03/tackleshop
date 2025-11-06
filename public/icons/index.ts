@@ -4,6 +4,7 @@ import closeicon from './closeicon.svg';
 import checkicon from './checkicon.svg'
 import deleteicon from './deleteicon.svg'
 import uploadimage from './imageupload.svg';
+import writeicon from './writeicon.svg';
 
 export {
     addicon,

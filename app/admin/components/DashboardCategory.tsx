@@ -199,7 +199,6 @@ export default function DashboardCategory() {
     const subCategoryId = selectedSubCategory.subCategoryId;
     try {
       const response = await axios.delete(`/api/subcategory/${subCategoryId}`);
-
       if (response.status === 204) {
         setsubCategory((prevSubcategories) =>
           prevSubcategories.filter((subcategory) => subcategory.subCategoryId !== subCategoryId)
@@ -210,8 +209,6 @@ export default function DashboardCategory() {
       console.error(`Error deleting category: ${error}`);
     }
   };
-
-
 
 
 
@@ -243,11 +240,11 @@ export default function DashboardCategory() {
       </div>
 
       {categories.length > 0 && (
-        <div className="border border-primaryColor rounded-md max-h-40 overflow-y-auto">
+        <ul className="list-none bg-secondary border rounded border-primaryColor text-base mt-1 max-h-40 overflow-y-auto">
           {categories.map((category) => (
             <DropDownText 
             key={category.categoryId}
-            onCLick={() => {
+            onClick={() => {
             setselectedCategory(category)
             setIsCreatingCategory(false)
             setselectSubCategory(null)
@@ -256,7 +253,7 @@ export default function DashboardCategory() {
             listName={category.categoryName}
             />
           ))}
-        </div>
+        </ul>
       )}
 
       {selectedCategory && (
@@ -338,16 +335,16 @@ export default function DashboardCategory() {
 
 
             {subCategory.length > 0 && (
-            <div className="border border-primaryColor rounded-md mt-2 max-h-40 overflow-y-auto">
+            <ul className="list-none bg-secondary border rounded border-primaryColor text-base mt-1 max-h-40 overflow-y-auto">
               {subCategory.map((subcat,index) => (
                 <DropDownText 
                 key={subcat.subCategoryId}
-                onCLick={() => setselectSubCategory(subcat)}
+                onClick={() => setselectSubCategory(subcat)}
                 indexKey={subcat.subCategoryId}
                 listName={subcat.subCategoryName}
                 />
               ))}
-            </div>
+            </ul>
             )}
 
             {selectedSubCategory && (

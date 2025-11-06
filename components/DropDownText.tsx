@@ -1,22 +1,22 @@
 import React from 'react';
 
 interface DropDownListProps {
-onCLick: () => void;
+onClick: () => void;
 indexKey:number;
 listName:string
 }
 
 const DropDownText: React.FC<DropDownListProps> = ({
-onCLick,indexKey,listName
+onClick,indexKey,listName
 }) => {
   return (
-    <div
+    <li
     key={indexKey}
-    className="p-2 text-primaryColor bg-secondary hover:text-tertiaryColor hover:bg-primaryColor cursor-pointer"
-    onClick={onCLick}
+    className="p-2 cursor-pointer hover:bg-primaryColor hover:text-tertiaryColor text-primaryColor"
+    onClick={onClick}
     >
     {listName}
-    </div>
+    </li>
   );
 }
 
