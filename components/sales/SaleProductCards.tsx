@@ -4,10 +4,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { worksans } from '@/types/fonts';
 import { DiscountProductCollection } from '@/types/dataprops';
+import { numericConverter, UnitPriceDiscount, PercentPriceDiscount } from '@/utils/priceUtils';
 
 import slugify from 'slugify';
 
-
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
 
 export default function SaleProductCards({ discountProduct }: { discountProduct: DiscountProductCollection }) {
     const { 
@@ -21,31 +22,6 @@ export default function SaleProductCards({ discountProduct }: { discountProduct:
         productId 
     } = discountProduct
 
-    let numericConverter = (number:string) => {
-        let numericPrice = Number(number)
-        let formattedNumber = numericPrice.toLocaleString("en-PH", {
-            style: "currency",
-            currency: "PHP",
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-
-        return formattedNumber;
-    }
-
-    let UnitPriceDiscount: any = () => {
-        const discountedPrice = (parseFloat(productPrice) - parseFloat(discountValue)).toFixed(2);
-        return numericConverter(discountedPrice);
-    };
-
-    let PercentPriceDiscount: any = () => {
-        const price = parseFloat(productPrice);
-        const discountPercent = parseFloat(discountValue);
-        const discountedPrice = (price - (price * discountPercent / 100)).toFixed(2);
-        return numericConverter(discountedPrice);
-    };
-
-
     return (
     <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}/variant/${variantId}`}>
         <div
@@ -53,8 +29,8 @@ export default function SaleProductCards({ discountProduct }: { discountProduct:
         >
             <div className="relative w-full aspect-[4/3] bg-blackgroundColor rounded-t-xl overflow-hidden">
                 <Image
-                src={`/product/${imageThumbNail}`}
-                alt={productModel}
+                src={`${baseURL}${imageThumbNail}`} 
+                alt='ThumbNail'
                 fill
                 className="object-contain p-2"
                 sizes="(max-width: 768px) 100vw, 33vw"
@@ -68,14 +44,22 @@ export default function SaleProductCards({ discountProduct }: { discountProduct:
                     <p className='font-semibold text-primaryColor'>{productName}</p>
                     <p className='font-normal text-secondary'>{productModel}</p>
                 </h3>
-                <h3 className=" min-h-[3.25rem] text-center overflow-hidden">{productModel}</h3>
                 <div className="flex flex-col items-center">
-                    <p className="text-sm line-through opacity-70">{numericConverter(productPrice)}</p>
-                    <p className="text-xl font-bold text-primaryColor">{discountType === 'Unit' ? UnitPriceDiscount() : PercentPriceDiscount()}</p>
-                    <p className="text-sm text-green-400 font-medium">
-                    {discountType === 'Unit' ? `Discounted ${numericConverter(discountValue)}` : `%${discountValue} OFF`}
-                    </p>
+                <p className="text-sm line-through opacity-70">
+                    {numericConverter(productPrice)} 
+                </p>
+                <p className="text-xl font-bold text-primaryColor">
+                    {discountType === 'Unit' 
+                    ? UnitPriceDiscount(productPrice, discountValue) 
+                    : PercentPriceDiscount(productPrice, discountValue)} 
+                </p>
+                <p className="text-sm text-green-400 font-medium">
+                    {discountType === 'Unit' 
+                    ? `Discounted ${numericConverter(discountValue)}` 
+                    : `%${discountValue} OFF`}  
+                </p>
                 </div>
+
             </div>
             <button className='button-view text-md font-extrabold self-center mt-auto mb-4 group-hover:text-tertiaryColor group-hover:bg-primaryColor'>Click for more Info</button>
         </div>

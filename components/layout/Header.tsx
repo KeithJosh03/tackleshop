@@ -51,7 +51,7 @@ export default function Header() {
 
   return (
     <header className="top-0 sticky w-full z-[999]">
-      <nav className={`${worksans.className} overflow-visible text-primaryColor bg-mainBackgroundColor px-4 md:px-14`}>
+      <nav className={`${worksans.className} overflow-visible text-primaryColor bg-blackgroundColor border-b border-greyColor px-4 md:px-14`}>
         {/* Top bar */}
         <div className="grid grid-cols-3 items-center">
           {/* Burger (mobile only) */}

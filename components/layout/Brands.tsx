@@ -14,6 +14,7 @@ interface BrandsResponse {
   status:boolean;
   brandlogo:BrandProps[];
 }
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
 
 
 export default function Brands() {
@@ -42,7 +43,7 @@ export default function Brands() {
               className="group relative flex items-center justify-center h-14 w-28 sm:h-16 sm:w-32 md:h-20 md:w-36 p-2"
               >
                 <Image
-                  src={`/brands/${imageUrl}`}
+                  src={`${baseURL}${imageUrl}`} 
                   alt={brandName}
                   fill
                   className="object-contain transition-transform duration-300 group-hover:scale-110"
@@ -60,12 +61,11 @@ export default function Brands() {
               className="group relative flex items-center justify-center h-14 w-28 sm:h-16 sm:w-32 md:h-20 md:w-36 p-2"
               >
                 <Image
-                  src={`/brands/${imageUrl}`}
+                  src={`${baseURL}${imageUrl}`} 
                   alt={brandName}
                   fill
                   className="object-contain transition-transform duration-300 group-hover:scale-110"
                 />
-
                 <div className="brand-logo-text">
                   {brandName}
                 </div>

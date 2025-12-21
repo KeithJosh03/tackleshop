@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import axios from 'axios';
 import { BrandProps } from '@/types/dataprops';
 import { worksans } from '@/types/fonts';
@@ -10,8 +10,51 @@ import IconButton from '@/components/IconButton';
 import SearchTextAdmin from '@/components/SearchTextAdmin';
 import ImageIconUpload from '@/components/ImageIconUpload';
 import DropDownText from '@/components/DropDownText';
+import InputText from '@/components/InputText';
+import { createBrand } from '@/lib/api/brandService';
+import { uploadImages } from '@/lib/api/uploadImage';
 
-const DashboardBrand: React.FC = () => {
+type BrandActionType = 
+ {type: 'BRAND_NAME' , payload:string} |
+ {type: 'BRAND_IMAGE' , payload:File} |
+ {type: 'CANCEL_BRAND', payload: BrandReduceProps} | 
+ {type: 'ADD_BRAND', payload: BrandReduceProps} | 
+ {type: 'DELETE_BRAND', payload: number}
+
+
+interface BrandReduceProps {
+  brandName:string;
+  imageUrl: File | null;
+}
+
+
+function NewBrandReducer(
+  state:BrandReduceProps, 
+  action:BrandActionType)
+  : BrandReduceProps {
+
+    const {payload, type} = action 
+    switch(type){
+      case 'BRAND_NAME': 
+        return {...state, brandName:payload}
+      case 'BRAND_IMAGE':
+        return {...state, imageUrl:payload}
+      case 'CANCEL_BRAND': 
+        return {...payload}
+      default: 
+      return state
+    }
+}
+
+
+const DashboardBrand = () => {
+    const initialBrandState: BrandReduceProps = {
+      brandName:'',
+      imageUrl:null
+    }
+
+  const [brandState, dispatchBrand] = useReducer(NewBrandReducer,initialBrandState) 
+
   const [brands, setBrands] = useState<BrandProps[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredBrands, setFilteredBrands] = useState<BrandProps[]>([]);
@@ -22,8 +65,7 @@ const DashboardBrand: React.FC = () => {
   const [editNameBrand, setEditNameBrand] = useState('');
 
   const [isCreating, setIsCreating] = useState(false);
-  const [newBrandName, setNewBrandName] = useState('');
-  const [newBrandImage, setNewBrandImage] = useState<File | null>(null);
+
   const [editBrandImage, seteditBrandImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -53,64 +95,83 @@ const DashboardBrand: React.FC = () => {
     setFilteredBrands([]); 
   };
 
-  const handleAddBrand = () => {
+
+  const handleAddBrand = async () => {
     setLoading(true);
 
-    if (!newBrandName.length || !newBrandImage) {
-      console.error("Brand name or image is missing.");
+    if (!brandState.brandName?.trim() || !brandState.imageUrl) {
+      console.error('❌ Brand name or image URL is missing.');
+      setLoading(false);
+      return; 
+    }
+
+    try {
+      const uploadedImageUrl = await uploadImages([{file:brandState.imageUrl,originIndex:0}]);
+      if (!uploadedImageUrl) throw new Error('No image URL returned.');
+      const newBrand = await createBrand({
+        brandName: brandState.brandName,
+        imageUrl: uploadedImageUrl[0].url
+      });
+      setBrands(prev => [...prev, newBrand]);
+      cancelAddBrand();
+      setIsCreating(false);
+    } catch (error) {
+      console.error('Error in brand creation process:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateBrand = async () => {
+    setLoading(true);
+
+    if (!editNameBrand?.trim() || !editBrandImage || !selectedBrand?.brandId) {
+      console.error('❌ Brand name, image URL, or selected brand ID is missing.');
+      setLoading(false);
       return;
     }
 
     const formData = new FormData();
-    formData.append('brand_name', newBrandName);
-    formData.append('image_url', newBrandImage);
-  
-    axios.post('/api/brands', formData)
-    .then((response) => {
-      setLoading(false);
-      const { brandId, brandName, imageUrl } = response.data;
-      
-      setBrands((prev) => [...prev, { brandId, brandName, imageUrl }]);
-      setNewBrandName('');
-      setNewBrandImage(null); 
-      setIsCreating(false);
-    })
-    .catch((error) => {
-      setLoading(false);
-      console.error('Error adding brand:', error);
-    });
-  };
+    formData.append('type', 'brand');
+    formData.append('imageUrl', editBrandImage);
 
-  const handleUpdateBrand = async () => {
-    if (!editNameBrand.length || !editBrandImage || !selectedBrand?.brandId) {
-        console.error("Brand name, image, or selected brand ID is missing.");
-        return;
-    }
-    const formData = new FormData();
-    formData.append('brand_name', editNameBrand);
-    formData.append('image_url', editBrandImage);
-    formData.append('_method', 'PUT'); 
     try {
-        const response = await axios.post(`/api/brands/${selectedBrand.brandId}`, formData);
-        if (response.status === 200 || response.status === 201) {
-          const updateBrand = response.data;
-          if (updateBrand && updateBrand.brandId) {
-            setBrands((prevBrands) =>
-              prevBrands.map((brand) =>
-                brand.brandId === updateBrand.brandId
-                  ? { ...brand, brandName: updateBrand.brandName, imageUrl: updateBrand.imageUrl }
-                  : brand
-              )
+      const uploadResponse = await axios.post('/api/imageupload/uploads/', formData);
+      const data = uploadResponse?.data;
+
+      if (data && data.image_paths) {
+        const updatedBrandResponse = await axios.put(`/api/brands/${selectedBrand.brandId}`, {
+          brand_name: editNameBrand,  
+          image_url: data.image_paths[0],  
+          brand_id: selectedBrand.brandId 
+        });
+
+        const updatedBrand = updatedBrandResponse.data;
+
+        if (updatedBrand && updatedBrand.brandId) {
+          console.log('✅ Brand updated successfully:', updatedBrand);
+          setBrands((prevBrands) =>
+            prevBrands.map((brand) =>
+              brand.brandId === updatedBrand.brandId
+                ? { ...brand, brandName: updatedBrand.brandName, imageUrl: updatedBrand.imageUrl }
+                : brand
             )
-            seteditBrandImage(null)
-            setEditNameBrand('')
-            seteditMode(false)
-          } else {
-            console.error("The updated category data is invalid.");
-          }
+          );
+
+          setSelectedBrand(null)
+          seteditBrandImage(null);
+          setEditNameBrand('');
+          seteditMode(false);
+        } else {
+          console.error('The updated brand data is invalid.');
+        }
+      } else {
+        throw new Error('No image URL returned from upload response.');
       }
-    } catch (err) {
-        console.error(`Error updating brand: ${err}`);
+    } catch (error) {
+      console.error('Error updating brand:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -127,9 +188,16 @@ const DashboardBrand: React.FC = () => {
     }
   };
 
+  const cancelAddBrand = () => {
+    dispatchBrand({
+    type:'CANCEL_BRAND',
+    payload:initialBrandState
+    })
+    setIsCreating(false)
+  }
 
   return (
-    <div className={`${worksans.className} border border-greyColor font-extrabold rounded p-4 w-full flex flex-col space-y-1`}>
+    <div className={`${worksans.className}  bg-mainBackgroundColor border border-greyColor font-extrabold rounded p-4 w-full flex flex-col space-y-1`}>
       <h1 className="text-primaryColor text-xl">BRAND</h1>
       <div className="flex items-center gap-x-2 text-xl">
         <SearchTextAdmin 
@@ -137,11 +205,9 @@ const DashboardBrand: React.FC = () => {
         value={searchTerm}
         onChange={(e) => {setSearchTerm(e.target.value)}}
         />
-
         <IconButton 
         icon='/icons/addicon.svg'
         altText='Add Icon'
-        text='ADD'
         onClick={() => {
         setIsCreating(true) 
         setSelectedBrand(null)
@@ -168,147 +234,156 @@ const DashboardBrand: React.FC = () => {
       )}
 
       {selectedBrand && (
-        <div className="mt-4 text-primaryColor border border-greyColor p-4 rounded">
-
-          <div className='flex flex-row justify-between p-2'>
-            <h3 className="text-base text-secondary">BRAND SELECTED - <span className='text-primaryColor'>{selectedBrand.brandName.toUpperCase()}</span></h3>
-            <IconButton 
-            icon='/icons/closeicon.svg'
-            altText='Close Icon'
-            text='CANCEL'
-            onClick={() => {
-            setSelectedBrand(null)
-            seteditMode(false)
-            }}
-            iconSize={8}
-            />
-          </div>
-          <div className="flex flex-col items-center justify-center gap-y-4">
-            <div className='w-full items-center flex flex-col'>
-              {!editMode ? (
-              <div className='relative h-28 w-52 brandsBackGround rounded'>
-                <Image 
-                src={`${baseURL}${selectedBrand.imageUrl}`} 
-                alt={selectedBrand.brandName} 
-                fill
-                className="object-contain" 
-                />
-              </div>
-              ) : (
-              <>
-              <div className="w-full flex flex-col items-center">
-                <div className='relative h-28 w-52 brandsBackGround rounded items-center text-center justify-center justify-items-center'>
-                  {editBrandImage ? (
-                    <Image 
-                      src={URL.createObjectURL(editBrandImage)} 
-                      alt="newbrandimage"
-                      fill
-                      className="object-contain"
-                    />
-                  ) : (
-                    <>
-                    <ImageIconUpload
-                    uploadImage='/icons/imageupload.svg'
-                    onFileChange={(file) => seteditBrandImage(file)}
-                    />
-                    <h1>No Selected Image</h1>
-                    </>
-                  )}
-                </div>
-              </div>
-              </>
-              )}
-              
-            </div>
-            <DashBoardButtonLayoutOption>
-              {!editMode && (
-              <>
-              <IconButton 
-                icon='/icons/editicon.svg'
-                altText='Edit Icon'
-                text='EDIT'
-                onClick={() => seteditMode(true)}
-                iconSize={8}
-              />
-              <IconButton 
-                icon='/icons/deleteicon.svg'
-                altText='Delete Icon'
-                text='Delete'
-                onClick={handleDeleteBrand}
-                iconSize={8}
-              />
-              </>
-              )}
-
-              {editMode && (
-              <>
-              <SearchTextAdmin 
-              placeholderText="Edit Brand Name"
-              value={editNameBrand}
-              onChange={(e) => setEditNameBrand(e.target.value)}
-              />
-
-              <IconButton 
-              icon='/icons/checkicon.svg'
-              altText='Add Icon'
-              text='ADD'
-              onClick={handleUpdateBrand}
-              iconSize={8}
-              />
-
-              <IconButton 
-              icon='/icons/closeicon.svg'
-              altText='Close Icon'
-              text='Cancel'
-              onClick={() => {
-              seteditMode(false)
-              setEditNameBrand('')
-              }}
-              iconSize={8}
-              />
-              </>
-              )}
-
-            </DashBoardButtonLayoutOption>
-          </div>
+      <div className="mt-4 text-primaryColor border border-greyColor p-4 rounded">
+        <div className='flex flex-row justify-between p-2'>
+          <h3 className="text-base text-secondary">BRAND SELECTED - <span className='text-primaryColor'>{selectedBrand.brandName.toUpperCase()}</span></h3>
+          <IconButton 
+          icon='/icons/closeicon.svg'
+          altText='Close Icon'
+          onClick={() => {
+          setSelectedBrand(null)
+          seteditMode(false)
+          }}
+          iconSize={8}
+          />
         </div>
-      )}
-
-      {isCreating && (
-        <div className="mt-4 p-4 text-primaryColor border border-greyColor">
-          
-          <div className='flex flex-row justify-between p-2'>
-            <h3 className="text-lg">ADD NEW BRAND</h3>
-            <IconButton 
-            icon='/icons/closeicon.svg'
-            altText='Close Icon'
-            text='CANCEL'
-            onClick={() => setIsCreating(false)}
-            iconSize={8}
-            />
-          </div>
-
-          <div className="space-y-4">
-            <SearchTextAdmin 
-            placeholderText="Brand Name"
-            value={newBrandName}
-            onChange={(e) => setNewBrandName(e.target.value)}
-            />
-            <div className="w-full flex flex-col items-center">
-              <ImageIconUpload
-              uploadImage='/icons/imageupload.svg'
-              onFileChange={(file) => setNewBrandImage(file)}
+        <div className="flex flex-col items-center justify-center gap-y-4">
+          <div className='w-full items-center flex flex-col'>
+            {!editMode ? (
+            <div className='relative h-45 w-50 p-2 border brandsBackGround border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center'>
+              <Image 
+              src={`${selectedBrand.imageUrl}`} 
+              alt={selectedBrand.brandName} 
+              fill
+              className="object-contain" 
               />
-              <div className='relative h-28 w-52 brandsBackGround rounded items-center text-center justify-center'>
-                {newBrandImage ? (
+            </div>
+            ) : (
+            <>
+            <div className="w-full flex flex-col items-center">
+              <div className='relative h-45 w-50 p-2 border brandsBackGround border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center'>
+                {editBrandImage ? (
                   <Image 
-                    src={URL.createObjectURL(newBrandImage)} 
+                    src={URL.createObjectURL(editBrandImage)} 
                     alt="newbrandimage"
                     fill
                     className="object-contain"
                   />
                 ) : (
+                  <>
+                  <ImageIconUpload
+                  uploadImage='/icons/imageupload.svg'
+                  maxImages={1}
+                  onFileChange={(file: File) => 
+                    seteditBrandImage(file)
+                  }
+                  />
                   <h1>No Selected Image</h1>
+                  </>
+                )}
+              </div>
+            </div>
+            </>
+            )}
+            
+          </div>
+          <DashBoardButtonLayoutOption>
+            {!editMode && (
+            <>
+            <IconButton 
+              icon='/icons/editicon.svg'
+              altText='Edit Icon'
+              onClick={() => seteditMode(true)}
+              iconSize={8}
+            />
+            <IconButton 
+              icon='/icons/deleteicon.svg'
+              altText='Delete Icon'
+              onClick={handleDeleteBrand}
+              iconSize={8}
+            />
+            </>
+            )}
+
+            {editMode && (
+            <>
+            <SearchTextAdmin 
+            placeholderText="Edit Brand Name"
+            value={editNameBrand}
+            onChange={(e) => setEditNameBrand(e.target.value)}
+            />
+
+            <IconButton 
+            icon='/icons/checkicon.svg'
+            altText='Add Icon'
+            onClick={handleUpdateBrand}
+            iconSize={8}
+            />
+
+            <IconButton 
+            icon='/icons/closeicon.svg'
+            altText='Close Icon'
+            onClick={() => {
+            seteditMode(false)
+            setEditNameBrand('')
+            }}
+            iconSize={8}
+            />
+            </>
+            )}
+
+          </DashBoardButtonLayoutOption>
+        </div>
+      </div>
+      )}
+
+      {isCreating && (
+        <div className="mt-4 p-4 text-primaryColor border border-greyColor">
+          <div className='flex flex-row justify-between p-2'>
+            <h3 className="text-lg">ADD NEW BRAND</h3>
+            <IconButton 
+            icon='/icons/closeicon.svg'
+            altText='Close Icon'
+            onClick={() => {
+            cancelAddBrand()
+            }}
+            iconSize={8}
+            />
+          </div>
+          <div className="space-y-4">
+            <InputText
+              placeholder="BRAND NAME"
+              value={brandState.brandName ? brandState.brandName : ''}
+              onChange={(e) => {
+                dispatchBrand({
+                type:'BRAND_NAME',
+                payload:e.target.value
+                })
+              }}
+            />
+            <div className="w-full flex flex-col items-center">
+              <div className='relative h-45 w-50 p-2 border brandsBackGround border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center'>
+                {!brandState.imageUrl && (
+                <ImageIconUpload
+                uploadImage='/icons/imageupload.svg'
+                maxImages={1}
+                onFileChange={(file: File) => {
+                  dispatchBrand({
+                  type:'BRAND_IMAGE',
+                  payload:file
+                  })
+                }}
+                />
+                )}
+                {brandState.imageUrl ? (
+                <Image 
+                src={URL.createObjectURL(brandState.imageUrl)} 
+                alt="newbrandimage"
+                fill
+                className="object-contain"
+                />
+                ) : (
+                <h1 className='text-secondary group-hover:text-primaryColor'>No Selected Image</h1>
                 )}
               </div>
             </div>
@@ -316,7 +391,6 @@ const DashboardBrand: React.FC = () => {
               <IconButton 
               icon='/icons/addicon.svg'
               altText='Add Icon'
-              text='ADD'
               onClick={handleAddBrand}
               iconSize={8}
               />
@@ -324,11 +398,8 @@ const DashboardBrand: React.FC = () => {
               <IconButton 
               icon='/icons/closeicon.svg'
               altText='Delete Icon'
-              text='DELETE'
               onClick={() => {
-              setIsCreating(false)
-              setNewBrandName('')
-              setNewBrandImage(null)
+              cancelAddBrand()
               }}
               iconSize={8}
               />
@@ -339,24 +410,6 @@ const DashboardBrand: React.FC = () => {
           
         </div>
       )}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </div>
   );
 };

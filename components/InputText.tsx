@@ -6,29 +6,17 @@ interface InputTextProps {
   placeholder: string;
   type?: string;
   className?: string; 
-  isNumber?:boolean;
 }
 
 const InputText: React.FC<InputTextProps> = ({
 value,
 onChange,
 placeholder,
-isNumber = false,
 type = 'text',
 className = '' 
 }) => { 
   
-  let numericConverter = (number: string | undefined) => {
-    let numericPrice = Number(number);
-    let formattedNumber = numericPrice.toLocaleString("en-PH", {
-      style: "currency",
-      currency: "PHP",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
 
-    return formattedNumber;
-  };
 
 
   return (

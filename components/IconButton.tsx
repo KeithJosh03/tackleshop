@@ -4,8 +4,7 @@ import Image from 'next/image';
 interface IconButtonProps {
   icon: string;    
   altText: string;   
-  text: string; 
-  onClick: () => void;  
+  onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   className?: string;  
   iconSize?: number;  
 }

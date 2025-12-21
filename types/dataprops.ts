@@ -1,4 +1,3 @@
-import { number } from "framer-motion";
 
 type discountType = "Unit" | "Percent";
 
@@ -8,6 +7,11 @@ brandId: number;
 brandName: string;
 imageUrl?: string | null;
 }
+
+export interface ProductMedia {
+    
+}
+
 
 export interface CategoryProps {
 categoryId: number;
@@ -55,7 +59,7 @@ isMain:number;
 export interface ProductDetailVariantProps {
 productId:number;
 variantId:number;
-name:string;
+variantName:string;
 price:string;
 discountPrice:string;
 discountType:discountType;
@@ -72,7 +76,7 @@ brandName:string;
 specification:string | null;
 features:string  | null;
 description: string  | null;
-typeName:string;
+subCategoryName:string;
 productVariant: ProductDetailVariantProps[];
 }
 
@@ -82,7 +86,7 @@ productVariant: ProductDetailVariantProps[];
 export interface ProductCollectionProps{
 productId:number;
 basePrice:number;
-categoryType:string;
+subCategory:string;
 discountType: discountType | null;
 brandName:string;
 productName:string;

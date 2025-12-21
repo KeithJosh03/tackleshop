@@ -23,7 +23,7 @@ export default function CollectionComponentLayout({
       `}
     >
       <h1 className="text-primaryColor font-bold text-4xl mb-4">
-        {`${categoryName} Collection`}
+        {`${categoryName.toUpperCase()} COLLECTION`}
       </h1>
 
       <div className="relative w-full">

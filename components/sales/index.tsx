@@ -17,6 +17,9 @@ collectioncategories:DiscountProductCollection[];
 
 
 
+
+
+
 export default function Discounts() {
     let [discountProducts, setDiscountProducts] = useState<DiscountProductCollection[]>();
 

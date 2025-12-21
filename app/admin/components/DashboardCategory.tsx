@@ -213,7 +213,7 @@ export default function DashboardCategory() {
 
 
   return (
-    <div className={`${worksans.className} border border-greyColor font-extrabold rounded p-4 w-full flex flex-col space-y-1`}>
+    <div className={`${worksans.className} bg-mainBackgroundColor border border-greyColor font-extrabold rounded p-4 w-full flex flex-col space-y-1`}>
       <h3 className="text-base text-primaryColor">
         CATEGORY 
         {categories.length === 0 && (

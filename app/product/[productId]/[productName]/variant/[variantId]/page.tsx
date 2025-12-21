@@ -2,12 +2,12 @@
 
 import { useParams , useRouter} from "next/navigation";
 import { useEffect, useState } from "react";
+import { numericConverter, UnitPriceDiscount, PercentPriceDiscount } from "@/utils/priceUtils";
 import axios from "axios";
 import Image from "next/image";
 import { worksans } from "@/types/fonts";
 import slugify from "slugify";
 import { motion } from "framer-motion";
-
 
 import { 
   ProductDetailsProps, 
@@ -20,6 +20,8 @@ interface ProductDetailsPropsResponse {
   productdetail:ProductDetailsProps;
 }
 
+
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
 
 
 
@@ -113,23 +115,6 @@ export default function Product() {
     }
   };
 
-  let numericConverter = (number: string | undefined) => {
-    if (number === undefined) {
-      return "₱ 0.00"; // Handle undefined case
-    }
-    
-    let numericPrice = Number(number);
-    let formattedNumber = numericPrice.toLocaleString("en-PH", {
-      style: "currency",
-      currency: "PHP",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-
-    return formattedNumber;
-  };
-
-
   const UnitDiscount = (price: string, discountPrice: string) => {
     const discountedPrice = (parseFloat(price) - parseFloat(discountPrice)).toFixed(2);
     return discountedPrice;
@@ -158,37 +143,39 @@ export default function Product() {
           <h1 className="text-primaryColor text-4xl font-bold">
             {productDetails?.productName}
           </h1>
-          {productDetails?.typeName && (
+          {selectedVariant && (
+            <h3 className={`text-xl font-bold text-secondary`}>
+              {selectedVariant?.variantName}
+            </h3>
+          )}
+          {productDetails?.subCategoryName && (
             <h3 className={`text-lg font-bold ${selectedVariant?.discountType === null ? 'text-tertiaryColor' : 'text-secondary'}`}>
-              {productDetails?.typeName}
+              {productDetails?.subCategoryName}
             </h3>
           )}
           
           {selectedVariant?.price !== null && selectedVariant?.discountType !== null ? (
-              <>
-                <h2 className="text-tertiaryColor text-sm font-bold line-through opacity-70">
-                  {numericConverter(selectedVariant?.price)}
-                </h2>
-                <h2 className="text-primaryColor text-xl font-extrabold">
-                  {selectedVariant?.discountType === 'Unit' ? 
-                    numericConverter(UnitDiscount(selectedVariant?.price, selectedVariant?.discountPrice)) 
-                    : 
-                    numericConverter(PercentageDiscount(selectedVariant?.price, selectedVariant?.discountPrice))}
-                </h2>
-                <p className="text-xs text-green-400 font-medium">
-                  {selectedVariant?.discountType == 'Unit' ? 
-                    `Discounted ${numericConverter(selectedVariant?.discountPrice)}` :
-                    `${selectedVariant?.discountPrice}% Off`}
-                </p>
-              </>
+            <>
+              <h2 className="text-tertiaryColor text-sm font-bold line-through opacity-70">
+                {numericConverter(String(selectedVariant?.price))}  
+              </h2>
+              <h2 className="text-primaryColor text-xl font-extrabold">
+                {selectedVariant?.discountType === 'Unit' 
+                  ? numericConverter(UnitDiscount(selectedVariant?.price ?? "0", selectedVariant?.discountPrice ?? "0"))
+                  : numericConverter(PercentageDiscount(selectedVariant?.price ?? "0", selectedVariant?.discountPrice ?? "0"))} 
+              </h2>
+              <p className="text-xs text-green-400 font-medium">
+                {selectedVariant?.discountType == 'Unit' 
+                  ? `Discounted ${numericConverter(selectedVariant?.discountPrice ?? "0")}` 
+                  : `${selectedVariant?.discountPrice ?? "0"}% Off`}  
+              </p>
+            </>
             ) : (
               <h2 className="text-primaryColor text-xl font-bold">
                 {numericConverter(selectedVariant?.price)}
               </h2>
             )
           }
-
-
 
 
           {productDetails?.productVariant.length === 1 ? (
@@ -206,7 +193,7 @@ export default function Product() {
                         : "border border-secondary text-primaryColor hover:bg-primaryColor/10"
                     }`}
                 >
-                  {variant.name}
+                  {variant.variantName}
                 </button>
               ))}
             </div>
@@ -250,7 +237,7 @@ export default function Product() {
         <div className="w-full max-w-[auto] h-[700px] relative">
           {selectedImage && (
             <Image
-              src={`/product/${selectedImage}`}
+              src={`${baseURL}${selectedImage}`} 
               alt={productDetails?.productName || "Product"}
               fill
               className="object-contain rounded-lg"
@@ -275,7 +262,7 @@ export default function Product() {
                   }`}
               >
                 <Image
-                  src={`/product/${img.url}`}
+                  src={`${baseURL}${img.url}`} 
                   alt={`Thumbnail ${idx + 1}`}
                   fill
                   className="object-cover"

@@ -1,52 +1,49 @@
 import Image from "next/image";
 import Link from "next/link";
 import { worksans, inter } from "@/types/fonts";
-import { ProductCollectionProps } from "@/types/dataprops";
 import { slugify } from "@/utils/slugify";
 
-export default function CollectionCard({ product }: { product: ProductCollectionProps }) {
-  console.log(product);
+import { numericConverter } from "@/utils/priceUtils";
+import { ProductCollections } from "@/lib/api/categoryService";
+
+export default function CollectionCard({ product }: { product: ProductCollections }) {
   const { 
-  productId, 
-  basePrice, 
-  brandName, 
-  productName, 
-  imageThumbNail,
-  categoryType, 
-  discountType } = product;
+    productId, 
+    basePrice, 
+    brandName, 
+    productTitle, 
+    productThumbNail,
+    subCategoryName 
+  } = product;
 
-  let numericPrice = Number(basePrice);
-
-  let formattedPrice = numericPrice.toLocaleString("en-PH", {
-    style: "currency",
-    currency: "PHP"
-  });
-
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
   return (
-    <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}`}>
+    <Link 
+    href={`/product/${productId}/${slugify(productTitle).toLowerCase()}`}>
       <div
       className={`
       ${worksans.className}
-      group relative flex flex-col items-center justify-start
-      rounded-xl border border-greyColor hover:border-primaryColor
+      group relative flex flex-col items-center justify-start border border-greyColor
+      rounded-xl hover:border hover:border-primaryColor
+      bg-blackgroundColor
       text-left
       transition-all duration-300 hover:-translate-y-1
       p-5 h-full `}>
         <div
         className="relative w-full aspect-square flex items-center justify-center
-        overflow-hidden rounded-lg bg-blackgroundColor"
+        overflow-hidden rounded-lg bg-mainBackgroundColor"
         >
           <Image
-            src={`/product/${imageThumbNail}`}
-            alt={brandName || productName}
+            src={`${baseURL}${productThumbNail}`} 
+            alt={`${brandName}` || `${productTitle}`}
             fill
             className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
           />
-          {discountType && (
+          {/* {discountType && (
           <div className="absolute top-2 left-2 cards-tag">
             Sale
           </div>
-          )}
+          )} */}
         </div>
 
         <div className="flex flex-col items-center justify-center text-center mt-5 w-full">
@@ -56,15 +53,15 @@ export default function CollectionCard({ product }: { product: ProductCollection
             leading-snug line-clamp-2 h-[2.7rem]
           "
           >
-            {productName}
+            {productTitle.toUpperCase()}
           </h3>
           <p className="font-medium text-[0.85rem] text-gray-400 mt-1">
-            {categoryType}
+            {subCategoryName.toUpperCase()}
           </p>
           <p
           className={`${inter.className} font-semibold text-[1rem] sm:text-[1.0rem] text-primaryColor mt-2`}
           >
-           {formattedPrice}
+          {numericConverter(String((basePrice)))}
           </p>
         </div>
       </div>

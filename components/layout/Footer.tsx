@@ -7,7 +7,7 @@ import { socials } from "@/types/socials";
 
 export default function Footer() {
   return (
-    <footer className={`${inter.className} relative z-10 text-white h-fit w-full flex flex-col items-center border-t border-greyColor`}>
+    <footer className={`${inter.className} bg-mainBackgroundColor relative z-10 text-white h-fit w-full flex flex-col items-center border-t border-greyColor`}>
       <div className="w-full flex flex-col justify-items-center text-center items-center gap-y-2 py-6">
         {/* <div className="flex flex-col items-center justify-items-center">
           <div className="relative w-60 h-24 self-center">
