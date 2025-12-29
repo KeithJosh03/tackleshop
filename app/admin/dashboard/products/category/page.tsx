@@ -1,6 +1,8 @@
 import React from 'react'
-import DashboardBrand from '@/app/admin/components/DashboardBrand';
-import DashboardCategory from '@/app/admin/components/DashboardCategory';
+import { 
+DashboardBrandCreate,
+DashboardCategoryCreate
+} from '@/components';
 
 export default function page() {
     return (
@@ -9,8 +11,8 @@ export default function page() {
         <h1 className='text-primaryColor text-2xl font-extrabold'>PRODUCT CATEGORIES</h1>
         </div>
         <div className='flex flex-row space-x-4'>
-            <DashboardBrand />
-            <DashboardCategory />
+            <DashboardBrandCreate />
+            <DashboardCategoryCreate />
         </div>
     </div>      
     )

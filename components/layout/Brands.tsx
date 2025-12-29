@@ -29,7 +29,7 @@ export default function Brands() {
   }, []);
 
   return (
-    <section className={`${worksans.className} h-fit w-full flex flex-col items-center justify-center text-tertiaryColor py-6 gap-y-4 brandsBackGround`}>
+    <section className={`${worksans.className} h-fit w-full flex flex-col items-center brandsBackGround border-t border-b border-greyColor  justify-center text-tertiaryColor py-6 gap-y-4`}>
       <h1 className="text-primaryColor font-extrabold text-4xl">BRANDS</h1>
       <p className={`${inter.className} font-bold text-xl text-center px-4`}>
         🎣 Only at Smooth Tackles Shop — where your next catch begins.

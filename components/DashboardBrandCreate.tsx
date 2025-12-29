@@ -47,7 +47,7 @@ function NewBrandReducer(
 }
 
 
-const DashboardBrand = () => {
+const DashboardBrandCreate = () => {
     const initialBrandState: BrandReduceProps = {
       brandName:'',
       imageUrl:null
@@ -414,4 +414,4 @@ const DashboardBrand = () => {
   );
 };
 
-export default DashboardBrand;
+export default DashboardBrandCreate;

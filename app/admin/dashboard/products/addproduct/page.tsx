@@ -1,18 +1,22 @@
 'use client';
 import { useReducer } from 'react';
 import { usePathname } from 'next/navigation'; 
-import InputText from '@/components/InputText';
-import TextBox from '@/components/TextBox';
-import CustomButton from '@/components/CustomButton';
-import InputPrice from '@/components/InputPrice';
+
 import { UIComponentReducer, initialUIComponent } from '@/lib/api/reDucer';
 import { createProduct } from '@/lib/api/productService';
-import ProductMedia from './ProductMedia';
 
-import Brand from './brand';
-import Category from './category';
-import SubCategorySelection from './subCategorySelection';
-import VariantComponent from './VariantsComponent';
+import {
+  InputText,
+  TextBox,
+  CustomButton,
+  InputPrice,
+  DashboardSelectBrand,
+  DashboardSelectCategory,
+  DashboardSelectSubCategory,
+  ProductMedia,
+  DashboardVariantsComponent,
+} from '@/components'
+
 
 export interface VariantDetails{
   variantTypeName: string;
@@ -44,6 +48,7 @@ interface ProductDetails {
 }
 
 export type ProductDetailAction = 
+ | { type: 'CLEAR_INPUTS'; payload: ProductDetails} 
  | { type: 'UPDATE_PRODUCT_TITLE'; payload: string} 
  | { type: 'UPDATE_BASE_PRICE'; payload: string} 
  | { type: 'UPDATE_DESCRIPTION'; payload: string | null} 
@@ -52,8 +57,11 @@ export type ProductDetailAction =
  | { type: 'ADD_MEDIAS'; payload: ProductImage[] } 
  | { type: 'ADD_VARIANTS'; payload: VariantDetails } 
  | { type: 'SELECT_BRAND'; payload: number}  
+ | { type: 'SELECT_BRAND_DELETE';}  
  | { type: 'SELECT_CATEGORY'; payload: number} 
+ | { type: 'SELECT_CATEGORY_DELETE'; } 
  | { type: 'SELECT_SUBCATEGORY'; payload:number} 
+ | { type: 'SELECT_SUBCATEGORY_DELETE';} 
  | { type: 'UPDATE_MAIN_IMAGE'; payload:number} 
  | { type: 'DELETE_PRODUCT_IMAGE'; payload:number}
  | { type: 'SELECT_PRODUCT_IMAGE_THUMBNAIL'; payload:number}
@@ -68,6 +76,9 @@ function ProductDetailReducer(
   action: ProductDetailAction
 ): ProductDetails {
   switch (action.type) {
+    case 'CLEAR_INPUTS' : {
+      return {...action.payload}
+    }
     case "UPDATE_PRODUCT_TITLE": {
       return { ...state, productTitle: action.payload };
     }
@@ -105,17 +116,35 @@ function ProductDetailReducer(
         brandId: action.payload,
       };
     }
+    case 'SELECT_BRAND_DELETE': {
+      return {
+        ...state,
+        brandId:null
+      }
+    }
     case "SELECT_CATEGORY": {
       return {
         ...state,
         categoryId: action.payload,
       };
     }
+    case "SELECT_CATEGORY_DELETE": {
+      return {
+        ...state,
+        categoryId:null
+      }
+    }
     case "SELECT_SUBCATEGORY": {
       return {
         ...state,
         subCategoryId: action.payload,
       };
+    }
+    case "SELECT_SUBCATEGORY_DELETE": {
+      return {
+        ...state,
+        subCategoryId:null
+      }
     }
     case "UPDATE_MAIN_IMAGE": {
       const updatedMedias = state.medias.map((media, index) => ({
@@ -287,7 +316,11 @@ function ProductDetailReducer(
   const handleProductAdd = async () => {
     let validated = handleValidateProductDetail()
     if(validated){
-      createProduct(ProductDetailState)
+      await createProduct(ProductDetailState)
+      dispatchProductDetail({
+        type:'CLEAR_INPUTS',
+        payload:initialProductDetailState
+      })
     }
     else {
       alert('wrong inputs')
@@ -296,134 +329,132 @@ function ProductDetailReducer(
   }
 
   return (
-    <div className='grid grid-cols-6 gap-2'>
-      <div className='col-span-4 flex flex-col gap-y-2'>
-        <div className='flex flex-col border border-greyColor p-2 gap-y-4 font-extrabold rounded bg-mainBackgroundColor'>
-          <div className='flex flex-row justify-between items-center justify-items-center p-2'>
-            <h3 className="text-2xl text-primaryColor font-extrabold">
-            PRODUCT DETAILS
-            </h3>
-            <CustomButton 
-            text='SAVE PRODUCT'
-            onClick={handleProductAdd}
-            />
-          </div>
-          <div className='flex flex-row border-t border-greyColor'>
-            <div className='flex-1 flex flex-col gap-y-2 p-2'>
-              <h1 className='text-primaryColor text-lg'>PRODUCT TITLE</h1>
-              <InputText
-              placeholder="Product Title"
-              value={ProductDetailState.productTitle}
-              onChange={(e) => {
-                dispatchProductDetail({
-                type:'UPDATE_PRODUCT_TITLE',
-                payload:e.target.value
-                });
-              }}
-              />
-              <p className='text-sm text-secondary'>A product title is required</p>
-            </div>
-            <div className='flex-1 flex flex-col gap-y-2 p-2'>
-              <h1 className='text-primaryColor text-lg'>BASE PRICE</h1>
-              <InputPrice
-              isUnit={true}
-              placeholder="Base Price"
-              value={`${ProductDetailState.basePrice}`}
-              onChange={(e) => {
-                dispatchProductDetail({
-                type:'UPDATE_BASE_PRICE',
-                payload:e.target.value
-                });
-              }}
-              />
-              <p className='text-sm text-secondary'>A base price is required</p>
-            </div>
-          </div>
-
-          <div className='flex flex-col border-t border-greyColor'>
-            <TextBox 
-            onClick={() => {
-              dispatchInitialUIComponent({
-              type: 'UPDATE_FIELD',
-              field: 'descriptionUI',
-              value: !initialUIComponentState.descriptionUI,
-              });
-            }}
-            categoryLength={ProductDetailState.description ? ProductDetailState.description.length : 0}
-            textBoxCategory='DESCRIPTION'
-            isOpenBox={initialUIComponentState.descriptionUI}
-            textBoxValue={ProductDetailState.description || ''}
-            onChange={(e) => {
-              dispatchProductDetail({
-              type:"UPDATE_DESCRIPTION",
-              payload:e.target.value
-              });
-            }}
-            />
-            <TextBox 
-              onClick={() => {
-                dispatchInitialUIComponent({
-                type: 'UPDATE_FIELD',
-                field: 'specificationsUI',
-                value: !initialUIComponentState.specificationsUI,
-                });
-            }}
-            categoryLength={ProductDetailState.specifications ? ProductDetailState.specifications.length : 0}
-            textBoxCategory='SPECIFICATIONS'
-            isOpenBox={initialUIComponentState.specificationsUI}
-            textBoxValue={ProductDetailState.specifications || ''}
-            onChange={(e) => {
-              dispatchProductDetail({
-              type:"UPDATE_SPECIFICATIONS",
-              payload:e.target.value
-              });
-            }}
-            />
-            <TextBox 
-            onClick={() => {
-              dispatchInitialUIComponent({
-              type: 'UPDATE_FIELD',
-              field: 'featuresUI',
-              value: !initialUIComponentState.featuresUI,
-              });
-            }}
-            categoryLength={ProductDetailState.features ? ProductDetailState.features.length : 0}
-            textBoxCategory='FEATURES'
-            isOpenBox={initialUIComponentState.featuresUI}
-            textBoxValue={ProductDetailState.features || ''}
-            onChange={(e) => {
-              dispatchProductDetail({
-              type: "UPDATE_FEATURES",
-              payload:e.target.value
-              })
-            }}
-            />
-          </div>
-          <div className='border-t border-greyColor flex flex-row p-4 gap-x-4'>
-            <Brand 
-              dispatchProductDetail={dispatchProductDetail}
-            />
-            <Category 
-              dispatchProductDetail={dispatchProductDetail}
-            />
-            {ProductDetailState.categoryId && (
-            <SubCategorySelection 
-              dispatchProductDetail={dispatchProductDetail}
-              categoryId={ProductDetailState.categoryId}
-            />)}
-          </div>
-        </div>
-        <ProductMedia 
-          medias={ProductDetailState.medias}
-          dispatchProductDetail={dispatchProductDetail}
-        />
-        <VariantComponent 
-          variantsList={ProductDetailState.variants}
-          basePrice={ProductDetailState.basePrice}
-          dispatchProductDetail={dispatchProductDetail}
+  <div className='flex flex-col gap-y-2'>
+    <div className='flex flex-col border border-greyColor p-2 gap-y-4 font-extrabold rounded bg-blackgroundColor'>
+      <div className='flex flex-row justify-between items-center justify-items-center p-2'>
+        <h3 className="text-2xl text-primaryColor font-extrabold">
+        PRODUCT DETAILS ADD
+        </h3>
+        <CustomButton 
+        text='SAVE PRODUCT'
+        onClick={handleProductAdd}
         />
       </div>
+      <div className='flex flex-row border-t border-greyColor'>
+        <div className='flex-1 flex flex-col gap-y-2 p-2'>
+          <h1 className='text-primaryColor text-lg'>PRODUCT TITLE</h1>
+          <InputText
+          placeholder="Product Title"
+          value={ProductDetailState.productTitle}
+          onChange={(e) => {
+            dispatchProductDetail({
+            type:'UPDATE_PRODUCT_TITLE',
+            payload:e.target.value
+            });
+          }}
+          />
+          <p className='text-sm text-secondary'>A product title is required</p>
+        </div>
+        <div className='flex-1 flex flex-col gap-y-2 p-2'>
+          <h1 className='text-primaryColor text-lg'>BASE PRICE</h1>
+          <InputPrice
+          isUnit={true}
+          placeholder="Base Price"
+          value={`${ProductDetailState.basePrice}`}
+          onChange={(e) => {
+            dispatchProductDetail({
+            type:'UPDATE_BASE_PRICE',
+            payload:e.target.value
+            });
+          }}
+          />
+          <p className='text-sm text-secondary'>A base price is required</p>
+        </div>
+      </div>
+
+      <div className='flex flex-col border-t border-greyColor'>
+        <TextBox 
+        onClick={() => {
+          dispatchInitialUIComponent({
+          type: 'UPDATE_FIELD',
+          field: 'descriptionUI',
+          value: !initialUIComponentState.descriptionUI,
+          });
+        }}
+        categoryLength={ProductDetailState.description ? ProductDetailState.description.length : 0}
+        textBoxCategory='DESCRIPTION'
+        isOpenBox={initialUIComponentState.descriptionUI}
+        textBoxValue={ProductDetailState.description || ''}
+        onChange={(e) => {
+          dispatchProductDetail({
+          type:"UPDATE_DESCRIPTION",
+          payload:e.target.value
+          });
+        }}
+        />
+        <TextBox 
+          onClick={() => {
+            dispatchInitialUIComponent({
+            type: 'UPDATE_FIELD',
+            field: 'specificationsUI',
+            value: !initialUIComponentState.specificationsUI,
+            });
+        }}
+        categoryLength={ProductDetailState.specifications ? ProductDetailState.specifications.length : 0}
+        textBoxCategory='SPECIFICATIONS'
+        isOpenBox={initialUIComponentState.specificationsUI}
+        textBoxValue={ProductDetailState.specifications || ''}
+        onChange={(e) => {
+          dispatchProductDetail({
+          type:"UPDATE_SPECIFICATIONS",
+          payload:e.target.value
+          });
+        }}
+        />
+        <TextBox 
+        onClick={() => {
+          dispatchInitialUIComponent({
+          type: 'UPDATE_FIELD',
+          field: 'featuresUI',
+        value: !initialUIComponentState.featuresUI,
+          });
+        }}
+        categoryLength={ProductDetailState.features ? ProductDetailState.features.length : 0}
+        textBoxCategory='FEATURES'
+        isOpenBox={initialUIComponentState.featuresUI}
+        textBoxValue={ProductDetailState.features || ''}
+        onChange={(e) => {
+          dispatchProductDetail({
+          type: "UPDATE_FEATURES",
+          payload:e.target.value
+          })
+        }}
+        />
+      </div>
+      <div className='border-t border-greyColor flex flex-row p-4 gap-x-4'>
+        <DashboardSelectBrand 
+          dispatchProductDetail={dispatchProductDetail}
+        />
+        <DashboardSelectCategory 
+          dispatchProductDetail={dispatchProductDetail}
+        />
+        {ProductDetailState.categoryId && (
+        <DashboardSelectSubCategory 
+          dispatchProductDetail={dispatchProductDetail}
+          categoryId={ProductDetailState.categoryId}
+        />)}
+      </div>
     </div>
+    <ProductMedia 
+      medias={ProductDetailState.medias}
+      dispatchProductDetail={dispatchProductDetail}
+    />
+    <DashboardVariantsComponent 
+      variantsList={ProductDetailState.variants}
+      basePrice={ProductDetailState.basePrice}
+      dispatchProductDetail={dispatchProductDetail}
+    />
+  </div>
   )
 }
 

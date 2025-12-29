@@ -1,16 +1,14 @@
 'use client';
 import { worksans } from '@/types/fonts'
-import DashboardHeader from '../components/DashboardHeader';
-import DashboardLayoutMain from '../components/DashboardLayoutMain';
-    
+import DashboardHeader from '@/components/DashboardHeader';
 
 export default function DashboardLayoutComponent({ children } : {children:React.ReactNode}) {
     return (
-    <div className={`${worksans.className} flex flex-row px-30 py-40 gap-x-2 w-full h-screen justify-items-center`}>
+    <div className={`${worksans.className} flex flex-col px-60 py-40 gap-y-2 h-screen justify-items-center items-center`}>
         <DashboardHeader />
-        <DashboardLayoutMain>
+        <main className='flex-1 w-full flex flex-col gap-y-2'>
         {children}
-        </DashboardLayoutMain>
+        </main>
     </div>
     )
 }

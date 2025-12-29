@@ -117,13 +117,13 @@ productName:string;
 // CategoryProducts 
 export interface CategorizeProduct {
 productId:number;
-productName:string;
+productTitle:string;
 basePrice:string;
 brandName:string;
-typeName:string
-imageThumbNail:string;
-discountType: discountType | null;
-discountValue: string;
+subCategoryName:string
+productThumbNail:string;
+// discountType: discountType | null;
+// discountValue: string;
 }
 
 

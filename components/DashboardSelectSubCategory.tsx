@@ -1,9 +1,12 @@
+'use client';
 import React, { useEffect, useState } from 'react'
 import { showSubCategory } from '@/lib/api/categoryService'
 import { SubCategoryProps } from '@/types/dataprops'
-import SearchTextAdmin from '@/components/SearchTextAdmin'
+
 import DropDownText from '@/components/DropDownText'
-import { ProductDetailAction } from './page'
+import SearchTextTest from '@/components/InputTextTest';
+
+import { ProductDetailAction } from '../app/admin/dashboard/products/addproduct/page'
 
 
 interface SubCategorySelectionProps {
@@ -11,14 +14,21 @@ interface SubCategorySelectionProps {
   dispatchProductDetail: React.Dispatch<ProductDetailAction>; 
 }
 
-const SubCategorySelection: React.FC<SubCategorySelectionProps> = ({ categoryId ,dispatchProductDetail}) => {
+const DashboardSelectSubCategory: React.FC<SubCategorySelectionProps> = ({ categoryId ,dispatchProductDetail}) => {
   const [subCategories, setSubCategories] = useState<SubCategoryProps[] | null>(null);
+  const [selectedSubCategory, setSelectedCategory] = useState<SubCategoryProps | undefined>() 
   const [filteredSubCategories, setFilteredSubCategories] = useState<SubCategoryProps[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch SubCategories based on categoryId
   useEffect(() => {
+    if(categoryId === null){
+        clearInputs();
+      dispatchProductDetail({
+        type:'SELECT_SUBCATEGORY_DELETE',
+      })
+      return;
+    }
     const fetchSubCategory = async () => {
       try {
         const fetchSubCategories: SubCategoryProps[] | null = await showSubCategory(categoryId);
@@ -34,6 +44,13 @@ const SubCategorySelection: React.FC<SubCategorySelectionProps> = ({ categoryId 
   }, [categoryId]);
 
   useEffect(() => {
+    if(selectedSubCategory?.subCategoryName.toLowerCase() === searchTerm.toLowerCase()){
+      setFilteredSubCategories([])
+      return;
+    } else {
+      setSelectedCategory(undefined)
+    }
+
     if (subCategories) {
       setFilteredSubCategories(
         subCategories.filter((subCategory) =>
@@ -43,7 +60,14 @@ const SubCategorySelection: React.FC<SubCategorySelectionProps> = ({ categoryId 
     }
   }, [searchTerm, subCategories]);
 
+  const clearInputs = () => {
+    setSearchTerm('')
+    setSelectedCategory(undefined)
+    setFilteredSubCategories([])
+  }
+
   const handleSelectSubCategory = (subCategory: SubCategoryProps) => {
+    setSelectedCategory(subCategory)
     setSearchTerm(subCategory.subCategoryName); 
     dispatchProductDetail({
     type:'SELECT_SUBCATEGORY',
@@ -51,12 +75,23 @@ const SubCategorySelection: React.FC<SubCategorySelectionProps> = ({ categoryId 
     })
   };
 
+  const clearSearch = () => {
+    clearInputs();
+    dispatchProductDetail({
+      type:'SELECT_SUBCATEGORY_DELETE',
+    })
+  }
+
+
+
   if (loading) return <div>Loading...</div>;
 
   return (
     <div className="flex-1 flex flex-col">
       <h1 className="text-primaryColor text-xl">SELECT SUBCATEGORY</h1>
-      <SearchTextAdmin 
+      <SearchTextTest 
+        onClear={clearSearch}
+        choosen={selectedSubCategory}
         placeholderText="Search Subcategory"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
@@ -77,4 +112,4 @@ const SubCategorySelection: React.FC<SubCategorySelectionProps> = ({ categoryId 
   );
 };
 
-export default SubCategorySelection;
+export default DashboardSelectSubCategory;

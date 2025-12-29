@@ -15,9 +15,9 @@ export interface CategoryPropsResponse {
 
 export interface ProductCollections {
   productId:number;
-  basePrice:string;
-  brandName:number;
   productTitle:string;
+  basePrice:string;
+  brandName:string;
   productThumbNail:string;
   subCategoryName:string;
 }

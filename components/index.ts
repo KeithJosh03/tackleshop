@@ -7,13 +7,44 @@ import Collections from './collections';
 import Setups from './setups';
 import Discounts from './sales';
 
+import DashboardBrandCreate from './DashboardBrandCreate';
+import DashBoardButtonLayoutOption from './DashBoardButtonLayoutOption';
+import DashboardCategoryCreate from './DashboardCategoryCreate';
+import DashboardHeader from './DashboardHeader';
+import DashboardSelectBrand from './DashboardSelectBrand';
+import DashboardSelectCategory from './DashboardSelectCategory';
+import DashboardSelectSubCategory from './DashboardSelectSubCategory';
+import DashboardVariantsComponent from './DashboardVariantsComponent';
+import ProductMedia from './ProductMedia';
+
+import InputText from './InputText';
+import TextBox from './TextBox';
+import CustomButton from './CustomButton';
+import InputPrice from './InputPrice';
 
 export {
     Header,
     Hero,
-    Setups,
+    Footer,
     Brands,
-    Discounts,
     Collections,
-    Footer
+
+    DashboardBrandCreate,
+    DashBoardButtonLayoutOption,
+    DashboardCategoryCreate,
+    DashboardHeader,
+    DashboardSelectBrand,
+    DashboardSelectCategory,
+    DashboardSelectSubCategory,
+    DashboardVariantsComponent,
+    ProductMedia,
+
+    InputText,
+    TextBox,
+    CustomButton,
+    InputPrice,
+
+
+    Setups,
+    Discounts,
 }

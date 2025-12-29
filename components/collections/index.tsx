@@ -35,23 +35,31 @@ export default function Collection() {
     getCategoryData();
   }, []); 
 
+  console.log(categoryProducts);
+
   return (
     <MainLayoutCollection>
       {loading ? (
         <Loading />
       ) : (
         Array.isArray(categoryProducts) && categoryProducts.length > 0 && 
-        categoryProducts.map(({ categoryName, categoryId, products }) => (
-          <CollectionComponent key={categoryId} categoryName={categoryName}>
-            {products.map((product) => (
-              <CollectionCard 
-              key={product.productId} 
-              product={product} 
-              />
-            ))}
-          </CollectionComponent>
-        ))
+        categoryProducts.map(({ categoryName, categoryId, products }) => {
+          if (products.length > 0) {
+            return (
+              <CollectionComponent key={categoryId} categoryName={categoryName}>
+                {products.map((product) => (
+                  <CollectionCard 
+                    key={product.productId} 
+                    product={product} 
+                  />
+                ))}
+              </CollectionComponent>
+            );
+          }
+        })
       )}
     </MainLayoutCollection>
   );
-}
+  }
+
+

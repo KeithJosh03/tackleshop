@@ -16,6 +16,8 @@ export default function CollectionCard({ product }: { product: ProductCollection
     subCategoryName 
   } = product;
 
+  console.log(product);
+
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
   return (
     <Link 

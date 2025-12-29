@@ -2,7 +2,7 @@ import IconButton from "@/components/IconButton";
 import Image from "next/image";
 import ImageIconUpload from "@/components/ImageIconUpload";
 
-import { ProductDetailAction } from "./page";
+import { ProductDetailAction } from "../app/admin/dashboard/products/addproduct/page";
 
 interface ProductImage {
   file: File;
@@ -44,15 +44,15 @@ const addProductMedia = (files: File[]) => {
   };
 
   return (
-    <div className="flex flex-col gap-x-4 p-2 font-extrabold rounded border border-greyColor bg-mainBackgroundColor">
-      <div className="flex flex-col justify-between justify-items-center p-2 gap-x-4">
+    <div className="flex flex-col gap-x-4 p-2 font-extrabold rounded border border-greyColor bg-blackgroundColor">
+      <div className="flex flex-col gap-y-2 justify-between justify-items-center p-2 gap-x-4">
         <div>
           <h3 className="text-2xl text-primaryColor font-extrabold">Media</h3>
           <p className="text-sm text-secondary">A media is required</p>
         </div>
 
-        <div className="grid grid-cols-3 content-between">
-          <div className="col-span-2">
+        <div className="flex flex-col gap-y-2">
+          <div className="flex-1">
             {medias.length > 0 && (
               <div className="flex flex-row gap-3 p-4 h-40 items-center justify-items-center overflow-x-auto overflow-y-hidden snap-x snap-mandatory custom-scrollbar">
                 {medias.map((media, index) => (
@@ -91,8 +91,8 @@ const addProductMedia = (files: File[]) => {
             )}
           </div>
 
-          <div className="col-span-1 items-end">
-            <div className="relative h-40 w-40 p-2 border border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center">
+          <div className="flex-1 flex items-center justify-center">
+            <div className="relative h-20 w-20 p-2 border border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center">
               <ImageIconUpload
                 uploadImage="/icons/imageupload.svg"
                 maxImages={9}
@@ -100,9 +100,6 @@ const addProductMedia = (files: File[]) => {
                   addProductMedia(file);
                 }}
               />
-              <h1 className="text-secondary group-hover:text-primaryColor">
-                Select Image
-              </h1>
             </div>
           </div>
         </div>

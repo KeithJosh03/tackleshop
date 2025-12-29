@@ -10,7 +10,7 @@ import IconButton from '@/components/IconButton';
 import DashBoardButtonLayoutOption from '@/components/DashBoardButtonLayoutOption';
 
 
-export default function DashboardCategory() {
+export default function DashboardCategoryCreate() {
 
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [subCategory, setsubCategory] = useState<SubCategoryProps[]>([]);
@@ -229,7 +229,6 @@ export default function DashboardCategory() {
         <IconButton 
         icon='/icons/addicon.svg'
         altText='Add Icon'
-        text='ADD'
         onClick={() => {
         setIsCreatingCategory(true)
         setselectedCategory(null)
@@ -263,7 +262,6 @@ export default function DashboardCategory() {
             <IconButton 
             icon='/icons/closeicon.svg'
             altText='close Icon'
-            text='CANCEL'
             onClick={() => {setselectedCategory(null)}}
             iconSize={8}
             />
@@ -275,7 +273,6 @@ export default function DashboardCategory() {
               <IconButton 
               icon='/icons/editicon.svg'
               altText='close Icon'
-              text='EDIT'
               onClick={() => {setisEditingCategory(true)}}
               iconSize={8}
               />
@@ -283,7 +280,6 @@ export default function DashboardCategory() {
               <IconButton 
               icon='/icons/deleteicon.svg'
               altText='delete Icon'
-              text='DELETE'
               onClick={handleDeleteCategory}
               iconSize={8}
               />
@@ -298,7 +294,6 @@ export default function DashboardCategory() {
               <IconButton
               icon='/icons/checkicon.svg'
               altText='Check Icon'
-              text='Enter'
               onClick={handleEditCategory}
               iconSize={8}
               />
@@ -324,7 +319,6 @@ export default function DashboardCategory() {
               <IconButton 
               icon='/icons/addicon.svg'
               altText='Add Icon'
-              text='ADD'
               onClick={() => {
               setselectSubCategory(null)
               setisCreatingSubcategory(true)
@@ -355,7 +349,6 @@ export default function DashboardCategory() {
                 <IconButton 
                 icon='/icons/closeicon.svg'
                 altText='close Icon'
-                text='CANCEL'
                 onClick={() => {
                 setselectSubCategory(null)
                 }}
@@ -377,14 +370,12 @@ export default function DashboardCategory() {
                 <IconButton 
                 icon='/icons/checkicon.svg'
                 altText='check Icon'
-                text='Enter'
                 onClick={handleAddSubCategegory}
                 iconSize={8}
                 />
                 <IconButton 
                 icon='/icons/closeicon.svg'
                 altText='Close Icon'
-                text='Enter'
                 onClick={() => {
                 setisCreatingSubcategory(false)
                 setnewSubcategory('')
@@ -400,14 +391,12 @@ export default function DashboardCategory() {
               <IconButton 
               icon='/icons/editicon.svg'
               altText='close Icon'
-              text='EDIT'
               onClick={() => {setisEditingSubCategory(true)}}
               iconSize={8}
               />
               <IconButton 
               icon='/icons/deleteicon.svg'
               altText='delete Icon'
-              text='DELETE'
               onClick={handleDeleteSubCategory}
               iconSize={8}
               />
@@ -423,14 +412,12 @@ export default function DashboardCategory() {
               <IconButton 
               icon='/icons/checkicon.svg'
               altText='Edit Icon'
-              text='Delete'
               onClick={handleEditSubCategory}
               iconSize={8}
               />
               <IconButton 
               icon='/icons/closeicon.svg'
               altText='Edit Icon'
-              text='Delete'
               onClick={() => {
               setisEditingSubCategory(false)
               setnewEditingSubCategoryName('')
@@ -459,7 +446,6 @@ export default function DashboardCategory() {
                 <IconButton 
                 icon='/icons/addicon.svg'
                 altText='Add Icon'
-                text='ADD'
                 onClick={handleAddCategory}
                 iconSize={8}
                 />
@@ -467,7 +453,6 @@ export default function DashboardCategory() {
                 <IconButton 
                 icon='/icons/closeicon.svg'
                 altText='Close Icon'
-                text='Cancel'
                 onClick={() => {
                 setIsCreatingCategory(false)
                 setNewCategory('')

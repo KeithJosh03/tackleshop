@@ -1,18 +1,21 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import { showCategories, CategoryPropsResponse } from '@/lib/api/categoryService';
 import { CategoryProps } from '@/types/dataprops';
-import SearchTextAdmin from '@/components/SearchTextAdmin';
+
 import DropDownText from '@/components/DropDownText';
-import { ProductDetailAction } from "./page";
+import SearchTextTest from '@/components/InputTextTest';
+
+import { ProductDetailAction } from "../app/admin/dashboard/products/addproduct/page";
 
 interface CategoryPropsComponent {
   dispatchProductDetail:React.Dispatch<ProductDetailAction>; 
 }
 
-export default function Category({dispatchProductDetail}: CategoryPropsComponent) {
+export default function DashboardSelectCategory({dispatchProductDetail}: CategoryPropsComponent) {
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<CategoryProps | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryProps | undefined>();
   const [filteredCategories, setFilteredCategories] = useState<CategoryProps[]>([]);
 
   useEffect(() => {
@@ -30,14 +33,18 @@ export default function Category({dispatchProductDetail}: CategoryPropsComponent
   }, []);
 
   useEffect(() => {
-    if (searchTerm.length !== 0) {
-      setFilteredCategories(
-        categories.filter((category) =>
-          category.categoryName.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
+    if(selectedCategory?.categoryName.toLowerCase() === searchTerm.toLowerCase()){
+      setFilteredCategories([])
+      return;
+    } else {
+      setSelectedCategory(undefined)
     }
-  }, [searchTerm, categories]);
+    setFilteredCategories(
+      categories.filter((category) =>
+        category.categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [searchTerm, categories, selectedCategory]);
 
   const handleCategorySelect = (category: CategoryProps) => {
     setSelectedCategory(category);
@@ -48,11 +55,28 @@ export default function Category({dispatchProductDetail}: CategoryPropsComponent
     })
   };
 
+
+  const clearInputs = () => {
+    setSelectedCategory(undefined)
+    setFilteredCategories([])
+    setSearchTerm('')
+  }
+
+
+  const clearSearch = () => {
+    clearInputs()
+    dispatchProductDetail({
+    type:'SELECT_CATEGORY_DELETE'
+    })
+  }
+
   return (
     <div className="flex-1 flex flex-col">
       <h1 className="text-primaryColor text-xl">SELECT CATEGORY</h1>
-      <SearchTextAdmin 
+      <SearchTextTest
+        choosen={selectedCategory} 
         placeholderText="Search Category"
+        onClear={clearSearch}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />

@@ -1,3 +1,4 @@
+'use client';
 
 import { useState, useReducer } from "react";
 import Image from "next/image";
@@ -6,9 +7,9 @@ import CustomButton from "@/components/CustomButton";
 import SearchTextAdmin from "@/components/SearchTextAdmin";
 import InputPrice from "@/components/InputPrice";
 
-import { VariantDetails,VariantOption } from "./page";
+import { VariantDetails,VariantOption } from "../app/admin/dashboard/products/addproduct/page";
 import ImageIconUpload from "@/components/ImageIconUpload";
-import { ProductDetailAction } from "./page";
+import { ProductDetailAction } from "../app/admin/dashboard/products/addproduct/page";
 
 interface VariantsComponentProps {
     variantsList: VariantDetails[];
@@ -79,7 +80,7 @@ function VariantDetailReducer(
 
 
 
-const VariantComponent: React.FC<VariantsComponentProps> = ({variantsList,dispatchProductDetail,basePrice}) => { 
+const DashboardVariantsComponent: React.FC<VariantsComponentProps> = ({variantsList,dispatchProductDetail,basePrice}) => { 
     const initialcreateVariantDetail = {
         variantTypeName:'',
         variantOptions:[]
@@ -136,7 +137,7 @@ const VariantComponent: React.FC<VariantsComponentProps> = ({variantsList,dispat
         }
     }
     return(
-    <div className="flex flex-col p-2 gap-x-2 font-extrabold rounded border border-greyColor bg-mainBackgroundColor">
+    <div className="flex flex-col p-2 gap-x-2 font-extrabold rounded border border-greyColor bg-blackgroundColor">
         <div className='flex flex-col justify-between justify-items-center p-2 gap-y-2'>
             <div className='flex flex-row justify-between items-center'>
                 <div className='flex flex-col'>
@@ -380,4 +381,4 @@ const VariantComponent: React.FC<VariantsComponentProps> = ({variantsList,dispat
     );
 }
 
-export default VariantComponent;
+export default DashboardVariantsComponent;

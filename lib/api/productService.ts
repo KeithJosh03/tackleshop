@@ -186,3 +186,50 @@ async function createProductVariant(
 
   return uploadedVariants;
 }
+
+
+export interface VariantOptionsShow {
+  variantOptionId:number;
+  imageUrl:string
+  variantOptionValue:string
+  variantOptionPrice:string
+}
+
+export interface ProductMediaShow {
+  imageUrl:string;
+  isMain:boolean;
+}
+
+interface ProductVariantShow {
+  variantTypeName:string;
+  variantOptions:VariantOptionsShow[];
+}
+
+export interface ProductDetailsShow {
+  productId:number;
+  productTitle:string;
+  basePrice:string;
+  brandName:string;
+  specification:string;
+  features:string;
+  description:string;
+  subCategoryName:string;
+  productMedias:ProductMediaShow[] | null;
+  productVariants:ProductVariantShow[] | null;
+}
+
+
+
+
+
+export async function ProductDetails(id: number) {
+  try {
+    const res = await axios.get(`/api/products/productdetail/${id}`);
+    const detail = res.data.productdetail;
+    return detail;  
+  } catch (err) {
+    console.error(err);
+    return null;  
+  }
+}
+

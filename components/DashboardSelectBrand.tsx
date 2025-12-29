@@ -1,11 +1,13 @@
-// Brand.tsx
+'use client';
 
 import React, { useState, useEffect } from "react";
-import { ProductDetailAction } from "./page";
+import { ProductDetailAction } from "../app/admin/dashboard/products/addproduct/page";
 import { showBrand } from "@/lib/api/brandService";
 import { BrandProps } from "@/types/dataprops";
+
 import DropDownText from "@/components/DropDownText";
 import SearchTextAdmin from "@/components/SearchTextAdmin";
+import SearchTextTest from "@/components/InputTextTest";
 
 
 interface BrandsResponse {
@@ -17,12 +19,12 @@ interface BrandComponentProps {
   dispatchProductDetail: React.Dispatch<ProductDetailAction>; 
 }
 
-const Brand: React.FC<BrandComponentProps> = ({ dispatchProductDetail }) => {
+const DashboardSelectBrand: React.FC<BrandComponentProps> = ({ dispatchProductDetail }) => {
   const [brands, setBrands] = useState<BrandProps[]>([]);
   const [filteredBrands, setFilteredBrands] = useState<BrandProps[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState<BrandProps | undefined>(undefined);
+  const [selectedBrand, setSelectedBrand] = useState<BrandProps | undefined>();
 
   useEffect(() => {
     const fetchBrands = async () => {
@@ -40,6 +42,13 @@ const Brand: React.FC<BrandComponentProps> = ({ dispatchProductDetail }) => {
   }, []);
 
   useEffect(() => {
+    if(selectedBrand?.brandName.toLowerCase() === searchTerm.toLowerCase()){
+      setFilteredBrands([])
+      return;
+    } else {
+      setSelectedBrand(undefined)
+    }
+
     setFilteredBrands(
       brands.filter((brand) =>
         brand.brandName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -50,15 +59,27 @@ const Brand: React.FC<BrandComponentProps> = ({ dispatchProductDetail }) => {
   const handleSelectBrand = (brand: BrandProps) => {
     setSelectedBrand(brand);
     setSearchTerm(brand.brandName);
-    dispatchProductDetail({ type: 'SELECT_BRAND', payload: brand.brandId });  // Dispatch action to parent
+    dispatchProductDetail({ 
+    type: 'SELECT_BRAND', payload: brand.brandId 
+    });
   };
+
+  const clearSearch = () => {
+    dispatchProductDetail({
+    type:'SELECT_BRAND_DELETE'
+    })
+    setSearchTerm('')
+    setSelectedBrand(undefined)
+  }
 
   if (loading) return <div>Loading...</div>;
 
   return (
     <div className="flex-1 flex flex-col">
       <h1 className="text-primaryColor text-xl">SELECT BRAND</h1>
-      <SearchTextAdmin 
+      <SearchTextTest
+        choosen={selectedBrand} 
+        onClear={clearSearch}
         placeholderText="Search Brand"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
@@ -79,4 +100,4 @@ const Brand: React.FC<BrandComponentProps> = ({ dispatchProductDetail }) => {
   );
 };
 
-export default Brand;
+export default DashboardSelectBrand;

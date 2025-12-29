@@ -4,7 +4,6 @@ interface CustomButtonProps {
   text: string; 
   onClick: () => void;  
   className?: string;  
-  iconSize?: number;  
 }
 
 
