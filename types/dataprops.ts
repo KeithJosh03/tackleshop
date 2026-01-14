@@ -110,7 +110,7 @@ products:ProductCollectionProps[];
 // ProductSearch
 export interface ProductSearchProps {
 productId:number;
-productName:string;
+productTitle:string;
 }
 
 

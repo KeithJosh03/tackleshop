@@ -30,7 +30,7 @@ export default function CollectionCard({ product }: { product: ProductCollection
       bg-blackgroundColor
       text-left
       transition-all duration-300 hover:-translate-y-1
-      p-5 h-full `}>
+      p-5 h-full`}>
         <div
         className="relative w-full aspect-square flex items-center justify-center
         overflow-hidden rounded-lg bg-mainBackgroundColor"
@@ -47,7 +47,6 @@ export default function CollectionCard({ product }: { product: ProductCollection
           </div>
           )} */}
         </div>
-
         <div className="flex flex-col items-center justify-center text-center mt-5 w-full">
           <h3
           className="

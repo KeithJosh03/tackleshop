@@ -219,9 +219,6 @@ export interface ProductDetailsShow {
 }
 
 
-
-
-
 export async function ProductDetails(id: number) {
   try {
     const res = await axios.get(`/api/products/productdetail/${id}`);
@@ -233,3 +230,51 @@ export async function ProductDetails(id: number) {
   }
 }
 
+interface ProductListOptionDashboard {
+  optionName:string;
+}
+
+interface ProductLisVariantDashboard {
+  variantTypeName:string;
+  variantOptions: ProductListOptionDashboard[]
+}
+
+export interface ProductListDashboard {
+  productId:number;
+  productTitle:string;
+  basePrice:string;
+  brandName:string
+  subCategoryName:string;
+  productTypeVariant:ProductLisVariantDashboard [];
+}
+
+export interface ProductListDashboard {
+  productId: number;
+  productTitle: string;
+  basePrice: string;
+  brandName: string;
+  subCategoryName: string;
+  productTypeVariant: {
+    variantTypeName: string;
+    variantOptions: {
+      optionName: string;
+    }[];
+  }[];
+}
+
+export async function ProductListDashboardSearch(
+  search: string,
+  page: number
+) {
+  const res = await axios.get(
+    '/api/products/productlistdashboardsearch',
+    {
+      params: {
+        productTitle: search,
+        page,
+      },
+    }
+  );
+
+  return res.data;
+}

@@ -34,7 +34,7 @@ export default function SearchBar() {
 
     const delayDebounce = setTimeout(() => {
       axios
-        .get<ProductSearchResponse>(`/api/products/productsearch/${search}`)
+        .get<ProductSearchResponse>(`/api/products/productsearch?productTitle=${search}`)
         .then((res) => setResults(res.data.products))
         .catch((err) => console.error(err));
     }, 400);
@@ -70,7 +70,7 @@ export default function SearchBar() {
             className="flex items-center bg-primaryColor rounded-full px-2 h-10"
           >
             <Image 
-            src={searchicon} 
+          src={searchicon} 
             alt="Search" 
             width={22} height={22} 
             />
@@ -97,13 +97,13 @@ export default function SearchBar() {
 
       {results.length > 0 && isOpen && (
         <div className="absolute top-11 left-0 w-64 bg-mainBackgroundColor flex flex-col gap-1 text-primaryColor rounded-md z-50 px-1 py-2">
-          {results.map(({productName, productId}) => (
+          {results.map(({productTitle, productId}) => (
             <Link
               key={productId}
-              href={`/product/${productId}/${slugify(productName).toLowerCase()}`}
+              href={`/product/${productId}/${slugify(productTitle).toLowerCase()}`}
               className="block px-4 py-2 text-primaryColor bg-secondary rounded hover:bg-primaryColor hover:text-tertiaryColor "
             >
-              {productName}
+              {productTitle}
             </Link>
           ))}
         </div>

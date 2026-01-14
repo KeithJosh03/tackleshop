@@ -1,7 +1,13 @@
 import axios, { AxiosError } from "axios";
-import { CategoryProps, SubCategoryProps } from "@/types/dataprops";
+import { 
+  CategoryProps, 
+  SubCategoryProps, 
+  CategoryProducts,
+  CategorizeProduct
+} from "@/types/dataprops";
+
 import {  } from "@/types/dataprops";
-import { data } from "framer-motion/client";
+
 
 interface CategorySubResponse {
   status:boolean;
@@ -70,3 +76,37 @@ export const showSubCategory = async (id:number): Promise<SubCategoryProps[] | n
     return null;
   }
 }
+
+
+interface CategoryProductResponse {
+  status: boolean;
+  categoryproducts: CategoryProducts;
+  currentPage: number;
+  lastPage: number;
+  hasMore: boolean;
+}
+
+export const fetchCategoryProducts = async (
+  category: string,
+  page: number
+): Promise<CategoryProductResponse | null> => {
+  try {
+    const response = await axios.get<CategoryProductResponse>(
+      `/api/categories/specificCategory/${category}?page=${page}`
+    );
+
+    return response.data;
+  } catch (err) {
+    const error = err as AxiosError;
+
+    if (error.response) {
+      console.error("Error fetching category products:", error.response.data);
+    } else if (error.request) {
+      console.error("No response received:", error.request);
+    } else {
+      console.error("Request error:", error.message);
+    }
+
+    return null;
+  }
+};

@@ -1,11 +1,16 @@
 import React from 'react';
-import { BrandProps,CategoryProps,SubCategoryProps } from '@/types/dataprops';
+import { 
+  BrandProps,
+  CategoryProps,
+  SubCategoryProps 
+} from '@/types/dataprops';
 
+import { ProductListDashboard } from '@/lib/api/productService';
 
 interface SearchTextTestProps {
   placeholderText: string;
   value: string;
-  choosen: BrandProps | CategoryProps | SubCategoryProps | undefined;
+  choosen: BrandProps | CategoryProps | SubCategoryProps | ProductListDashboard |undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void; 
 }

@@ -1,126 +1,122 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from "react";
-import axios from "axios";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
 import CardsLayoutCategory from "./CardsLayout";
 import CategoryCards from "./CategoryCards";
 
+import { fetchCategoryProducts } from "@/lib/api/categoryService";
+import { CategorizeProduct } from "@/types/dataprops";
 
-import { CategoryProducts, CategorizeProduct } from "@/types/dataprops";
+export default function Category() {
+  const { category } = useParams<{ category: string }>();
 
-
-interface CategoryProductResponse  {
-  status:boolean;
-  categoryproducts:CategoryProducts;
-  currentPage: number;
-  lastPage: number;
-  hasMore: boolean;
-}
-
-export default function Category(){
-  const [categorizeProduct, setcategorizeProduct] = useState<CategorizeProduct[]>([]);
+  const [products, setProducts] = useState<CategorizeProduct[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const observerRef = useRef<HTMLDivElement>(null);
-  const { category } = useParams<{ tag: string; category: string }>();
 
-  const fetchProducts = useCallback(async (page: number, isLoadMore: boolean = false) => {
+  /* ===========================
+     Fetch Products (PAGE ONLY)
+  ============================ */
+  const fetchProducts = useCallback(async (page: number) => {
     if (loading) return;
-    
+
     setLoading(true);
+
     try {
-      const response = await axios.get<CategoryProductResponse>(
-        `/api/categories/specificCategory/${category.replaceAll('-',' ')}?page=${page}`
+      const data = await fetchCategoryProducts(
+        category.replaceAll("-", " "),
+        page
       );
-      
-      if (isLoadMore) {
-        setcategorizeProduct(prev => [...prev, ...response.data.categoryproducts.products]);
-      } else {
-        setcategorizeProduct(response.data.categoryproducts.products);
-      }
-      
-      setHasMore(response.data.hasMore);
-      setCurrentPage(page);
-    } catch (err) {
-      console.log(err);
+
+      if (!data) return;
+
+      // 🔒 REPLACE PRODUCTS (NO APPEND)
+      setProducts(data.categoryproducts.products);
+      setCurrentPage(data.currentPage);
+      setLastPage(data.lastPage);
+      setHasMore(data.hasMore);
     } finally {
       setLoading(false);
       setInitialLoading(false);
     }
   }, [category, loading]);
 
+  /* ===========================
+     Initial Load / Category Change
+  ============================ */
   useEffect(() => {
+    setInitialLoading(true);
+    setProducts([]);
+    setCurrentPage(1);
+
     fetchProducts(1);
-  }, [category]);
+  }, [category]); // ❗ intentionally no fetchProducts here
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
-          fetchProducts(currentPage + 1, true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasMore, loading, currentPage, fetchProducts]);
-
+  /* ===========================
+     Render
+  ============================ */
   return (
     <>
-    <div className="w-auto flex flex-row">
-      <div className="text-primaryColor font-extrabold text-5xl p-4">
-        <h4>{`${category.replaceAll('-', ' ').toUpperCase()}`}</h4>
+      <div className="flex">
+        <h4 className="text-primaryColor font-extrabold text-5xl p-4">
+          {category.replaceAll("-", " ").toUpperCase()}
+        </h4>
       </div>
-    </div>
-    
-    {initialLoading ? (
-      <div className="h-96 text-center items-center justify-center text-primaryColor font-bold">
-        <h3>Loading products...</h3>
-      </div>
-    ) : categorizeProduct?.length > 0 ? (
-      <>
-        <CardsLayoutCategory>
-          {categorizeProduct?.map((products, index) => (
-            <CategoryCards 
-              key={`${products.productId}-${index}`}
-              product={products}
-              index={index}
-            />
-          ))}
-        </CardsLayoutCategory>
-        
-        <div ref={observerRef} className="h-10 flex items-center justify-center">
-          {loading && (
-            <div className="text-primaryColor font-bold">
-              Loading more products...
-            </div>
-          )}
-          {!hasMore && categorizeProduct.length > 0 && (
-            <div className="text-gray-500 font-medium">
-              No more products to load
-            </div>
-          )}
-        </div>
-      </>
-    ) : (
-      <div className="h-96 text-center text-primaryColor font-bold">
-        <h3>{`No ${category.toUpperCase()} Available`}</h3>
-        <Link href={`/`}>
-          <button className="bg-secondary text-md font-extrabold button-view mt-10">Go Back</button>
-        </Link>
-      </div>
-    )}
-    </>
-  )
-}
 
+      {initialLoading ? (
+        <div className="h-96 flex items-center justify-center text-primaryColor font-bold">
+          Loading products...
+        </div>
+      ) : products.length > 0 ? (
+        <>
+          <CardsLayoutCategory>
+            {products.map((product) => (
+              <CategoryCards
+                index={product.productId}
+                product={product}
+              />
+            ))}
+          </CardsLayoutCategory>
+
+          {/* Pagination */}
+          <div className="flex justify-center gap-4 mt-10">
+            <button
+              disabled={currentPage === 1 || loading}
+              onClick={() => fetchProducts(currentPage - 1)}
+              className="px-4 py-2 bg-gray-200 disabled:opacity-50"
+            >
+              Prev
+            </button>
+
+            <span className="px-4 py-2 font-bold text-primaryColor">
+              Page {currentPage} of {lastPage}
+            </span>
+
+            <button
+              disabled={!hasMore || loading}
+              onClick={() => fetchProducts(currentPage + 1)}
+              className="px-4 py-2 bg-gray-200 disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="h-96 text-center text-primaryColor font-bold">
+          <h3>No {category.toUpperCase()} Available</h3>
+          <Link href="/">
+            <button className="bg-secondary text-md font-extrabold button-view mt-10">
+              Go Back
+            </button>
+          </Link>
+        </div>
+      )}
+    </>
+  );
+}
