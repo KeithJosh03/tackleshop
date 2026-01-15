@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Image from "next/image";
 
+import Image from "next/image";
 import { worksans } from "@/types/fonts";
 import { motion } from "framer-motion";
 
 import { numericConverter } from "@/utils/priceUtils";
 import { buildProductImages, UIProductImage } from "@/utils/productMedia.UI";
 
+
 import { ProductDetails, ProductDetailsShow, VariantOptionsShow } from "@/lib/api/productService";
+
 
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
 
@@ -99,7 +101,7 @@ export default function Product() {
           </h3>
 
           {productDetails?.productVariants?.map((variant, index) => (
-            <div key={index} className="border-t border-greyColor mt-4">
+            <div key={index} className="border-t border-greyColor">
               <h3 className="font-bold text-base text-primaryColor">{variant.variantTypeName.toUpperCase()}</h3>
               <div className="flex flex-wrap gap-3 mt-2">
                 {variant.variantOptions.map((option, idx) => (
@@ -150,13 +152,15 @@ export default function Product() {
         transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
         className="flex flex-col items-center gap-4 mt-6"
       >
-        <div className="w-full max-w-[auto] h-[700px] relative">
+        <div className="w-full h-[700px] relative">
           {selectedImageId && (
             <Image
               src={`${baseURL}${productImages.find(img => img.id === selectedImageId)?.imageUrl}`}
               alt={productDetails?.productTitle || "Product"}
               fill
+              sizes="(max-width: 768px) 100vw, 60vw"
               className="object-contain rounded-lg"
+              priority
             />
           )}
         </div>
@@ -175,12 +179,15 @@ export default function Product() {
                     : "border-greyColor"
                   }`}
               >
-                <Image
-                  src={`${baseURL}${img.imageUrl}`}
-                  alt="Thumbnail"
-                  fill
-                  className="object-cover"
-                />
+              <Image
+                src={`${baseURL}${img.imageUrl}`}
+                alt="Thumbnail"
+                fill
+                sizes="96px"
+                loading="lazy"
+                decoding="async"
+                className="object-cover"
+              />
               </motion.button>
             ))}
           </div>

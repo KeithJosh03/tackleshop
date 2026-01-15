@@ -2,7 +2,7 @@ import IconButton from "@/components/IconButton";
 import Image from "next/image";
 import ImageIconUpload from "@/components/ImageIconUpload";
 
-import { ProductDetailAction } from "../app/admin/dashboard/products/addproduct/page";
+import { ProductDetailAction } from "../app/admin/dashboard/addproduct/page";
 
 interface ProductImage {
   file: File;

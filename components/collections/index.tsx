@@ -18,7 +18,6 @@ export default function Collection() {
     const getCategoryData = async () => {
       try {
         const result = await fetchCategoryCollection();
-        console.log(result)
         if (result) {
           setCategoryProducts(result.categories);
         } else {
@@ -34,8 +33,6 @@ export default function Collection() {
 
     getCategoryData();
   }, []); 
-
-  console.log(categoryProducts);
 
   return (
     <MainLayoutCollection>

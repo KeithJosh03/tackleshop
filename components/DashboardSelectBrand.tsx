@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { ProductDetailAction } from "../app/admin/dashboard/products/addproduct/page";
+import { ProductDetailAction } from "../app/admin/dashboard/addproduct/page";
 import { showBrand } from "@/lib/api/brandService";
 import { BrandProps } from "@/types/dataprops";
 

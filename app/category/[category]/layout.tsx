@@ -1,11 +1,16 @@
 import React from 'react'
+import { Header, Footer } from '@/components'
 
 export default function CategoryLayout(
   { children, }: { children: React.ReactNode }
 ) {
   return (
-  <div className='relative w-full px-40'>
+  <>
+  <Header />
+    <div className='relative w-full px-40 mt-40 mb-10'>
     {children}
-  </div>
+    </div>
+  <Footer />
+  </>
   )
 }

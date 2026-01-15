@@ -7,6 +7,7 @@ import {
   ProductListDashboardSearch,
 } from '@/lib/api/productService';
 import { numericConverter } from '@/utils/priceUtils';
+import Link from 'next/link';
 
 export default function Page() {
   const [searchProduct, setSearchProduct] = useState('');
@@ -124,7 +125,11 @@ export default function Page() {
                 <td className="p-3">
                   <div className="flex gap-2">
                     <button className="px-3 py-1 text-xs rounded border border-primaryColor text-primaryColor">
-                      Edit
+                      <Link
+                      href={`/admin/dashboard/editproduct/${product.productId}`}
+                      >
+                        Edit
+                      </Link>
                     </button>
                     <button className="px-3 py-1 text-xs rounded border border-red-500 text-red-500">
                       Delete

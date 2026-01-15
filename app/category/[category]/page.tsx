@@ -78,6 +78,7 @@ export default function Category() {
           <CardsLayoutCategory>
             {products.map((product) => (
               <CategoryCards
+                key={product.productId}
                 index={product.productId}
                 product={product}
               />

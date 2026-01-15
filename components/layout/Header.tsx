@@ -99,7 +99,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Search full-width below top bar on mobile and when not home on desktop */}
+      {/* Search full-width below top bar on mobile and when not home on desktop */}
         <div className="md:hidden mt-2">
           {isHome ? <SearchBar /> : null}
         </div>

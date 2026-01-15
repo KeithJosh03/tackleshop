@@ -6,7 +6,7 @@ import { SubCategoryProps } from '@/types/dataprops'
 import DropDownText from '@/components/DropDownText'
 import SearchTextTest from '@/components/InputTextTest';
 
-import { ProductDetailAction } from '../app/admin/dashboard/products/addproduct/page'
+import { ProductDetailAction } from '../app/admin/dashboard/addproduct/page'
 
 
 interface SubCategorySelectionProps {

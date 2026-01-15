@@ -7,9 +7,9 @@ import CustomButton from "@/components/CustomButton";
 import SearchTextAdmin from "@/components/SearchTextAdmin";
 import InputPrice from "@/components/InputPrice";
 
-import { VariantDetails,VariantOption } from "../app/admin/dashboard/products/addproduct/page";
+import { VariantDetails,VariantOption } from "../app/admin/dashboard/addproduct/page";
 import ImageIconUpload from "@/components/ImageIconUpload";
-import { ProductDetailAction } from "../app/admin/dashboard/products/addproduct/page";
+import { ProductDetailAction } from "../app/admin/dashboard/addproduct/page";
 
 interface VariantsComponentProps {
     variantsList: VariantDetails[];

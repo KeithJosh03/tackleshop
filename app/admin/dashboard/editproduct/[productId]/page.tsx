@@ -333,7 +333,7 @@ function ProductDetailReducer(
     <div className='flex flex-col border border-greyColor p-2 gap-y-4 font-extrabold rounded bg-blackgroundColor'>
       <div className='flex flex-row justify-between items-center justify-items-center p-2'>
         <h3 className="text-2xl text-primaryColor font-extrabold">
-        PRODUCT DETAILS ADD
+        PRODUCT DETAILS EDIT
         </h3>
         <CustomButton 
         text='SAVE PRODUCT'
