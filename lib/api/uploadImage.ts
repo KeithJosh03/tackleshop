@@ -11,7 +11,6 @@ export interface UploadedImageProps {
 }
 
 export async function uploadImages(files: UploadImageProps[]) {
-  console.log(files)
   const formData = new FormData();
 
   files.forEach((item, index) => {

@@ -3,13 +3,13 @@ import Brands from './layout/Brands';
 
 import Footer from './layout/Footer';
 import Header from './layout/Header';
-import Collections from './collections';
+import Collections from './collections/Collection';
 import Setups from './setups';
 import Discounts from './sales';
 
-import DashboardBrandCreate from './DashboardBrandCreate';
+import { DashboardBrandClient } from './DashboardBrandClient';
 import DashBoardButtonLayoutOption from './DashBoardButtonLayoutOption';
-import DashboardCategoryCreate from './DashboardCategoryCreate';
+import DashboardCategoryClient from './DashboardCategoryClient';
 import DashboardHeader from './DashboardHeader';
 import DashboardSelectBrand from './DashboardSelectBrand';
 import DashboardSelectCategory from './DashboardSelectCategory';
@@ -29,9 +29,9 @@ export {
     Brands,
     Collections,
 
-    DashboardBrandCreate,
+    DashboardBrandClient,
     DashBoardButtonLayoutOption,
-    DashboardCategoryCreate,
+    DashboardCategoryClient,
     DashboardHeader,
     DashboardSelectBrand,
     DashboardSelectCategory,

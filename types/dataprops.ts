@@ -8,9 +8,8 @@ brandName: string;
 imageUrl?: string | null;
 }
 
-export interface ProductMedia {
-    
-}
+// export interface ProductMedia {
+// }
 
 
 export interface CategoryProps {

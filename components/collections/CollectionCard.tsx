@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { worksans, inter } from "@/types/fonts";
+import { inter } from "@/types/fonts";
 import { slugify } from "@/utils/slugify";
 
 import { numericConverter } from "@/utils/priceUtils";
@@ -15,20 +15,19 @@ export default function CollectionCard({ product }: { product: ProductCollection
     productThumbNail,
     subCategoryName 
   } = product;
-
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
+  
   return (
     <Link 
     href={`/product/${productId}/${slugify(productTitle).toLowerCase()}`}>
       <div
-      className={`
-      ${worksans.className}
+      className='
       group relative flex flex-col items-center justify-start border border-greyColor
       rounded-xl hover:border hover:border-primaryColor
       bg-blackgroundColor
       text-left
       transition-all duration-300 hover:-translate-y-1
-      p-5 h-full`}>
+      p-5 h-full'>
         <div
         className="relative w-full aspect-square flex items-center justify-center
         overflow-hidden rounded-lg bg-mainBackgroundColor"

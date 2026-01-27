@@ -221,12 +221,20 @@ export interface ProductDetailsShow {
 
 export async function ProductDetails(id: number) {
   try {
-    const res = await axios.get(`/api/products/productdetail/${id}`);
-    const detail = res.data.productdetail;
-    return detail;  
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/productdetail/${id}`,
+      { cache: "no-store" } // optional
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch product details");
+    }
+
+    const data = await res.json();
+    return data.productdetail;
   } catch (err) {
     console.error(err);
-    return null;  
+    return null;
   }
 }
 
@@ -277,4 +285,25 @@ export async function ProductListDashboardSearch(
   );
 
   return res.data;
+}
+
+
+
+export async function ProductDetailsEdit(id: number) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/productdetailEditDashboard/${id}`,
+      { cache: "no-store" } // optional
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch product details");
+    }
+
+    const data = await res.json();
+    return data.productdetail;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
 }

@@ -1,8 +1,6 @@
 'use client';
 import { worksans,inter } from "@/types/fonts";
-import Link from "next/link";
 import Image from "next/image";
-import { imagesAsset } from "@/types/image";
 import { socials } from "@/types/socials";
 
 export default function Footer() {

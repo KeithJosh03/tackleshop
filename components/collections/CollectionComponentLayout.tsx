@@ -1,6 +1,5 @@
 "use client";
 
-import { worksans } from "@/types/fonts";
 import Link from "next/link";
 import slugify from "slugify";
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
@@ -17,7 +16,7 @@ export default function CollectionComponentLayout({
   return (
     <div
       ref={ref}
-      className={`${worksans.className} w-full mx-auto flex flex-col items-center justify-center
+      className={`w-full mx-auto flex flex-col items-center justify-center
         transition-all duration-700 ease-out
         ${isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-10 scale-95"}
       `}
@@ -40,7 +39,7 @@ export default function CollectionComponentLayout({
 
       <Link href={`/category/${slugify(categoryName).toLowerCase()}`}>
         <button className="button-view text-md px-6 py-3 font-extrabold mt-8">
-          {`View ${categoryName}`}
+          {`VIEW ${categoryName}`}
         </button>
       </Link>
     </div>

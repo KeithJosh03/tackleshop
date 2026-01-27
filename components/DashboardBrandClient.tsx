@@ -11,75 +11,44 @@ import SearchTextAdmin from '@/components/SearchTextAdmin';
 import ImageIconUpload from '@/components/ImageIconUpload';
 import DropDownText from '@/components/DropDownText';
 import InputText from '@/components/InputText';
-import { createBrand } from '@/lib/api/brandService';
+
+import { 
+  useDashboardBrandCreateReducer,
+  useDashboardBrandUpdateReducer
+} from '@/hooks/useDashboardBrandReducer';
+
 import { uploadImages } from '@/lib/api/uploadImage';
+import { BrandHeaderProps } from '@/lib/api/brandService';
+import { getChangedFieldsBrands } from '@/hooks/brandFieldsChange';
 
-type BrandActionType = 
- {type: 'BRAND_NAME' , payload:string} |
- {type: 'BRAND_IMAGE' , payload:File} |
- {type: 'CANCEL_BRAND', payload: BrandReduceProps} | 
- {type: 'ADD_BRAND', payload: BrandReduceProps} | 
- {type: 'DELETE_BRAND', payload: number}
-
-
-interface BrandReduceProps {
-  brandName:string;
-  imageUrl: File | null;
-}
+import { 
+  createBrand,
+  deleteBrand,
+  updateBrand
+} from '@/lib/api/brandService';
 
 
-function NewBrandReducer(
-  state:BrandReduceProps, 
-  action:BrandActionType)
-  : BrandReduceProps {
+type Props = {
+  brandslist: BrandHeaderProps[];
+};
 
-    const {payload, type} = action 
-    switch(type){
-      case 'BRAND_NAME': 
-        return {...state, brandName:payload}
-      case 'BRAND_IMAGE':
-        return {...state, imageUrl:payload}
-      case 'CANCEL_BRAND': 
-        return {...payload}
-      default: 
-      return state
-    }
-}
+export const DashboardBrandClient = ({brandslist} : Props) => {
+  const [brandState, dispatchCreateBrand] = useDashboardBrandCreateReducer()
+  const [brandStateUpdate, dispatchUpdateBrand] = useDashboardBrandUpdateReducer();
+  const [brands, setBrands] = useState<BrandProps[]>(brandslist);
 
-
-const DashboardBrandCreate = () => {
-    const initialBrandState: BrandReduceProps = {
-      brandName:'',
-      imageUrl:null
-    }
-
-  const [brandState, dispatchBrand] = useReducer(NewBrandReducer,initialBrandState) 
-
-  const [brands, setBrands] = useState<BrandProps[]>([]);
+  const [selectedBrand, setSelectedBrand] = useState<BrandProps | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredBrands, setFilteredBrands] = useState<BrandProps[]>([]);
 
   // Edit
-  const [selectedBrand, setSelectedBrand] = useState<BrandProps | null>(null);
-  const [editMode, seteditMode] = useState(false);
-  const [editNameBrand, setEditNameBrand] = useState('');
 
   const [isCreating, setIsCreating] = useState(false);
+  const [editMode, seteditMode] = useState(false);
 
-  const [editBrandImage, seteditBrandImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
-
-
-  // Fetch brands from API
-  useEffect(() => {
-    axios.get<{ brands: BrandProps[] }>('/api/brands')
-      .then((response) => {
-        setBrands(response.data.brands);
-      })
-      .catch((error) => console.error('Error fetching brands:', error));
-  }, []);
 
   useEffect(() => {
     setFilteredBrands(
@@ -122,82 +91,142 @@ const DashboardBrandCreate = () => {
     }
   };
 
+
+
+
+
+
+
+
+
   const handleUpdateBrand = async () => {
     setLoading(true);
 
-    if (!editNameBrand?.trim() || !editBrandImage || !selectedBrand?.brandId) {
-      console.error('❌ Brand name, image URL, or selected brand ID is missing.');
+    // basic validation
+    if (!brandStateUpdate.brandName?.trim() || !selectedBrand?.brandId) {
+      console.error('❌ Brand name or selected brand ID is missing.');
       setLoading(false);
       return;
     }
 
-    const formData = new FormData();
-    formData.append('type', 'brand');
-    formData.append('imageUrl', editBrandImage);
+    // 1️⃣ get diff
+    const changes = getChangedFieldsBrands({
+      original: selectedBrand,
+      updated: brandStateUpdate,
+    });
+
+    // nothing changed → stop
+    if (Object.keys(changes).length === 0) {
+      console.log('⚠️ No changes detected');
+      setLoading(false);
+      return;
+    }
 
     try {
-      const uploadResponse = await axios.post('/api/imageupload/uploads/', formData);
-      const data = uploadResponse?.data;
+      // 2️⃣ build API payload (SEPARATE TYPE)
+      const payload: {
+        brandId: number;
+        brandName?: string;
+        imageUrl?: string;
+      } = {
+        brandId: selectedBrand.brandId,
+      };
 
-      if (data && data.image_paths) {
-        const updatedBrandResponse = await axios.put(`/api/brands/${selectedBrand.brandId}`, {
-          brand_name: editNameBrand,  
-          image_url: data.image_paths[0],  
-          brand_id: selectedBrand.brandId 
-        });
+      // add name if changed
+      if (changes.brandName) {
+        payload.brandName = changes.brandName;
+      }
 
-        const updatedBrand = updatedBrandResponse.data;
+      // 3️⃣ upload image ONLY if changed
+      if (changes.imageUrl instanceof File) {
+        const uploaded = await uploadImages([
+          { file: changes.imageUrl, originIndex: 0 },
+        ]);
 
-        if (updatedBrand && updatedBrand.brandId) {
-          console.log('✅ Brand updated successfully:', updatedBrand);
-          setBrands((prevBrands) =>
-            prevBrands.map((brand) =>
-              brand.brandId === updatedBrand.brandId
-                ? { ...brand, brandName: updatedBrand.brandName, imageUrl: updatedBrand.imageUrl }
-                : brand
-            )
-          );
-
-          setSelectedBrand(null)
-          seteditBrandImage(null);
-          setEditNameBrand('');
-          seteditMode(false);
-        } else {
-          console.error('The updated brand data is invalid.');
+        if (!uploaded || uploaded.length === 0) {
+          throw new Error('❌ Image upload failed');
         }
-      } else {
-        throw new Error('No image URL returned from upload response.');
+
+        payload.imageUrl = uploaded[0].url;
+      }
+
+      // 4️⃣ update brand
+      const updatedBrand = await updateBrand(payload);
+
+      // 5️⃣ update local state
+      if (updatedBrand?.brandId) {
+        setBrands((prev) =>
+          prev.map((brand) =>
+            brand.brandId === updatedBrand.brandId
+              ? { ...brand, ...updatedBrand }
+              : brand
+          )
+        );
+
+        // reset UI
+        setSelectedBrand(null);
+        dispatchUpdateBrand({
+          type: 'CANCEL_BRAND_UPDATE',
+          payload: { brandName: '', imageUrl: null },
+        });
+        seteditMode(false);
+
+        console.log('✅ Brand updated successfully:', updatedBrand);
       }
     } catch (error) {
-      console.error('Error updating brand:', error);
+      console.error('❌ Error updating brand:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteBrand = () => {
-    if (selectedBrand) {
-      axios.delete(`/api/brands/${selectedBrand.brandId}`)
-        .then(() => {
-          setBrands((prev) =>
-            prev.filter((brand) => brand.brandId !== selectedBrand.brandId)
-          );
-          setSelectedBrand(null);
-        })
-        .catch((error) => console.error('Error deleting brand:', error));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // Goood
+  const handleDeleteBrand = async () => {
+    if (!selectedBrand) return;
+    try {
+      await deleteBrand({ brandId: selectedBrand.brandId });
+
+      setBrands((prev) =>
+        prev.filter(
+          (brand) => brand.brandId !== selectedBrand.brandId
+        )
+      );
+      setSelectedBrand(null);
+    } catch (error) {
+      console.error('Error deleting brand:', error);
     }
   };
 
   const cancelAddBrand = () => {
-    dispatchBrand({
-    type:'CANCEL_BRAND',
-    payload:initialBrandState
+    dispatchCreateBrand({
+    type:'CANCEL_BRAND_CREATE',
+    payload:{
+      brandName:'',
+      imageUrl:null
+    }
     })
     setIsCreating(false)
   }
 
   return (
-    <div className={`${worksans.className}  bg-mainBackgroundColor border border-greyColor font-extrabold rounded p-4 w-full flex flex-col space-y-1`}>
+    <div className={`${worksans.className}  bg-blackgroundColor border border-greyColor font-extrabold rounded p-4 w-full flex flex-col space-y-1`}>
       <h1 className="text-primaryColor text-xl">BRAND</h1>
       <div className="flex items-center gap-x-2 text-xl">
         <SearchTextAdmin 
@@ -216,6 +245,7 @@ const DashboardBrandCreate = () => {
         />
       </div>
 
+{/* brandlist Render */}
       {filteredBrands.length > 0 && (
         <ul className="list-none bg-secondary border rounded border-primaryColor text-base max-h-40 overflow-y-auto">
           {filteredBrands.map((brand) => (
@@ -233,6 +263,7 @@ const DashboardBrandCreate = () => {
         </ul>
       )}
 
+{/* Brand Choosen */}
       {selectedBrand && (
       <div className="mt-4 text-primaryColor border border-greyColor p-4 rounded">
         <div className='flex flex-row justify-between p-2'>
@@ -252,7 +283,7 @@ const DashboardBrandCreate = () => {
             {!editMode ? (
             <div className='relative h-45 w-50 p-2 border brandsBackGround border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center'>
               <Image 
-              src={`${selectedBrand.imageUrl}`} 
+              src={`${baseURL}${selectedBrand.imageUrl}`} 
               alt={selectedBrand.brandName} 
               fill
               className="object-contain" 
@@ -262,30 +293,35 @@ const DashboardBrandCreate = () => {
             <>
             <div className="w-full flex flex-col items-center">
               <div className='relative h-45 w-50 p-2 border brandsBackGround border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center'>
-                {editBrandImage ? (
+                {brandStateUpdate.imageUrl ? (
                   <Image 
-                    src={URL.createObjectURL(editBrandImage)} 
-                    alt="newbrandimage"
+                    src={URL.createObjectURL(brandStateUpdate.imageUrl)} 
+                    alt="updateBrandImage"
                     fill
                     className="object-contain"
                   />
                 ) : (
-                  <>
-                  <ImageIconUpload
+                  <Image 
+                    src={`${baseURL}${selectedBrand.imageUrl}`} 
+                    alt="currentBrandImage"
+                    fill
+                    className="object-contain"
+                  />
+                )}
+                <ImageIconUpload
                   uploadImage='/icons/imageupload.svg'
                   maxImages={1}
                   onFileChange={(file: File) => 
-                    seteditBrandImage(file)
+                    dispatchUpdateBrand({
+                    type:'BRAND_IMAGE_UPDATE',
+                    payload:file
+                    })
                   }
                   />
-                  <h1>No Selected Image</h1>
-                  </>
-                )}
               </div>
             </div>
             </>
             )}
-            
           </div>
           <DashBoardButtonLayoutOption>
             {!editMode && (
@@ -309,8 +345,13 @@ const DashboardBrandCreate = () => {
             <>
             <SearchTextAdmin 
             placeholderText="Edit Brand Name"
-            value={editNameBrand}
-            onChange={(e) => setEditNameBrand(e.target.value)}
+            value={brandStateUpdate.brandName}
+            onChange={(e) => {
+              dispatchUpdateBrand({
+                type:'BRAND_NAME_UPDATE',
+                payload:e.target.value
+              })
+            }}
             />
 
             <IconButton 
@@ -324,8 +365,14 @@ const DashboardBrandCreate = () => {
             icon='/icons/closeicon.svg'
             altText='Close Icon'
             onClick={() => {
-            seteditMode(false)
-            setEditNameBrand('')
+              seteditMode(false)
+              dispatchUpdateBrand({
+                  type:'CANCEL_BRAND_UPDATE',
+                  payload:{
+                    brandName:'',
+                    imageUrl:null
+                  }
+              })
             }}
             iconSize={8}
             />
@@ -337,6 +384,8 @@ const DashboardBrandCreate = () => {
       </div>
       )}
 
+
+{/* CREATE BRAND */}
       {isCreating && (
         <div className="mt-4 p-4 text-primaryColor border border-greyColor">
           <div className='flex flex-row justify-between p-2'>
@@ -355,8 +404,8 @@ const DashboardBrandCreate = () => {
               placeholder="BRAND NAME"
               value={brandState.brandName ? brandState.brandName : ''}
               onChange={(e) => {
-                dispatchBrand({
-                type:'BRAND_NAME',
+                dispatchCreateBrand({
+                type:'BRAND_NAME_CREATE',
                 payload:e.target.value
                 })
               }}
@@ -368,8 +417,8 @@ const DashboardBrandCreate = () => {
                 uploadImage='/icons/imageupload.svg'
                 maxImages={1}
                 onFileChange={(file: File) => {
-                  dispatchBrand({
-                  type:'BRAND_IMAGE',
+                  dispatchCreateBrand({
+                  type:'BRAND_IMAGE_CREATE',
                   payload:file
                   })
                 }}
@@ -404,14 +453,10 @@ const DashboardBrandCreate = () => {
               iconSize={8}
               />
             </DashBoardButtonLayoutOption>
-            
           </div>
-
-          
         </div>
       )}
     </div>
   );
 };
 
-export default DashboardBrandCreate;

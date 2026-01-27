@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import './globals.css';
 
+import { worksans } from "@/types/fonts";
+
 export const metadata: Metadata = {
   title: "Smooth Casting", 
   description: "Tackles Shop Quality and Branded Products",
@@ -16,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       {/* <meta name="viewport" content="width=device-width, initial-scale=1.0"/> */}
-      <body className="relative">
+      <body className={`relative ${worksans.className}`}>
         {children}
       </body>
     </html>
