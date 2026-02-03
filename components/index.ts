@@ -9,6 +9,8 @@ import Discounts from './sales';
 
 import { DashboardBrandClient } from './DashboardBrandClient';
 import DashBoardButtonLayoutOption from './DashBoardButtonLayoutOption';
+import IconButton from '@/components/IconButton';
+
 import DashboardCategoryClient from './DashboardCategoryClient';
 import DashboardHeader from './DashboardHeader';
 import DashboardSelectBrand from './DashboardSelectBrand';
@@ -17,10 +19,14 @@ import DashboardSelectSubCategory from './DashboardSelectSubCategory';
 import DashboardVariantsComponent from './DashboardVariantsComponent';
 import ProductMedia from './ProductMedia';
 
+import SearchText from './SearchText';
 import InputText from './InputText';
 import TextBox from './TextBox';
 import CustomButton from './CustomButton';
 import InputPrice from './InputPrice';
+import SearchTextAdmin from '@/components/SearchTextAdmin';
+import ImageIconUpload from '@/components/ImageIconUpload';
+import DropDownText from '@/components/DropDownText';
 
 export {
     Header,
@@ -38,13 +44,18 @@ export {
     DashboardSelectSubCategory,
     DashboardVariantsComponent,
     ProductMedia,
-
+    
+    DropDownText,
+    ImageIconUpload,
+    SearchTextAdmin,
     InputText,
+    SearchText,
     TextBox,
     CustomButton,
     InputPrice,
-
+    IconButton,
 
     Setups,
     Discounts,
 }
+

@@ -3,9 +3,10 @@ import Link from "next/link";
 import { worksans, inter } from "@/types/fonts";
 import { NewArrivalProduct } from "@/types/dataprops";
 import { slugify } from "@/utils/slugify";
+import { numericConverter } from "@/utils/priceUtils";
 
 export default function ProductCards({ product, index }: { product: NewArrivalProduct, index:number }) {
-    const { 
+  const { 
     productId,
     basePrice, 
     brandName, 
@@ -13,15 +14,7 @@ export default function ProductCards({ product, index }: { product: NewArrivalPr
     imageThumbNail,
     typeName,
     discountType, 
-    } = product;
-
-  let numericPrice = Number(basePrice);
-
-  let formattedPrice = numericPrice.toLocaleString("en-PH", {
-    style: "currency",
-    currency: "PHP"
-  });
-
+  } = product;
 
   return (
     <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}`}>
@@ -65,7 +58,7 @@ export default function ProductCards({ product, index }: { product: NewArrivalPr
           <p
           className={`${inter.className} font-semibold text-[1rem] sm:text-[1.0rem] text-primaryColor mt-2`}
           >
-           {formattedPrice}
+           {numericConverter(String(basePrice))}
           </p>
         </div>
       </div>

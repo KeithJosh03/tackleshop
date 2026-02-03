@@ -1,27 +1,34 @@
 import React from 'react';
 import { 
-  BrandProps,
   CategoryProps,
-  SubCategoryProps 
 } from '@/types/dataprops';
+
+import { SubCategory } from '@/types/subCategoryTypes';
+
+import { BrandProps } from '@/types/brandType';
 
 import { ProductListDashboard } from '@/lib/api/productService';
 
-interface SearchTextTestProps {
+interface SearchTextProps {
   placeholderText: string;
   value: string;
-  choosen: BrandProps | CategoryProps | SubCategoryProps | ProductListDashboard |undefined;
+  choosen: BrandProps | CategoryProps | SubCategory | ProductListDashboard | undefined | null;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void; 
 }
 
-const SearchTextTest: React.FC<SearchTextTestProps> = ({
+
+const SearchText: React.FC<SearchTextProps> = ({
   placeholderText,
   value,
   onChange,
   choosen,
   onClear,
 }) => {
+  
+  
+
+
   return (
     <div className="relative w-full">
       <input
@@ -47,4 +54,4 @@ const SearchTextTest: React.FC<SearchTextTestProps> = ({
   );
 };
 
-export default SearchTextTest;
+export default SearchText;

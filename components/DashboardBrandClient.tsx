@@ -5,12 +5,14 @@ import { BrandProps } from '@/types/dataprops';
 import { worksans } from '@/types/fonts';
 import Image from 'next/image';
 
-import DashBoardButtonLayoutOption from '@/components/DashBoardButtonLayoutOption';
-import IconButton from '@/components/IconButton';
-import SearchTextAdmin from '@/components/SearchTextAdmin';
-import ImageIconUpload from '@/components/ImageIconUpload';
-import DropDownText from '@/components/DropDownText';
-import InputText from '@/components/InputText';
+import {
+  DashBoardButtonLayoutOption,
+  InputText,
+  IconButton,
+  SearchTextAdmin,
+  ImageIconUpload,
+  DropDownText
+} from '@/components/'
 
 import { 
   useDashboardBrandCreateReducer,

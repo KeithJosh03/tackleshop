@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import SearchTextTest from '@/components/InputTextTest';
+// import SearchText from '@/components/SearchText';
+import { SearchText } from '@/components';
 import {
   ProductListDashboard,
   ProductListDashboardSearch,
@@ -61,7 +62,7 @@ export default function Page() {
     <div className="flex flex-col border border-greyColor p-4 gap-y-4 font-extrabold rounded bg-blackgroundColor">
       <h1 className="text-primaryColor text-xl">PRODUCT LISTS</h1>
 
-      <SearchTextTest
+      <SearchText
         placeholderText="Search Product"
         value={searchProduct}
         choosen={selectedProduct}

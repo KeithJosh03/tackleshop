@@ -1,13 +1,13 @@
 import React from 'react'
 
 
-import { showBrand } from "@/lib/api/brandService";
+import { showBrandListName } from "@/lib/api/brandService";
 import { DashboardCategoryClient,DashboardBrandClient } from '@/components';
-import { CategoryHeader } from '@/lib/api/categoryService';
+import { CategoryList } from '@/lib/api/categoryService';
 
 export default async function page() {
-    const brandslist = await showBrand();
-    const categorylist = await CategoryHeader();
+    const brandslist = await showBrandListName();
+    const categorylist = await CategoryList();
 
     return (
     <div className='flex flex-col'>

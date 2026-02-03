@@ -1,45 +1,62 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { ProductDetailAction } from "../app/admin/dashboard/addproduct/page";
-import { showBrand } from "@/lib/api/brandService";
-import { BrandProps } from "@/types/dataprops";
 
-import DropDownText from "@/components/DropDownText";
-import SearchTextAdmin from "@/components/SearchTextAdmin";
-import SearchTextTest from "@/components/InputTextTest";
+import { ProductDetailActionCreate } from "../app/admin/dashboard/addproduct/page";
+import { ProductDetailActionEdit } from "@/app/admin/dashboard/editproduct/[productId]/ProductClientEdit";
+import { BrandProps } from "@/types/brandType";
 
+import { showBrandListName } from "@/lib/api/brandService";
 
-interface BrandsResponse {
-  status: boolean;
-  brands: BrandProps[];
-}
+import {
+  SearchText,
+  DropDownText
+} from '@/components/'
+
+type ReducerType = 'CREATE' | 'EDIT'
 
 interface BrandComponentProps {
-  dispatchProductDetail: React.Dispatch<ProductDetailAction>; 
+  dispatchProductDetailCreate?: React.Dispatch<ProductDetailActionCreate>; 
+  ProductDetailEditReducer?: React.Dispatch<ProductDetailActionEdit>;
+  reducerType: ReducerType;
+  choosenBrand: BrandProps | null;
 }
 
-const DashboardSelectBrand: React.FC<BrandComponentProps> = ({ dispatchProductDetail }) => {
+const DashboardSelectBrand: React.FC<BrandComponentProps> = (
+  { dispatchProductDetailCreate, 
+    ProductDetailEditReducer,
+    reducerType,
+    choosenBrand 
+  }) => {
   const [brands, setBrands] = useState<BrandProps[]>([]);
   const [filteredBrands, setFilteredBrands] = useState<BrandProps[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState<BrandProps | undefined>();
+  const [selectedBrand, setSelectedBrand] = useState<BrandProps | null>();
+  
 
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        const brandsData: BrandsResponse = await showBrand();
-        setBrands(brandsData.brands);
-        setLoading(false);
+        const brandsData: BrandProps[] = await showBrandListName();
+        setBrands(brandsData);
       } catch (error) {
         console.error("Error fetching brands:", error);
-        setLoading(false);
       }
     };
 
     fetchBrands();
   }, []);
+
+  useEffect(() => {
+    if(choosenBrand === null) {
+      setSelectedBrand(null);
+      setSearchTerm('');
+      return
+    }
+    setSelectedBrand(choosenBrand);
+    setSearchTerm(choosenBrand.brandName);
+  },[choosenBrand])
+
 
   useEffect(() => {
     if(selectedBrand?.brandName.toLowerCase() === searchTerm.toLowerCase()){
@@ -56,28 +73,41 @@ const DashboardSelectBrand: React.FC<BrandComponentProps> = ({ dispatchProductDe
     );
   }, [searchTerm, brands]);
 
-  const handleSelectBrand = (brand: BrandProps) => {
-    setSelectedBrand(brand);
-    setSearchTerm(brand.brandName);
-    dispatchProductDetail({ 
-    type: 'SELECT_BRAND', payload: brand.brandId 
-    });
-  };
-
   const clearSearch = () => {
-    dispatchProductDetail({
-    type:'SELECT_BRAND_DELETE'
-    })
+    if (reducerType === 'CREATE' && dispatchProductDetailCreate) {
+      dispatchProductDetailCreate({
+      type:'REMOVE_BRAND'
+      })
+    }
+
+    if(reducerType === 'EDIT' && ProductDetailEditReducer){
+      ProductDetailEditReducer({
+      type:'REMOVE_BRAND'
+      })
+    }
+    
     setSearchTerm('')
-    setSelectedBrand(undefined)
   }
 
-  if (loading) return <div>Loading...</div>;
+  const dispatchBrandSelect = (brand: BrandProps) => {
+    if (reducerType === 'EDIT' && ProductDetailEditReducer) {
+      ProductDetailEditReducer({
+        type: 'UPDATE_BRAND', 
+        payload: brand
+      });
+    }
+    if(reducerType === 'CREATE' && dispatchProductDetailCreate){
+      dispatchProductDetailCreate({
+        type:'SELECT_BRAND',
+        payload:brand
+      })
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col">
       <h1 className="text-primaryColor text-xl">SELECT BRAND</h1>
-      <SearchTextTest
+      <SearchText
         choosen={selectedBrand} 
         onClear={clearSearch}
         placeholderText="Search Brand"
@@ -88,7 +118,9 @@ const DashboardSelectBrand: React.FC<BrandComponentProps> = ({ dispatchProductDe
         <ul className="list-none bg-secondary border rounded border-primaryColor text-base max-h-40 overflow-y-auto">
           {filteredBrands.map((brand) => (
             <DropDownText 
-              onClick={() => handleSelectBrand(brand)} 
+              onClick={() => 
+                dispatchBrandSelect(brand) 
+              } 
               key={brand.brandId} 
               indexKey={brand.brandId} 
               listName={brand.brandName}

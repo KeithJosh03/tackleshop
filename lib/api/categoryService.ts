@@ -17,7 +17,7 @@ interface HeaderCategoryResponse {
   categories: CategoryProps[];
 }
 
-export async function CategoryHeader(): Promise<CategoryProps[]> {
+export async function CategoryList(): Promise<CategoryProps[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/categories/`,
     { cache: 'no-store' }

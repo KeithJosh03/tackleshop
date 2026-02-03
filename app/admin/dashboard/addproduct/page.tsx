@@ -4,6 +4,9 @@ import { usePathname } from 'next/navigation';
 
 import { UIComponentReducer, initialUIComponent } from '@/lib/api/reDucer';
 import { createProduct } from '@/lib/api/productService';
+import { BrandProps } from '@/types/brandType';
+import { Category } from '@/types/categoryType';
+import { SubCategory } from '@/types/subCategoryTypes';
 
 import {
   InputText,
@@ -16,7 +19,6 @@ import {
   ProductMedia,
   DashboardVariantsComponent,
 } from '@/components'
-
 
 export interface VariantDetails{
   variantTypeName: string;
@@ -37,9 +39,9 @@ interface ProductImage {
 interface ProductDetails {
   productTitle: string;
   basePrice:string;
-  brandId: number | null;
-  categoryId: number | null;
-  subCategoryId:number | null;
+  brand: BrandProps | null;
+  category: Category | null;
+  subCategory:SubCategory | null;
   description: string | null;
   features: string | null;
   specifications: string | null;
@@ -47,7 +49,7 @@ interface ProductDetails {
   medias: ProductImage[];
 }
 
-export type ProductDetailAction = 
+export type ProductDetailActionCreate = 
  | { type: 'CLEAR_INPUTS'; payload: ProductDetails} 
  | { type: 'UPDATE_PRODUCT_TITLE'; payload: string} 
  | { type: 'UPDATE_BASE_PRICE'; payload: string} 
@@ -56,11 +58,11 @@ export type ProductDetailAction =
  | { type: 'UPDATE_SPECIFICATIONS'; payload: string | null} 
  | { type: 'ADD_MEDIAS'; payload: ProductImage[] } 
  | { type: 'ADD_VARIANTS'; payload: VariantDetails } 
- | { type: 'SELECT_BRAND'; payload: number}  
- | { type: 'SELECT_BRAND_DELETE';}  
- | { type: 'SELECT_CATEGORY'; payload: number} 
- | { type: 'SELECT_CATEGORY_DELETE'; } 
- | { type: 'SELECT_SUBCATEGORY'; payload:number} 
+ | { type: 'SELECT_BRAND'; payload: BrandProps}  
+ | { type: 'REMOVE_BRAND';}  
+ | { type: 'UPDATE_CATEGORY'; payload: Category} 
+ | { type: 'REMOVE_CATEGORY'; } 
+ | { type: 'SELECT_SUBCATEGORY'; payload:SubCategory} 
  | { type: 'SELECT_SUBCATEGORY_DELETE';} 
  | { type: 'UPDATE_MAIN_IMAGE'; payload:number} 
  | { type: 'DELETE_PRODUCT_IMAGE'; payload:number}
@@ -71,9 +73,9 @@ export type ProductDetailAction =
 
  
 
-function ProductDetailReducer(
+function ProductDetailCreateReducer(
   state: ProductDetails,
-  action: ProductDetailAction
+  action: ProductDetailActionCreate
 ): ProductDetails {
   switch (action.type) {
     case 'CLEAR_INPUTS' : {
@@ -113,37 +115,34 @@ function ProductDetailReducer(
     case "SELECT_BRAND": {
       return {
         ...state,
-        brandId: action.payload,
+        brand: action.payload,
       };
     }
-    case 'SELECT_BRAND_DELETE': {
+    case 'REMOVE_BRAND': {
       return {
         ...state,
-        brandId:null
+        brand:null
       }
     }
-    case "SELECT_CATEGORY": {
+    case "UPDATE_CATEGORY": {
       return {
         ...state,
-        categoryId: action.payload,
+        category: action.payload,
       };
     }
-    case "SELECT_CATEGORY_DELETE": {
-      return {
-        ...state,
-        categoryId:null
-      }
+    case "REMOVE_CATEGORY": {
+      return { ...state, category:null }
     }
     case "SELECT_SUBCATEGORY": {
       return {
         ...state,
-        subCategoryId: action.payload,
+        subCategory: action.payload,
       };
     }
     case "SELECT_SUBCATEGORY_DELETE": {
       return {
         ...state,
-        subCategoryId:null
+        subCategory:null
       }
     }
     case "UPDATE_MAIN_IMAGE": {
@@ -246,24 +245,24 @@ function ProductDetailReducer(
     basePrice:'',
     description: null,
     features:null,
-    brandId:null,
-    categoryId:null,
-    subCategoryId:null,
+    brand:null,
+    category:null,
+    subCategory:null,
     specifications:null,
     variants: [],
     medias:[]
   }
 
   const [initialUIComponentState, dispatchInitialUIComponent] = useReducer(UIComponentReducer,initialUiComponent)
-  const [ProductDetailState, dispatchProductDetail] = useReducer(ProductDetailReducer,initialProductDetailState)
+  const [ProductDetailState, dispatchProductDetailCreate] = useReducer(ProductDetailCreateReducer,initialProductDetailState)
 
   const handleValidateProductDetail = () => {
     const {
       productTitle,
       basePrice,
-      brandId,
-      categoryId,
-      subCategoryId,
+      brand,
+      category,
+      subCategory,
       variants,
       medias
     } = ProductDetailState;
@@ -272,7 +271,7 @@ function ProductDetailReducer(
       return parseFloat(price.replace(/[^0-9.-]+/g, ''))
     }
 
-    if (!productTitle.trim() && brandId === null && categoryId === null &&  subCategoryId === null){
+    if (!productTitle.trim() && brand === undefined && category === null &&  subCategory === null){
       return false;
     }
 
@@ -314,18 +313,18 @@ function ProductDetailReducer(
   };
 
   const handleProductAdd = async () => {
-    let validated = handleValidateProductDetail()
-    if(validated){
-      await createProduct(ProductDetailState)
-      dispatchProductDetail({
-        type:'CLEAR_INPUTS',
-        payload:initialProductDetailState
-      })
-    }
-    else {
-      alert('wrong inputs')
-    }
-    
+    console.log(ProductDetailState)
+    // let validated = handleValidateProductDetail()
+    // if(validated){
+    //   await createProduct(ProductDetailState)
+    //   dispatchProductDetailCreate({
+    //     type:'CLEAR_INPUTS',
+    //     payload:initialProductDetailState
+    //   })
+    // }
+    // else {
+    //   alert('wrong inputs')
+    // }
   }
 
   return (
@@ -346,8 +345,8 @@ function ProductDetailReducer(
           <InputText
           placeholder="Product Title"
           value={ProductDetailState.productTitle}
-          onChange={(e) => {
-            dispatchProductDetail({
+          onChange={(e:any) => {
+            dispatchProductDetailCreate({
             type:'UPDATE_PRODUCT_TITLE',
             payload:e.target.value
             });
@@ -362,7 +361,7 @@ function ProductDetailReducer(
           placeholder="Base Price"
           value={`${ProductDetailState.basePrice}`}
           onChange={(e) => {
-            dispatchProductDetail({
+            dispatchProductDetailCreate({
             type:'UPDATE_BASE_PRICE',
             payload:e.target.value
             });
@@ -386,7 +385,7 @@ function ProductDetailReducer(
         isOpenBox={initialUIComponentState.descriptionUI}
         textBoxValue={ProductDetailState.description || ''}
         onChange={(e) => {
-          dispatchProductDetail({
+          dispatchProductDetailCreate({
           type:"UPDATE_DESCRIPTION",
           payload:e.target.value
           });
@@ -405,7 +404,7 @@ function ProductDetailReducer(
         isOpenBox={initialUIComponentState.specificationsUI}
         textBoxValue={ProductDetailState.specifications || ''}
         onChange={(e) => {
-          dispatchProductDetail({
+          dispatchProductDetailCreate({
           type:"UPDATE_SPECIFICATIONS",
           payload:e.target.value
           });
@@ -424,7 +423,7 @@ function ProductDetailReducer(
         isOpenBox={initialUIComponentState.featuresUI}
         textBoxValue={ProductDetailState.features || ''}
         onChange={(e) => {
-          dispatchProductDetail({
+          dispatchProductDetailCreate({
           type: "UPDATE_FEATURES",
           payload:e.target.value
           })
@@ -432,27 +431,35 @@ function ProductDetailReducer(
         />
       </div>
       <div className='border-t border-greyColor flex flex-row p-4 gap-x-4'>
-        <DashboardSelectBrand 
-          dispatchProductDetail={dispatchProductDetail}
+        <DashboardSelectBrand
+          choosenBrand={ProductDetailState.brand}
+          reducerType='CREATE'
+          dispatchProductDetailCreate={dispatchProductDetailCreate}
         />
-        <DashboardSelectCategory 
-          dispatchProductDetail={dispatchProductDetail}
+        <DashboardSelectCategory
+          currentCategory={ProductDetailState.category} 
+          ReducerType="CREATE"
+          dispatchProductDetailCreate={dispatchProductDetailCreate}
         />
-        {ProductDetailState.categoryId && (
+        {ProductDetailState.category && (
         <DashboardSelectSubCategory 
-          dispatchProductDetail={dispatchProductDetail}
-          categoryId={ProductDetailState.categoryId}
+          dispatchProductDetailCreate={dispatchProductDetailCreate}
+          currentCategory={ProductDetailState.category}
+          currentSubCategory={ProductDetailState.subCategory}
+          ReducerType='CREATE'
         />)}
       </div>
     </div>
     <ProductMedia 
-      medias={ProductDetailState.medias}
-      dispatchProductDetail={dispatchProductDetail}
+      productMedias={ProductDetailState.medias}
+      dispatchProductDetailCreate={dispatchProductDetailCreate}
+      ReducerType='CREATE'
     />
     <DashboardVariantsComponent 
+      ReduceType='CREATE'
       variantsList={ProductDetailState.variants}
       basePrice={ProductDetailState.basePrice}
-      dispatchProductDetail={dispatchProductDetail}
+      dispatchProductDetailCreate={dispatchProductDetailCreate}
     />
   </div>
   )

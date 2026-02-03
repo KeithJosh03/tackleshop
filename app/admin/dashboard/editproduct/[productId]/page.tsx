@@ -1,5 +1,5 @@
 import { ProductDetailsEdit } from "@/lib/api/productService";
-import EditProductClient from "./editProductClient";
+import EditProductClient from "./ProductClientEdit";
 
 
 interface PageProps {

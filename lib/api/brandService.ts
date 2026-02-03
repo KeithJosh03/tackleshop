@@ -13,7 +13,6 @@ export async function createBrand(data: BrandData) {
   return response.data;
 }
 
-
 // HEADER
 export interface BrandHeaderProps {
   brandId: number;
@@ -26,9 +25,9 @@ interface HeaderBrandResponse {
   brands: BrandHeaderProps[];
 }
 
-export async function showBrand(): Promise<BrandHeaderProps[]> {
+export async function showBrandListName(): Promise<BrandHeaderProps[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/brands/`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/brands/brandNameList/`,
     { cache: 'no-store' }
   );
 

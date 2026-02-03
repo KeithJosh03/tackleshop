@@ -2,19 +2,36 @@
 
 import { useState, useReducer } from "react";
 import Image from "next/image";
-import IconButton from "@/components/IconButton";
-import CustomButton from "@/components/CustomButton";
-import SearchTextAdmin from "@/components/SearchTextAdmin";
-import InputPrice from "@/components/InputPrice";
+
+
+import {
+    InputText,
+    IconButton,
+    CustomButton,
+    SearchTextAdmin,
+    InputPrice
+} from '@/components'
 
 import { VariantDetails,VariantOption } from "../app/admin/dashboard/addproduct/page";
 import ImageIconUpload from "@/components/ImageIconUpload";
-import { ProductDetailAction } from "../app/admin/dashboard/addproduct/page";
+// ACTION REDUCER
+import { ProductDetailActionCreate } from "../app/admin/dashboard/addproduct/page";
+import { ProductDetailActionEdit } from "@/app/admin/dashboard/editproduct/[productId]/ProductClientEdit";
+import { ProductVariantTypes } from "@/types/productVariants";
+import { ProductDetailsEdit } from "@/lib/api/productService";
+
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
+
+
+type ReducerType = 'CREATE' | 'EDIT'
 
 interface VariantsComponentProps {
-    variantsList: VariantDetails[];
+    variantsList?: VariantDetails[];
     basePrice:string;
-    dispatchProductDetail: React.Dispatch<ProductDetailAction>;
+    currentVariants?: ProductVariantTypes[];
+    ReduceType: ReducerType
+    dispatchProductDetailCreate?: React.Dispatch<ProductDetailActionCreate>;
+    ProductDetailEditReducer?:React.Dispatch<ProductDetailActionEdit>;
 }
 
 
@@ -23,8 +40,8 @@ type createVariantDetailAction =
 | { type: 'UPDATE_TYPE_NAME'; payload: string}
 | { type: 'ADD_OPTION_NAME'; payload: string}
 | { type: 'REMOVE_OPTION_NAME'; payload: number}
-| {type:'RESET_VARIANT_DETAILS'; payload:VariantDetails}
-| {type: 'ADJUST_PRICE'; payload: {id:number, price_adjust:string}}
+| { type:'RESET_VARIANT_DETAILS'; payload:VariantDetails}
+| { type: 'ADJUST_PRICE'; payload: {id:number, price_adjust:string}}
 
 
 
@@ -51,9 +68,6 @@ function VariantDetailReducer(
                 variantOptions:[...state.variantOptions.filter((_, i) => i !== action.payload)]
             }
         case "ADJUST_PRICE":
-        console.log("Action payload:", action.payload);
-        console.log("Current variant options:", state.variantOptions);
-        
         const updatedVariantOptions = state.variantOptions.map((option, index) => {
             console.log(`Checking option at index ${index}`);
             if (index === action.payload.id) {
@@ -63,9 +77,6 @@ function VariantDetailReducer(
             console.log('No update for this option', option);
             return option; 
         });
-        
-        console.log("Updated variant options:", updatedVariantOptions);
-
         return {
             ...state,
             variantOptions: updatedVariantOptions, 
@@ -80,7 +91,15 @@ function VariantDetailReducer(
 
 
 
-const DashboardVariantsComponent: React.FC<VariantsComponentProps> = ({variantsList,dispatchProductDetail,basePrice}) => { 
+const DashboardVariantsComponent: React.FC<VariantsComponentProps> = (
+{
+    variantsList,
+    currentVariants,
+    dispatchProductDetailCreate,
+    ProductDetailEditReducer,
+    basePrice,
+    ReduceType
+}) => { 
     const initialcreateVariantDetail = {
         variantTypeName:'',
         variantOptions:[]
@@ -128,12 +147,18 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = ({variantsL
     }
 
     const doneInitialsVariant = () => {
-        if(createVariantDetail.variantTypeName.trim().length > 0 && Array.isArray(createVariantDetail.variantOptions) && createVariantDetail.variantOptions.length > 0){
-            dispatchProductDetail({
-            type:'ADD_VARIANTS',
-            payload:createVariantDetail
-            })
-            clearingInputs()
+        if(
+        createVariantDetail.variantTypeName.trim().length > 0 && 
+        Array.isArray(createVariantDetail.variantOptions) 
+        && createVariantDetail.variantOptions.length > 0 
+        ){
+            if(ReduceType === 'CREATE' && dispatchProductDetailCreate){
+                dispatchProductDetailCreate({
+                    type:'ADD_VARIANTS',
+                    payload:createVariantDetail
+                })
+                clearingInputs()
+            }
         }
     }
     return(
@@ -146,25 +171,96 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = ({variantsL
                     </h3>
                 </div>
             </div>
+
+
+            {/* CREATE VARIANT TYPE & LIST RENDER*/}
+            {ReduceType === 'CREATE' && (
             <div className="flex flex-col gap-y-2">
                 {Array.isArray(variantsList) && variantsList.length > 0 && (
-                variantsList.map((variant,index) => (
-                <div className="flex flex-col gap-y-2 text-primaryColor p-6 border border-secondary rounded w-full"
-                key={index}
-                >
-                    <h1 className="font-extrabold text-2xl">{variant.variantTypeName}</h1>
-                    <ul className="flex flex-row gap-x-2">
-                        {variant.variantOptions.map((option,index) => (
-                        <li className="py-1 px-2 border bg-secondary border-secondary text-primaryColor rounded relative text-sm"
-                        key={index}
-                        >{option.variantOptionValue}</li>
-                        ))}
-                    </ul>
-                </div>
-                ))
+                    variantsList.map((variant,index) => (
+                    <div className="flex flex-col gap-y-2 text-primaryColor p-6 border border-secondary rounded w-full"
+                    key={index}
+                    >
+                        <h1 className="font-extrabold text-2xl">{variant.variantTypeName}</h1>
+                        <ul className="flex flex-row gap-x-2">
+                            {variant.variantOptions.map((option,index) => (
+                            <li className="py-1 px-2 border bg-secondary border-secondary text-primaryColor rounded relative text-sm"
+                            key={index}
+                            >{option.variantOptionValue}</li>
+                            ))}
+                        </ul>
+                    </div>
+                    ))
                 )}
             </div>
-            {variantInputsBox && (
+            )}
+
+            {/* EDIT VARIANT TYPE & LIST RENDER*/}
+            {(ReduceType == 'EDIT' && 
+            ProductDetailEditReducer) && (
+            <div className="flex flex-col gap-y-2">
+                {Array.isArray(currentVariants) && currentVariants.length > 0 && (
+                    currentVariants.map((variant,index) => (
+                    <div className="flex flex-col gap-y-2 text-primaryColor p-6 border rounded w-full border-greyColor relative"
+                    key={index | variant.variantTypeId}
+                    >
+                        <h1 className="text-sm font-extrabold">VARIANT TYPE</h1>
+                        <InputText 
+                            key={variant.variantTypeId | index}
+                            value={variant.variantTypeName}
+                            onChange={(e) => {
+                                ProductDetailEditReducer({
+                                    type:'UPDATE_VARIANT_TYPE',
+                                    payload:{
+                                    variantTypeId:variant.variantTypeId,
+                                    variantTypeName:e.target.value
+                                    }
+                                })
+                            }}
+                            placeholder="Enter Model"
+                        />
+                        <CustomButton 
+                            text="DELETE VARIANT TYPE"
+                            className="absolute top-2 right-2 button-view text-md font-extrabold"
+                            onClick={() => {
+                                ProductDetailEditReducer({
+                                    type:'REMOVE_VARIANT_TYPE',
+                                    payload:{
+                                        variantTypeId:variant.variantTypeId,
+                                    }
+                                })
+                            }}
+                        />
+                        <div className="flex flex-col mt-4 border-t border-greyColor pt-2">
+                            <h1 className="text-sm font-extrabold">VARIANT OPTIONS</h1>
+                            <ul className="flex flex-row gap-x-2 mt-2">
+                            {variant.variantOptions.map((option, index) => (
+                            <InputText 
+                                key={option.variantOptionId}
+                                value={option.variantOptionValue}
+                                onChange={(e) => {
+                                    ProductDetailEditReducer({
+                                        type:'UPDATE_VARIANT_OPTION_NAME',
+                                        payload: { 
+                                            variantTypeId:variant.variantTypeId,
+                                            variantOptionId:option.variantOptionId,
+                                            variantOptionValue: e.target.value 
+                                        } 
+                                    }); 
+                                }}
+                                placeholder="Enter Model"
+                            />
+                            ))}
+                            </ul>
+                        </div>
+                    </div>
+                    ))
+                )}
+            </div>
+            )}
+
+            {/* CREATE VARIANT OPTION */}
+            {(variantInputsBox && ReduceType === 'CREATE') && (
             <div className="flex flex-col border border-greyColor rounded px-2 py-1">
                 <div className=" flex flex-col p-2 gap-y-2 w-1/2">
                     <div className="flex flex-col gap-y-2">
@@ -228,6 +324,10 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = ({variantsL
                 </div>
             </div>
             )}
+
+
+            {/* CREATE NEW VARIANT TYPE */}
+            { ReduceType === 'CREATE' && (
             <div className="relative">
                 <div 
                 className={
@@ -247,6 +347,7 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = ({variantsL
                     />
                     <p className='text-sm'>Add Options Variants example: Weights, Sizes, Colors, Hook Thickness, etc</p>
                 </div>
+                
                 {variantBox && (
                 <div className="border border-secondary absolute bottom-full rounded bg-blackgroundColor py-1 px-2 flex flex-col gap-y-4">
                     <SearchTextAdmin 
@@ -286,8 +387,15 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = ({variantsL
                 </div>
                 )}
             </div>
-            {Array.isArray(variantsList) && variantsList.length > 0 && (
-                        <div className="flex flex-col gap-y-1 border-t border-greyColor mt-10">
+            )}
+
+
+            {/* CREATE VARIANT OPTION PRICE & IMAGE */}
+            {(Array.isArray(variantsList) && 
+            variantsList.length > 0 
+            && ReduceType === 'CREATE' 
+            && dispatchProductDetailCreate) && (
+            <div className="flex flex-col gap-y-1 border-t border-greyColor mt-10">
                 {Array.isArray(variantsList) && variantsList.length > 0 && (
                 <ul className="flex flex-row items-center justify-between p-2 text-xl text-primaryColor">
                     <li className="flex-1">VariantImage</li>
@@ -308,14 +416,16 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = ({variantsL
                                     uploadImage="/icons/imageupload.svg"
                                     maxImages={1}
                                     onFileChange={(file:File) => {
-                                        dispatchProductDetail({
-                                            type: 'ADD_IMAGE_VARIANT',
-                                            payload: { 
-                                                variantIndex:variantIndex,
-                                                optiontIndex:optionIndex,
-                                                variantImage: file
-                                            }, 
-                                        });
+                                        if(dispatchProductDetailCreate && ReduceType === 'CREATE'){
+                                            dispatchProductDetailCreate({
+                                                type: 'ADD_IMAGE_VARIANT',
+                                                payload: { 
+                                                    variantIndex:variantIndex,
+                                                    optiontIndex:optionIndex,
+                                                    variantImage: file
+                                                }, 
+                                            });
+                                        }
                                     }}
                                     />)}
                                     {option.variant_image !== null && (
@@ -326,13 +436,15 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = ({variantsL
                                             altText="Delete Icon"
                                             iconSize={8}
                                             onClick={(e) => {
-                                            dispatchProductDetail({
-                                                type:'REMOVE_VARIANT_IMAGE',
-                                                payload:{
-                                                variantIndex:variantIndex,
-                                                optionIndex:optionIndex
+                                                if(dispatchProductDetailCreate && ReduceType === 'CREATE'){
+                                                    dispatchProductDetailCreate({
+                                                        type:'REMOVE_VARIANT_IMAGE',
+                                                        payload:{
+                                                        variantIndex:variantIndex,
+                                                        optionIndex:optionIndex
+                                                        }
+                                                    })
                                                 }
-                                            })
                                             }}
                                             />
                                         </div>
@@ -354,14 +466,16 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = ({variantsL
                                     placeholder="Base Price"
                                     value={`${option.price_adjusting}`} 
                                     onChange={(e) => {
-                                        dispatchProductDetail({
-                                            type: 'ADJUST_PRICE',
-                                            payload: { 
-                                                variantIndex:variantIndex,
-                                                optiontIndex:optionIndex,
-                                                price_adjust: e.target.value 
-                                            }, 
-                                        });
+                                        if(dispatchProductDetailCreate && ReduceType === 'CREATE'){
+                                            dispatchProductDetailCreate({
+                                                type: 'ADJUST_PRICE',
+                                                payload: { 
+                                                    variantIndex:variantIndex,
+                                                    optiontIndex:optionIndex,
+                                                    price_adjust: e.target.value 
+                                                }, 
+                                            });
+                                        }
                                     }}
                                     />
                                 </div>
@@ -376,6 +490,90 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = ({variantsL
                 ))}
             </div>
             )}
+
+            {/* EDIT PRICE VARIANT OPTION */}
+            {(Array.isArray(currentVariants) && 
+            currentVariants.length > 0 
+            && ReduceType === 'EDIT' 
+            && ProductDetailEditReducer) && (
+            <div className="flex flex-col gap-y-1 border-t border-greyColor mt-10">
+                {Array.isArray(currentVariants) && currentVariants.length > 0 && (
+                <ul className="flex flex-row items-center justify-between p-2 text-xl text-primaryColor">
+                    <li className="flex-1">VariantImage</li>
+                    <li className="flex-1">VariantName</li>
+                    <li className="flex-1">PriceAdjustment</li>
+                    <li className="flex-1">Price (Base + Variant)</li>
+                </ul>
+                )}
+                {currentVariants.map((variant, variantIndex) => (
+                <div key={variantIndex} className="flex flex-col">
+                    <div className="flex flex-col gap-y-2">
+                        {variant.variantOptions.map((option, optionIndex) => (
+                        <div key={optionIndex} className="flex items-center gap-y-2 justify-between p-2">
+                            <div className="flex-1 flex flex-row items-center justify-between gap-x-4 border border-secondary rounded py-2 px-4 relative">
+                                <CustomButton 
+                                text="DELETE"
+                                className="absolute top-2 right-2 button-view text-md font-extrabold"
+                                onClick={() => {
+                                    ProductDetailEditReducer({
+                                        type:'REMOVE_VARIANT_OPTION_NAME',
+                                        payload:{
+                                            variantTypeId:variant.variantTypeId,
+                                            variantOptionId:option.variantOptionId
+                                        }
+                                    })
+                                }}
+                                />
+                                <div className="flex-1">
+                                    {option.imageUrl !== null && (
+                                    <div className="relative min-w-[160px] h-40 w-40 rounded border border-primaryColor">
+                                        <Image
+                                        src={`${baseURL}${option.imageUrl}`}
+                                        alt={`media-${optionIndex}`}
+                                        fill
+                                        className="object-contain rounded"
+                                        />
+                                    </div>
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <h1 className="font-bold text-primaryColor text-xl">{option.variantOptionValue}</h1>
+                                </div>
+                                <div className="flex-1">
+                                    <InputPrice
+                                    isUnit={true}
+                                    placeholder="Base Price"
+                                    value={`${option.variantOptionPrice}`} 
+                                    onChange={(e) => {
+                                        ProductDetailEditReducer({
+                                            type:'UPDATE_PRICE_OPTION',
+                                            payload: { 
+                                                variantTypeId:variant.variantTypeId,
+                                                variantOptionId:option.variantOptionId,
+                                                variantOptionPrice: e.target.value 
+                                            } 
+                                        });
+                                    }}
+                                    />
+                                </div>
+                                <div className="flex-1">
+                                    <h1 className="font-bold text-primaryColor text-xl">{`₱ ${(parseFloat((option.variantOptionPrice !== '' ? option.variantOptionPrice : '0')) + parseFloat((basePrice !== '' ? basePrice : '0'))).toFixed(2)}`}</h1>
+                                </div>
+                            </div>
+                        </div>
+                        ))}
+                    </div>
+                </div>
+                ))}
+            </div>
+            )}
+
+
+
+
+
+
+
         </div>
     </div>
     );

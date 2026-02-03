@@ -4,18 +4,33 @@ import { showCategories, CategoryPropsResponse } from '@/lib/api/categoryService
 import { CategoryProps } from '@/types/dataprops';
 
 import DropDownText from '@/components/DropDownText';
-import SearchTextTest from '@/components/InputTextTest';
+import SearchText from './SearchText';
 
-import { ProductDetailAction } from "../app/admin/dashboard/addproduct/page";
+import { Category } from '@/types/categoryType';
+
+import { ProductDetailActionCreate } from "../app/admin/dashboard/addproduct/page";
+import { ProductDetailActionEdit } from "@/app/admin/dashboard/editproduct/[productId]/ProductClientEdit";
+
+
+type ReducerType = 'CREATE' | 'EDIT'
 
 interface CategoryPropsComponent {
-  dispatchProductDetail:React.Dispatch<ProductDetailAction>; 
+  dispatchProductDetailCreate?:React.Dispatch<ProductDetailActionCreate>; 
+  ProductDetailEditReducer?: React.Dispatch<ProductDetailActionEdit>;
+  ReducerType:ReducerType;
+  currentCategory: Category | null;
 }
 
-export default function DashboardSelectCategory({dispatchProductDetail}: CategoryPropsComponent) {
+export default function DashboardSelectCategory(
+  {
+    ProductDetailEditReducer,
+    dispatchProductDetailCreate,
+    ReducerType,
+    currentCategory
+  } : CategoryPropsComponent) {
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<CategoryProps | undefined>();
+  const [selectedCategory, setSelectedCategory] = useState<CategoryProps | null>();
   const [filteredCategories, setFilteredCategories] = useState<CategoryProps[]>([]);
 
   useEffect(() => {
@@ -46,37 +61,63 @@ export default function DashboardSelectCategory({dispatchProductDetail}: Categor
     );
   }, [searchTerm, categories, selectedCategory]);
 
+  useEffect(() => {
+    if(currentCategory === null){
+      setSelectedCategory(null)
+      setSearchTerm(''); 
+      return;
+    };
+      setSelectedCategory(currentCategory);
+      setSearchTerm(currentCategory.categoryName); 
+  },[currentCategory])
+
+
   const handleCategorySelect = (category: CategoryProps) => {
-    setSelectedCategory(category);
-    setSearchTerm(category.categoryName); 
-    dispatchProductDetail({
-    type:'SELECT_CATEGORY',
-    payload:category.categoryId
-    })
+    if(ReducerType === 'EDIT' && ProductDetailEditReducer){
+      ProductDetailEditReducer({
+        type:'UPDATE_CATEGORY',
+        payload:category
+      })
+    }
+
+    if(ReducerType === 'CREATE' && dispatchProductDetailCreate){
+      dispatchProductDetailCreate({
+        type:'UPDATE_CATEGORY',
+        payload:category
+      })
+    }
   };
 
 
   const clearInputs = () => {
-    setSelectedCategory(undefined)
+    if(ReducerType === 'CREATE' && dispatchProductDetailCreate){
+      dispatchProductDetailCreate({
+      type:'REMOVE_CATEGORY'
+      })
+      dispatchProductDetailCreate({
+      type:'SELECT_SUBCATEGORY_DELETE'
+      })
+    }
+    if(ReducerType === 'EDIT' && ProductDetailEditReducer){
+      ProductDetailEditReducer({
+        type:'REMOVE_CATEGORY'
+      })
+      ProductDetailEditReducer({
+        type:'REMOVE_SUBCATEGORY'
+      })
+    }
     setFilteredCategories([])
     setSearchTerm('')
   }
 
 
-  const clearSearch = () => {
-    clearInputs()
-    dispatchProductDetail({
-    type:'SELECT_CATEGORY_DELETE'
-    })
-  }
-
   return (
     <div className="flex-1 flex flex-col">
       <h1 className="text-primaryColor text-xl">SELECT CATEGORY</h1>
-      <SearchTextTest
+      <SearchText
         choosen={selectedCategory} 
         placeholderText="Search Category"
-        onClear={clearSearch}
+        onClear={clearInputs}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
