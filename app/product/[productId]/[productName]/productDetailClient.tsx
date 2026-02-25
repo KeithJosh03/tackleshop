@@ -8,15 +8,16 @@ import { numericConverter } from "@/utils/priceUtils";
 import { buildProductImages, UIProductImage } from "@/utils/productMedia.UI";
 
 
-import { 
+import {
   ProductDetailsShow,
-   VariantOptionsShow 
+  VariantOptionsShow
 } from "@/lib/api/productService";
 
 
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
 
-export default function ProductDetailClient({productDetailProps} : {productDetailProps:ProductDetailsShow}) {
+export default function ProductDetailClient({ productDetailProps }: { productDetailProps: ProductDetailsShow }) {
+  console.log(productDetailProps);
 
   const [productDetails] = useState<ProductDetailsShow>(productDetailProps);
   const [productImages, setProductImages] = useState<UIProductImage[]>([]);
@@ -117,20 +118,20 @@ export default function ProductDetailClient({productDetailProps} : {productDetai
           <div className="container flex flex-col text-primaryColor text-base font-bold gap-y-4 border border-greyColor bg-mainBackgroundColor rounded-xl px-4 py-2 mt-4">
             {productDetails?.description && (
               <>
-              <p className="text-tertiaryColor text-lg">Description</p>
-              <p className="whitespace-pre-line">{productDetails.description}</p>
+                <p className="text-tertiaryColor text-lg">Description</p>
+                <p className="whitespace-pre-line">{productDetails.description}</p>
               </>
             )}
             {productDetails?.features && (
               <>
-              <p className="text-tertiaryColor text-lg">Features</p>
-              <p className="whitespace-pre-line">{productDetails.features}</p>
+                <p className="text-tertiaryColor text-lg">Features</p>
+                <p className="whitespace-pre-line">{productDetails.features}</p>
               </>
             )}
             {productDetails?.specification && (
               <>
-              <p className="text-tertiaryColor text-lg">SPECIFICATIONS</p>
-              <p className='whitespace-pre-line'>{productDetails.specification}</p>
+                <p className="text-tertiaryColor text-lg">SPECIFICATIONS</p>
+                <p className='whitespace-pre-line'>{productDetails.specification}</p>
               </>
             )}
           </div>
@@ -170,22 +171,22 @@ export default function ProductDetailClient({productDetailProps} : {productDetai
                     : "border-greyColor"
                   }`}
               >
-              <Image
-                src={`${baseURL}${img.imageUrl}`}
-                alt="Thumbnail"
-                fill
-                sizes="96px"
-                loading="lazy"
-                decoding="async"
-                className="object-cover"
-              />
+                <Image
+                  src={`${baseURL}${img.imageUrl}`}
+                  alt="Thumbnail"
+                  fill
+                  sizes="96px"
+                  loading="lazy"
+                  decoding="async"
+                  className="object-cover"
+                />
               </motion.button>
             ))}
           </div>
         )}
 
 
-        
+
       </motion.div>
     </>
   );

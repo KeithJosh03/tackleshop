@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useEffect, useReducer } from 'react';
-import axios from 'axios';
 import { BrandProps } from '@/types/dataprops';
 import { worksans } from '@/types/fonts';
 import Image from 'next/image';
@@ -104,6 +103,7 @@ export const DashboardBrandClient = ({brandslist} : Props) => {
   const handleUpdateBrand = async () => {
     setLoading(true);
 
+
     // basic validation
     if (!brandStateUpdate.brandName?.trim() || !selectedBrand?.brandId) {
       console.error('❌ Brand name or selected brand ID is missing.');
@@ -192,14 +192,7 @@ export const DashboardBrandClient = ({brandslist} : Props) => {
 
 
 
-
-
-
-
-
-
-
-  // Goood
+  // Good
   const handleDeleteBrand = async () => {
     if (!selectedBrand) return;
     try {
@@ -247,25 +240,32 @@ export const DashboardBrandClient = ({brandslist} : Props) => {
         />
       </div>
 
-{/* brandlist Render */}
+      {/* brandlist Render */}
       {filteredBrands.length > 0 && (
-        <ul className="list-none bg-secondary border rounded border-primaryColor text-base max-h-40 overflow-y-auto">
-          {filteredBrands.map((brand) => (
-            <DropDownText 
-            onClick={() => {
-            handleSelectBrand(brand)
-            setIsCreating(false)
-            setSearchTerm('')
-            }}
-            key={brand.brandId}
-            indexKey={brand.brandId}
-            listName={brand.brandName}
-            />
-          ))}
-        </ul>
+      <ul className="list-none bg-secondary border rounded border-primaryColor text-base max-h-40 overflow-y-auto">
+        {filteredBrands.map((brand) => (
+        <DropDownText 
+        onClick={() => {
+        dispatchUpdateBrand({
+          type:'SET_BRAND_UPDATE',
+          payload:{
+            brandName: brand.brandName,
+            imageUrl: brand.imageUrl ?? null
+          }
+        })
+        handleSelectBrand(brand)
+        setIsCreating(false)
+        setSearchTerm('')
+        }}
+        key={brand.brandId}
+        indexKey={brand.brandId}
+        listName={brand.brandName}
+        />
+        ))}
+      </ul>
       )}
 
-{/* Brand Choosen */}
+      {/* Brand Choosen */}
       {selectedBrand && (
       <div className="mt-4 text-primaryColor border border-greyColor p-4 rounded">
         <div className='flex flex-row justify-between p-2'>
@@ -295,7 +295,7 @@ export const DashboardBrandClient = ({brandslist} : Props) => {
             <>
             <div className="w-full flex flex-col items-center">
               <div className='relative h-45 w-50 p-2 border brandsBackGround border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center'>
-                {brandStateUpdate.imageUrl ? (
+                {brandStateUpdate.imageUrl instanceof File ? (
                   <Image 
                     src={URL.createObjectURL(brandStateUpdate.imageUrl)} 
                     alt="updateBrandImage"
@@ -372,7 +372,7 @@ export const DashboardBrandClient = ({brandslist} : Props) => {
                   type:'CANCEL_BRAND_UPDATE',
                   payload:{
                     brandName:'',
-                    imageUrl:null
+                    imageUrl:''
                   }
               })
             }}
@@ -387,76 +387,76 @@ export const DashboardBrandClient = ({brandslist} : Props) => {
       )}
 
 
-{/* CREATE BRAND */}
+      {/* CREATE BRAND */}
       {isCreating && (
-        <div className="mt-4 p-4 text-primaryColor border border-greyColor">
-          <div className='flex flex-row justify-between p-2'>
-            <h3 className="text-lg">ADD NEW BRAND</h3>
+      <div className="mt-4 p-4 text-primaryColor border border-greyColor">
+        <div className='flex flex-row justify-between p-2'>
+          <h3 className="text-lg">ADD NEW BRAND</h3>
+          <IconButton 
+          icon='/icons/closeicon.svg'
+          altText='Close Icon'
+          onClick={() => {
+          cancelAddBrand()
+          }}
+          iconSize={8}
+          />
+        </div>
+        <div className="space-y-4">
+          <InputText
+            placeholder="BRAND NAME"
+            value={brandState.brandName ? brandState.brandName : ''}
+            onChange={(e) => {
+              dispatchCreateBrand({
+              type:'BRAND_NAME_CREATE',
+              payload:e.target.value
+              })
+            }}
+          />
+          <div className="w-full flex flex-col items-center">
+            <div className='relative h-45 w-50 p-2 border brandsBackGround border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center'>
+              {!brandState.imageUrl && (
+              <ImageIconUpload
+              uploadImage='/icons/imageupload.svg'
+              maxImages={1}
+              onFileChange={(file: File) => {
+                dispatchCreateBrand({
+                type:'BRAND_IMAGE_CREATE',
+                payload:file
+                })
+              }}
+              />
+              )}
+              {brandState.imageUrl ? (
+              <Image 
+              src={URL.createObjectURL(brandState.imageUrl)} 
+              alt="newbrandimage"
+              fill
+              className="object-contain"
+              />
+              ) : (
+              <h1 className='text-secondary group-hover:text-primaryColor'>No Selected Image</h1>
+              )}
+            </div>
+          </div>
+          <DashBoardButtonLayoutOption>
+            <IconButton 
+            icon='/icons/addicon.svg'
+            altText='Add Icon'
+            onClick={handleAddBrand}
+            iconSize={8}
+            />
+
             <IconButton 
             icon='/icons/closeicon.svg'
-            altText='Close Icon'
+            altText='Delete Icon'
             onClick={() => {
             cancelAddBrand()
             }}
             iconSize={8}
             />
-          </div>
-          <div className="space-y-4">
-            <InputText
-              placeholder="BRAND NAME"
-              value={brandState.brandName ? brandState.brandName : ''}
-              onChange={(e) => {
-                dispatchCreateBrand({
-                type:'BRAND_NAME_CREATE',
-                payload:e.target.value
-                })
-              }}
-            />
-            <div className="w-full flex flex-col items-center">
-              <div className='relative h-45 w-50 p-2 border brandsBackGround border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center'>
-                {!brandState.imageUrl && (
-                <ImageIconUpload
-                uploadImage='/icons/imageupload.svg'
-                maxImages={1}
-                onFileChange={(file: File) => {
-                  dispatchCreateBrand({
-                  type:'BRAND_IMAGE_CREATE',
-                  payload:file
-                  })
-                }}
-                />
-                )}
-                {brandState.imageUrl ? (
-                <Image 
-                src={URL.createObjectURL(brandState.imageUrl)} 
-                alt="newbrandimage"
-                fill
-                className="object-contain"
-                />
-                ) : (
-                <h1 className='text-secondary group-hover:text-primaryColor'>No Selected Image</h1>
-                )}
-              </div>
-            </div>
-            <DashBoardButtonLayoutOption>
-              <IconButton 
-              icon='/icons/addicon.svg'
-              altText='Add Icon'
-              onClick={handleAddBrand}
-              iconSize={8}
-              />
-
-              <IconButton 
-              icon='/icons/closeicon.svg'
-              altText='Delete Icon'
-              onClick={() => {
-              cancelAddBrand()
-              }}
-              iconSize={8}
-              />
-            </DashBoardButtonLayoutOption>
-          </div>
+          </DashBoardButtonLayoutOption>
         </div>
+      </div>
       )}
     </div>
   );

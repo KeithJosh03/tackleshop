@@ -313,18 +313,17 @@ function ProductDetailCreateReducer(
   };
 
   const handleProductAdd = async () => {
-    console.log(ProductDetailState)
-    // let validated = handleValidateProductDetail()
-    // if(validated){
-    //   await createProduct(ProductDetailState)
-    //   dispatchProductDetailCreate({
-    //     type:'CLEAR_INPUTS',
-    //     payload:initialProductDetailState
-    //   })
-    // }
-    // else {
-    //   alert('wrong inputs')
-    // }
+    let validated = handleValidateProductDetail()
+    if(validated){
+      await createProduct(ProductDetailState)
+      dispatchProductDetailCreate({
+        type:'CLEAR_INPUTS',
+        payload:initialProductDetailState
+      })
+    }
+    else {
+      alert('wrong inputs')
+    }
   }
 
   return (

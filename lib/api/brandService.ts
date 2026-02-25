@@ -48,8 +48,8 @@ export interface BrandLogosProps {
 }
 
 interface BrandLogosResponse {
-  status:boolean;
-  brandlogo:BrandLogosProps[];
+  status: boolean;
+  brandLogo: BrandLogosProps[];
 }
 
 export async function BrandLogos(): Promise<BrandLogosProps[]> {
@@ -63,7 +63,7 @@ export async function BrandLogos(): Promise<BrandLogosProps[]> {
   }
 
   const data: BrandLogosResponse = await res.json();
-  return data.brandlogo;
+  return data.brandLogo;
 }
 
 

@@ -8,19 +8,19 @@ export interface BrandReduceCreateProps {
 export type BrandActionCreateType =
   | { type: 'BRAND_NAME_CREATE'; payload: string }
   | { type: 'BRAND_IMAGE_CREATE'; payload: File }
-  | { type: 'CANCEL_BRAND_CREATE'; payload: BrandReduceProps };
+  | { type: 'CANCEL_BRAND_CREATE'; payload: BrandReduceCreateProps };
 
 
-const initialBrandState: BrandReduceProps = {
+const initialBrandState: BrandReduceCreateProps = {
   brandName: '',
   imageUrl: null,
 };
 
 
 function brandcreatesReducer(
-  state: BrandReduceProps,
+  state: BrandReduceCreateProps,
   action: BrandActionCreateType
-): BrandReduceProps {
+): BrandReduceCreateProps {
   switch (action.type) {
     case 'BRAND_NAME_CREATE':
       return { ...state, brandName: action.payload };
@@ -40,22 +40,28 @@ export function useDashboardBrandCreateReducer() {
 }
 
 
-export interface BrandReduceProps {
+export interface BrandReduceEditProps {
   brandName: string;
-  imageUrl: File | null;
+  imageUrl: string | File | null;
 }
 
 export type BrandActionUpdateType =
   | { type: 'BRAND_NAME_UPDATE'; payload: string }
   | { type: 'BRAND_IMAGE_UPDATE'; payload: File }
-  | { type: 'CANCEL_BRAND_UPDATE'; payload: BrandReduceProps };
+  | { type: 'CANCEL_BRAND_UPDATE'; payload: BrandReduceEditProps }
+  | { type: 'SET_BRAND_UPDATE'; payload: {brandName: string , imageUrl: string | null} }
 
+
+const brandEditState: BrandReduceEditProps = {
+  brandName: '',
+  imageUrl: null,
+};
 
 
 function brandupdateReducer(
-  state: BrandReduceProps,
+  state: BrandReduceEditProps,
   action: BrandActionUpdateType
-): BrandReduceProps {
+): BrandReduceEditProps {
   switch (action.type) {
     case 'BRAND_NAME_UPDATE':
       return { ...state, brandName: action.payload };
@@ -63,11 +69,14 @@ function brandupdateReducer(
       return { ...state, imageUrl: action.payload };
     case 'CANCEL_BRAND_UPDATE':
       return { ...action.payload };
+    case 'SET_BRAND_UPDATE' : 
+      console.log(action.payload)
+      return {...action.payload}
     default:
       return state;
   }
 }
 
 export function useDashboardBrandUpdateReducer() {
-  return useReducer(brandupdateReducer, initialBrandState);
+  return useReducer(brandupdateReducer, brandEditState);
 }

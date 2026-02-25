@@ -1,6 +1,6 @@
 export interface BrandEditedProps {
   brandName: string;
-  imageUrl: File | null;
+  imageUrl: string | File | null;
 }
 
 export interface BrandOriginProps {

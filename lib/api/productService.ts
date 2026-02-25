@@ -1,26 +1,31 @@
 import axios from "axios";
 import { uploadImages, UploadImageProps } from "./uploadImage";
+
+import { BrandProps } from "@/types/dataprops";
+import { Category } from "@/types/categoryType";
+import { SubCategory } from "@/types/subCategoryTypes";
+
 import { option } from "framer-motion/client";
 
 
-interface VariantDetails{
+interface VariantDetails {
   variantTypeName: string;
   variantOptions: VariantOption[];
 }
 
 interface VariantOption {
-  variantOptionValue:string;
-  price_adjusting:string;
+  variantOptionValue: string;
+  price_adjusting: string;
   variant_image: File | null;
 }
 
 interface VariantOptionToSend {
-  variantOptionValue:string;
-  price_adjustment:string;
+  variantOptionValue: string;
+  price_adjustment: string;
   variant_image: string | null;
 }
 
-interface VariantDetailsToSend{
+interface VariantDetailsToSend {
   variantTypeName: string;
   variantOptions: VariantOptionToSend[];
 }
@@ -38,10 +43,10 @@ interface ProductImageToSend {
 
 interface ProductDetails {
   productTitle: string;
-  basePrice:string;
-  brandId: number | null;
-  categoryId: number | null;
-  subCategoryId:number | null;
+  basePrice: string;
+  brand: BrandProps | null;
+  category: Category | null;
+  subCategory: SubCategory | null;
   description: string | null;
   features: string | null;
   specifications: string | null;
@@ -55,13 +60,13 @@ interface ProductImageToSend {
 }
 
 
-export async function createProduct(product:ProductDetails){
+export async function createProduct(product: ProductDetails) {
   const {
     productTitle,
     basePrice,
-    brandId,
-    categoryId,
-    subCategoryId,
+    brand,
+    category,
+    subCategory,
     description,
     specifications,
     features,
@@ -71,58 +76,58 @@ export async function createProduct(product:ProductDetails){
 
   const productToSend: {
     category_id: string;
-    sub_category_id:string;
-    brand_id:string | null;
+    sub_category_id: string;
+    brand_id: string | null;
     product_title: string;
     base_price: string;
-    description:string;
-    specifications:string;
-    features:string;
+    description: string;
+    specifications: string;
+    features: string;
     medias: ProductImageToSend[];
     variants: VariantDetailsToSend[]
   } = {
-    category_id: categoryId ? categoryId.toString() : '',
-    sub_category_id: subCategoryId ? subCategoryId.toString() : '',
-    brand_id: brandId ? brandId.toString() : '',
+    category_id: category ? category.categoryId.toString() : '',
+    sub_category_id: subCategory ? subCategory.subCategoryId.toString() : '',
+    brand_id: brand ? brand.brandId.toString() : '',
     product_title: productTitle,
-    base_price : parseFloat(basePrice === '' ? '0' : basePrice).toString(),
+    base_price: parseFloat(basePrice === '' ? '0' : basePrice).toString(),
     description: description || '',
     specifications: specifications || '',
     features: features || '',
     medias: [],
-    variants:[] 
-  } 
+    variants: []
+  }
 
-  if(Array.isArray(medias) && medias.length > 0){
+  if (Array.isArray(medias) && medias.length > 0) {
     const uploadedMedia = await createProductMedia(medias);
     productToSend.medias.push(...uploadedMedia)
     console.log(productToSend);
   }
 
-  if(Array.isArray(variants) && variants.length > 0){
-    const uploadVariant:VariantDetailsToSend[] = await createProductVariant(variants)
+  if (Array.isArray(variants) && variants.length > 0) {
+    const uploadVariant: VariantDetailsToSend[] = await createProductVariant(variants)
     productToSend.variants.push(...uploadVariant);
   }
 
   console.log(productToSend);
-  
+
   axios.post('/api/products/store', productToSend)
-  .then((response) => {
-    console.log(response.data);
-  })
-  .catch((error) => console.error('Error fetching brands:', error));
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch((error) => console.error('Error fetching brands:', error));
 }
 
 export async function createProductMedia(
   medias: ProductImageInput[]
 ): Promise<ProductImageToSend[]> {
   try {
-    const toUploadImage:UploadImageProps[] = []
+    const toUploadImage: UploadImageProps[] = []
 
-    medias.forEach((media,index) => {
+    medias.forEach((media, index) => {
       toUploadImage.push({
-      file:media.file,
-      originIndex:index
+        file: media.file,
+        originIndex: index
       })
     })
 
@@ -189,33 +194,33 @@ async function createProductVariant(
 
 
 export interface VariantOptionsShow {
-  variantOptionId:number;
-  imageUrl:string
-  variantOptionValue:string
-  variantOptionPrice:string
+  variantOptionId: number;
+  imageUrl: string
+  variantOptionValue: string
+  variantOptionPrice: string
 }
 
 export interface ProductMediaShow {
-  imageUrl:string;
-  isMain:boolean;
+  imageUrl: string;
+  isMain: boolean;
 }
 
 interface ProductVariantShow {
-  variantTypeName:string;
-  variantOptions:VariantOptionsShow[];
+  variantTypeName: string;
+  variantOptions: VariantOptionsShow[];
 }
 
 export interface ProductDetailsShow {
-  productId:number;
-  productTitle:string;
-  basePrice:string;
-  brandName:string;
-  specification:string;
-  features:string;
-  description:string;
-  subCategoryName:string;
-  productMedias:ProductMediaShow[] | null;
-  productVariants:ProductVariantShow[] | null;
+  productId: number;
+  productTitle: string;
+  basePrice: string;
+  brandName: string;
+  specification: string;
+  features: string;
+  description: string;
+  subCategoryName: string;
+  productMedias: ProductMediaShow[] | null;
+  productVariants: ProductVariantShow[] | null;
 }
 
 
@@ -239,21 +244,21 @@ export async function ProductDetails(id: number) {
 }
 
 interface ProductListOptionDashboard {
-  optionName:string;
+  optionName: string;
 }
 
 interface ProductLisVariantDashboard {
-  variantTypeName:string;
+  variantTypeName: string;
   variantOptions: ProductListOptionDashboard[]
 }
 
 export interface ProductListDashboard {
-  productId:number;
-  productTitle:string;
-  basePrice:string;
-  brandName:string
-  subCategoryName:string;
-  productTypeVariant:ProductLisVariantDashboard [];
+  productId: number;
+  productTitle: string;
+  basePrice: string;
+  brandName: string
+  subCategoryName: string;
+  productTypeVariant: ProductLisVariantDashboard[];
 }
 
 export interface ProductListDashboard {
