@@ -29,15 +29,15 @@ const ImageIconUpload: React.FC<ImageUploadProps> = ({
 
     if (maxImages === 1) {
       (onFileChange as (file: File) => void)(filesArray[0]);
-    } 
+    }
     else {
       (onFileChange as (files: File[]) => void)(filesArray);
     }
   };
 
   return (
-    <label 
-    className='cursor-pointer w-16 h-16 border-2 border-dashed border-secondary p-2 rounded-2xl text-center items-center justify-center flex group-hover:border-primaryColor hover:text-primaryColor'
+    <label
+      className='cursor-pointer w-16 h-16 border-2 border-dashed border-secondary p-2 rounded-2xl text-center items-center justify-center flex group-hover:border-primaryColor hover:text-primaryColor'
     >
       <input
         type="file"
