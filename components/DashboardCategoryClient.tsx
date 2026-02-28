@@ -11,7 +11,7 @@ import DashBoardButtonLayoutOption from '@/components/DashBoardButtonLayoutOptio
 
 
 
-import { 
+import {
   CategoryProps,
   selectedCategorySubCategory,
   selectedCategorySubCategoriesProps,
@@ -20,23 +20,23 @@ import {
   addCategory
 } from '@/lib/api/categoryService';
 
-import { 
-  addSubCategory, 
-  editSubCategory, 
-  deleteSubCategory 
+import {
+  addSubCategory,
+  editSubCategory,
+  deleteSubCategory
 } from '@/lib/api/subCategoryService';
 
 type Props = {
   categorylist: CategoryProps[];
 };
 
-export default function DashboardCategoryClient({categorylist} : Props) {
+export default function DashboardCategoryClient({ categorylist }: Props) {
   const [categories, setCategories] = useState<CategoryProps[]>(categorylist);
   const [subCategory, setsubCategory] = useState<selectedCategorySubCategoriesProps[]>([]);
 
   const [selectedCategory, setselectedCategory] = useState<CategoryProps | null>();
-  const [selectedSubCategory,setselectSubCategory] = useState<selectedCategorySubCategoriesProps | null>();
-  
+  const [selectedSubCategory, setselectSubCategory] = useState<selectedCategorySubCategoriesProps | null>();
+
   // Search
   const [searchCategory, setsearchCategory] = useState('');
   const [searchSubcategory, setsearchSubcategory] = useState('');
@@ -46,7 +46,7 @@ export default function DashboardCategoryClient({categorylist} : Props) {
   const [newCategory, setNewCategory] = useState('');
   const [isCreatingSubcategory, setisCreatingSubcategory] = useState(false);
   const [newSubcategory, setnewSubcategory] = useState('');
-  
+
   // Editing
   const [isEditingCategory, setisEditingCategory] = useState(false);
   const [newEditCategoryName, setEditCategoryName] = useState('');
@@ -69,7 +69,7 @@ export default function DashboardCategoryClient({categorylist} : Props) {
 
     fetchSubCategories();
   }, [selectedCategory?.categoryId]);
-  
+
   const handleSearchChangeSubCategory = (e: React.ChangeEvent<HTMLInputElement>) => {
     setsearchSubcategory(e.target.value);
   };
@@ -119,7 +119,7 @@ export default function DashboardCategoryClient({categorylist} : Props) {
   // DELETE CATEGORY
   const handleDeleteCategory = async () => {
     if (!selectedCategory) return;
-    
+
     const categoryId = selectedCategory.categoryId;
 
     try {
@@ -140,322 +140,327 @@ export default function DashboardCategoryClient({categorylist} : Props) {
     }
   };
 
-// ADD SUBCATEGORY
-const handleAddSubCategegory = async () => {
-  if (!selectedCategory || !newSubcategory.length) return;
+  // ADD SUBCATEGORY
+  const handleAddSubCategegory = async () => {
+    if (!selectedCategory || !newSubcategory.length) return;
 
-  const createdSubCategory = await addSubCategory({
-    category_id: selectedCategory.categoryId,
-    sub_category_name: newSubcategory,
-  });
+    const createdSubCategory = await addSubCategory({
+      category_id: selectedCategory.categoryId,
+      sub_category_name: newSubcategory,
+    });
 
-  if (createdSubCategory) {
-    setsubCategory([...subCategory, createdSubCategory]);
-    setisCreatingSubcategory(false);
-    setnewSubcategory('');
-    console.log(`Subcategory "${createdSubCategory.subCategoryName}" added successfully.`);
-  } else {
-    console.error('Failed to add subcategory.');
-  }
-};
+    if (createdSubCategory) {
+      setsubCategory([...subCategory, createdSubCategory]);
+      setisCreatingSubcategory(false);
+      setnewSubcategory('');
+      console.log(`Subcategory "${createdSubCategory.subCategoryName}" added successfully.`);
+    } else {
+      console.error('Failed to add subcategory.');
+    }
+  };
 
-// EDIT SUBCATEGORY
-const handleEditSubCategory = async () => {
-  if (!selectedSubCategory || !newEditingSubCategoryName.length) return;
+  // EDIT SUBCATEGORY
+  const handleEditSubCategory = async () => {
+    if (!selectedSubCategory || !newEditingSubCategoryName.length) return;
 
-  const updatedSubCategory = await editSubCategory(
-    selectedSubCategory.subCategoryId,
-    { sub_category_name: newEditingSubCategoryName }
-  );
-
-  if (updatedSubCategory) {
-    setsubCategory((prevSubCategories) =>
-      prevSubCategories.map((subcategory) =>
-        subcategory.subCategoryId === updatedSubCategory.subCategoryId
-          ? { ...subcategory, subCategoryName: updatedSubCategory.subCategoryName }
-          : subcategory
-      )
+    const updatedSubCategory = await editSubCategory(
+      selectedSubCategory.subCategoryId,
+      { sub_category_name: newEditingSubCategoryName }
     );
-    setisEditingSubCategory(false);
-    setselectSubCategory(null);
-    setnewEditingSubCategoryName('');
-    console.log(`Subcategory "${updatedSubCategory.subCategoryName}" updated successfully.`);
-  } else {
-    console.error('Failed to update subcategory.');
-  }
-};
 
-// DELETE SUBCATEGORY
-const handleDeleteSubCategory = async () => {
-  if (!selectedSubCategory) return;
+    if (updatedSubCategory) {
+      setsubCategory((prevSubCategories) =>
+        prevSubCategories.map((subcategory) =>
+          subcategory.subCategoryId === updatedSubCategory.subCategoryId
+            ? { ...subcategory, subCategoryName: updatedSubCategory.subCategoryName }
+            : subcategory
+        )
+      );
+      setisEditingSubCategory(false);
+      setselectSubCategory(null);
+      setnewEditingSubCategoryName('');
+      console.log(`Subcategory "${updatedSubCategory.subCategoryName}" updated successfully.`);
+    } else {
+      console.error('Failed to update subcategory.');
+    }
+  };
 
-  const success = await deleteSubCategory(selectedSubCategory.subCategoryId);
+  // DELETE SUBCATEGORY
+  const handleDeleteSubCategory = async () => {
+    if (!selectedSubCategory) return;
 
-  if (success) {
-    setsubCategory((prevSubcategories) =>
-      prevSubcategories.filter(
-        (subcategory) => subcategory.subCategoryId !== selectedSubCategory.subCategoryId
-      )
-    );
-    setselectSubCategory(null);
-    console.log(`Subcategory deleted successfully.`);
-  } else {
-    console.error('Failed to delete subcategory.');
-  }
-};
+    const success = await deleteSubCategory(selectedSubCategory.subCategoryId);
 
-return (
-  <div className='bg-blackgroundColor border border-greyColor font-extrabold rounded p-4 w-full flex flex-col space-y-1'>
-    <h3 className="text-base text-primaryColor">
-      CATEGORY 
-      {categories.length === 0 && (
-      <span className='text-secondary'> ( No Category Available)</span>
-      )}
-    </h3>
-    <div className="flex items-center gap-x-2 text-xl">
-      <SearchTextAdmin 
-      placeholderText='Search Category'
-      value={searchCategory}
-      onChange={(e) => {setsearchCategory(e.target.value)}}
-      />
-      <IconButton 
-      icon='/icons/addicon.svg'
-      altText='Add Icon'
-      onClick={() => {
-      setIsCreatingCategory(true)
-      setselectedCategory(null)
-      setselectSubCategory(null)
-      }}
-      iconSize={8}
-      />
-    </div>
+    if (success) {
+      setsubCategory((prevSubcategories) =>
+        prevSubcategories.filter(
+          (subcategory) => subcategory.subCategoryId !== selectedSubCategory.subCategoryId
+        )
+      );
+      setselectSubCategory(null);
+      console.log(`Subcategory deleted successfully.`);
+    } else {
+      console.error('Failed to delete subcategory.');
+    }
+  };
 
-    {categories.length > 0 && (
-      <ul className="list-none bg-secondary border rounded border-primaryColor text-base mt-1 max-h-40 overflow-y-auto">
-        {categories.map((category) => (
-          <DropDownText 
-          key={category.categoryId}
-          onClick={() => {
-          setselectedCategory(category)
-          setIsCreatingCategory(false)
-          setselectSubCategory(null)
-          }}
-          indexKey={category.categoryId}
-          listName={category.categoryName}
-          />
-        ))}
-      </ul>
-    )}
-
-    {selectedCategory && (
-      <div className="mt-4 text-primaryColor border border-greyColor p-4 rounded">
-        <div className='flex flex-row justify-between p-2'>
-          <h3 className="text-base text-secondary">CATEGORY SELECTED  - <span className='text-primaryColor'>{selectedCategory.categoryName.toUpperCase()}</span></h3>
-          <IconButton 
-          icon='/icons/closeicon.svg'
-          altText='close Icon'
-          onClick={() => {setselectedCategory(null)}}
-          iconSize={8}
-          />
-        </div>
-        <div className="flex flex-col items-center gap-y-4">
-          <DashBoardButtonLayoutOption>
-            {!isEditingCategory ? (
-            <>
-            <IconButton 
-            icon='/icons/editicon.svg'
-            altText='close Icon'
-            onClick={() => {setisEditingCategory(true)}}
-            iconSize={8}
-            />
-
-            <IconButton 
-            icon='/icons/deleteicon.svg'
-            altText='delete Icon'
-            onClick={handleDeleteCategory}
-            iconSize={8}
-            />
-            </>
-            ):(
-            <>
-            <SearchTextAdmin 
-            placeholderText='Edit Category'
-            value={newEditCategoryName}
-            onChange={(e) => setEditCategoryName(e.target.value)}
-            />
-            <IconButton
-            icon='/icons/checkicon.svg'
-            altText='Check Icon'
-            onClick={handleEditCategory}
-            iconSize={8}
-            />
-            </>
-            )}
-          </DashBoardButtonLayoutOption>
-        </div>
-        <div className='border border-greyColor p-4 rounded mt-2'>
-
-          <h3 className="text-base text-primaryColor">
-            SUB CATEGORY 
-            {subCategory.length === 0 && (
-            <span className='text-secondary'> ( No SubCategory Available)</span>
-            )}
-          </h3>
-
-          <div className="flex items-center gap-x-2 text-xl">
-            <SearchTextAdmin 
-            placeholderText='Search Sub Category'
-            value={searchSubcategory}
-            onChange={(e) => {setsearchSubcategory(e.target.value)}}
-            />
-            <IconButton 
-            icon='/icons/addicon.svg'
-            altText='Add Icon'
-            onClick={() => {
-            setselectSubCategory(null)
-            setisCreatingSubcategory(true)
-            }}
-            iconSize={8}
-            />
-          </div>
-
-
-          {subCategory.length > 0 && (
-          <ul className="list-none bg-secondary border rounded border-primaryColor text-base mt-1 max-h-40 overflow-y-auto">
-            {subCategory.map((subcat,index) => (
-              <DropDownText 
-              key={subcat.subCategoryId}
-              onClick={() => setselectSubCategory(subcat)}
-              indexKey={subcat.subCategoryId}
-              listName={subcat.subCategoryName}
-              />
-            ))}
-          </ul>
+  return (
+    <div className='bg-blackgroundColor border border-greyColor rounded-xl shadow-sm p-6 w-full flex flex-col space-y-4 font-sans'>
+      <div className="flex flex-col mb-2">
+        <h2 className="text-primaryColor text-xl font-bold tracking-tight">
+          CATEGORIES
+          {categories.length === 0 && (
+            <span className='text-secondary text-sm font-normal ml-2'> (No Categories Available)</span>
           )}
+        </h2>
+        <p className="text-secondary text-xs mt-1 font-medium text-opacity-80">Manage products categories and subcategories.</p>
+      </div>
+      <div className="flex items-center gap-x-3 text-base">
+        <SearchTextAdmin
+          placeholderText='Search Category'
+          value={searchCategory}
+          onChange={(e) => { setsearchCategory(e.target.value) }}
+        />
+        <IconButton
+          icon='/icons/addicon.svg'
+          altText='Add Icon'
+          onClick={() => {
+            setIsCreatingCategory(true)
+            setselectedCategory(null)
+            setselectSubCategory(null)
+          }}
+          iconSize={8}
+        />
+      </div>
 
-          {selectedSubCategory && (
-            <div className='flex flex-row justify-between items-center p-2'>
-            <h3 className='text-base text-secondary mt-4'>
-            SELECTED - <span className='text-primaryColor'>{`${selectedSubCategory.subCategoryName}`}</span>
-            </h3>
-              <IconButton 
+      {categories.length > 0 && (
+        <ul className="list-none bg-secondary/5 border rounded-lg border-greyColor text-sm mt-2 max-h-60 overflow-y-auto divide-y divide-greyColor/50 shadow-inner">
+          {categories.map((category) => (
+            <DropDownText
+              key={category.categoryId}
+              onClick={() => {
+                setselectedCategory(category)
+                setIsCreatingCategory(false)
+                setselectSubCategory(null)
+              }}
+              indexKey={category.categoryId}
+              listName={category.categoryName}
+            />
+          ))}
+        </ul>
+      )}
+
+      {selectedCategory && (
+        <div className="mt-6 text-primaryColor bg-secondary/5 border border-primaryColor/20 p-5 rounded-lg shadow-sm">
+          <div className='flex flex-row justify-between items-center mb-4 pb-2 border-b border-greyColor/30'>
+            <h3 className="text-sm font-semibold text-secondary">CATEGORY SELECTED: <span className='text-primaryColor font-bold'>{selectedCategory.categoryName.toUpperCase()}</span></h3>
+            <IconButton
               icon='/icons/closeicon.svg'
               altText='close Icon'
-              onClick={() => {
-              setselectSubCategory(null)
-              }}
+              onClick={() => { setselectedCategory(null) }}
               iconSize={8}
+            />
+          </div>
+          <div className="flex flex-col items-center gap-y-4">
+            <DashBoardButtonLayoutOption>
+              {!isEditingCategory ? (
+                <>
+                  <IconButton
+                    icon='/icons/editicon.svg'
+                    altText='close Icon'
+                    onClick={() => { setisEditingCategory(true) }}
+                    iconSize={8}
+                  />
+
+                  <IconButton
+                    icon='/icons/deleteicon.svg'
+                    altText='delete Icon'
+                    onClick={handleDeleteCategory}
+                    iconSize={8}
+                  />
+                </>
+              ) : (
+                <>
+                  <SearchTextAdmin
+                    placeholderText='Edit Category'
+                    value={newEditCategoryName}
+                    onChange={(e) => setEditCategoryName(e.target.value)}
+                  />
+                  <IconButton
+                    icon='/icons/checkicon.svg'
+                    altText='Check Icon'
+                    onClick={handleEditCategory}
+                    iconSize={8}
+                  />
+                </>
+              )}
+            </DashBoardButtonLayoutOption>
+          </div>
+          <div className='bg-blackgroundColor border border-greyColor/50 p-5 rounded-lg shadow-inner mt-6 flex flex-col'>
+            <div className="flex flex-col mb-4 pb-2 border-b border-greyColor/20">
+              <h4 className="text-sm font-bold text-primaryColor tracking-wide">
+                SUBCATEGORIES
+                {subCategory.length === 0 && (
+                  <span className='text-secondary font-normal ml-2'> (No Subcategories Available)</span>
+                )}
+              </h4>
+              <p className="text-secondary text-xs mt-1 text-opacity-80">Subcategories for {selectedCategory.categoryName}</p>
+            </div>
+
+            <div className="flex items-center gap-x-3 text-base">
+              <SearchTextAdmin
+                placeholderText='Search Sub Category'
+                value={searchSubcategory}
+                onChange={(e) => { setsearchSubcategory(e.target.value) }}
+              />
+              <IconButton
+                icon='/icons/addicon.svg'
+                altText='Add Icon'
+                onClick={() => {
+                  setselectSubCategory(null)
+                  setisCreatingSubcategory(true)
+                }}
+                iconSize={8}
               />
             </div>
-          )}
 
-          <DashBoardButtonLayoutOption>
-            {!selectedSubCategory && (
-            <>
-              {isCreatingSubcategory && (
-              <>
-              <SearchTextAdmin 
-              placeholderText='ADD SUB CATEGORY'
-              value={newSubcategory}
-              onChange={(e) => setnewSubcategory(e.target.value)}
-              />
-              <IconButton 
-              icon='/icons/checkicon.svg'
-              altText='check Icon'
-              onClick={handleAddSubCategegory}
-              iconSize={8}
-              />
-              <IconButton 
-              icon='/icons/closeicon.svg'
-              altText='Close Icon'
-              onClick={() => {
-              setisCreatingSubcategory(false)
-              setnewSubcategory('')
-              }}
-              iconSize={8}
-              />
-              </>
+
+            {subCategory.length > 0 && (
+              <ul className="list-none bg-secondary/5 border rounded-lg border-greyColor text-sm mt-4 max-h-40 overflow-y-auto divide-y divide-greyColor/50">
+                {subCategory.map((subcat, index) => (
+                  <DropDownText
+                    key={subcat.subCategoryId}
+                    onClick={() => setselectSubCategory(subcat)}
+                    indexKey={subcat.subCategoryId}
+                    listName={subcat.subCategoryName}
+                  />
+                ))}
+              </ul>
+            )}
+
+            {selectedSubCategory && (
+              <div className='flex flex-row justify-between items-center p-3 mt-4 mb-2 bg-secondary/10 border border-secondary/20 rounded-md'>
+                <h3 className='text-xs font-semibold text-secondary'>
+                  SELECTED: <span className='text-primaryColor text-sm font-bold'>{`${selectedSubCategory.subCategoryName}`}</span>
+                </h3>
+                <IconButton
+                  icon='/icons/closeicon.svg'
+                  altText='close Icon'
+                  onClick={() => {
+                    setselectSubCategory(null)
+                  }}
+                  iconSize={8}
+                />
+              </div>
+            )}
+
+            <DashBoardButtonLayoutOption>
+              {!selectedSubCategory && (
+                <>
+                  {isCreatingSubcategory && (
+                    <>
+                      <SearchTextAdmin
+                        placeholderText='ADD SUB CATEGORY'
+                        value={newSubcategory}
+                        onChange={(e) => setnewSubcategory(e.target.value)}
+                      />
+                      <IconButton
+                        icon='/icons/checkicon.svg'
+                        altText='check Icon'
+                        onClick={handleAddSubCategegory}
+                        iconSize={8}
+                      />
+                      <IconButton
+                        icon='/icons/closeicon.svg'
+                        altText='Close Icon'
+                        onClick={() => {
+                          setisCreatingSubcategory(false)
+                          setnewSubcategory('')
+                        }}
+                        iconSize={8}
+                      />
+                    </>
+                  )}
+                </>
               )}
-            </>
-            )}
-            {(selectedSubCategory && !isEditingSubCategory) && (
-            <>
-            <IconButton 
-            icon='/icons/editicon.svg'
-            altText='close Icon'
-            onClick={() => {setisEditingSubCategory(true)}}
-            iconSize={8}
-            />
-            <IconButton 
-            icon='/icons/deleteicon.svg'
-            altText='delete Icon'
-            onClick={handleDeleteSubCategory}
-            iconSize={8}
-            />
-            </>
-            )}
-            {(selectedSubCategory && isEditingSubCategory) && (
-            <>
-            <SearchTextAdmin 
-            placeholderText='EDIT SUB CATEGORY'
-            value={newEditingSubCategoryName}
-            onChange={(e) => setnewEditingSubCategoryName(e.target.value)}
-            />
-            <IconButton 
-            icon='/icons/checkicon.svg'
-            altText='Edit Icon'
-            onClick={handleEditSubCategory}
-            iconSize={8}
-            />
-            <IconButton 
-            icon='/icons/closeicon.svg'
-            altText='Edit Icon'
-            onClick={() => {
-            setisEditingSubCategory(false)
-            setnewEditingSubCategoryName('')
-            }}
-            iconSize={8}
-            />
-            </>
-            )}
-          </DashBoardButtonLayoutOption>
+              {(selectedSubCategory && !isEditingSubCategory) && (
+                <>
+                  <IconButton
+                    icon='/icons/editicon.svg'
+                    altText='close Icon'
+                    onClick={() => { setisEditingSubCategory(true) }}
+                    iconSize={8}
+                  />
+                  <IconButton
+                    icon='/icons/deleteicon.svg'
+                    altText='delete Icon'
+                    onClick={handleDeleteSubCategory}
+                    iconSize={8}
+                  />
+                </>
+              )}
+              {(selectedSubCategory && isEditingSubCategory) && (
+                <>
+                  <SearchTextAdmin
+                    placeholderText='EDIT SUB CATEGORY'
+                    value={newEditingSubCategoryName}
+                    onChange={(e) => setnewEditingSubCategoryName(e.target.value)}
+                  />
+                  <IconButton
+                    icon='/icons/checkicon.svg'
+                    altText='Edit Icon'
+                    onClick={handleEditSubCategory}
+                    iconSize={8}
+                  />
+                  <IconButton
+                    icon='/icons/closeicon.svg'
+                    altText='Edit Icon'
+                    onClick={() => {
+                      setisEditingSubCategory(false)
+                      setnewEditingSubCategoryName('')
+                    }}
+                    iconSize={8}
+                  />
+                </>
+              )}
+            </DashBoardButtonLayoutOption>
+          </div>
         </div>
-      </div>
-    )}
+      )}
 
       {isCreatingCategory && (
-      <div className="mt-4 p-4 text-primaryColor border border-greyColor">
-        <h3 className="text-lg">ADD NEW CATEGORY</h3>
+        <div className="mt-6 p-5 text-primaryColor bg-secondary/5 border border-primaryColor/20 rounded-lg shadow-sm">
+          <h3 className="text-sm font-bold tracking-wide mb-4 pb-2 border-b border-greyColor/30">ADD NEW CATEGORY</h3>
           <div className="space-y-4">
             <input
-            type="text"
-            placeholder="Category Name"
-            value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
-            className="border p-2 rounded-md w-full outline-none border-primaryColor text-secondary"
+              type="text"
+              placeholder="Category Name"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              className="border p-2 rounded-md w-full outline-none border-primaryColor text-secondary"
             />
             <DashBoardButtonLayoutOption>
-              <IconButton 
-              icon='/icons/addicon.svg'
-              altText='Add Icon'
-              onClick={handleAddCategory}
-              iconSize={8}
+              <IconButton
+                icon='/icons/addicon.svg'
+                altText='Add Icon'
+                onClick={handleAddCategory}
+                iconSize={8}
               />
 
-              <IconButton 
-              icon='/icons/closeicon.svg'
-              altText='Close Icon'
-              onClick={() => {
-              setIsCreatingCategory(false)
-              setNewCategory('')
-              }}
-              iconSize={8}
+              <IconButton
+                icon='/icons/closeicon.svg'
+                altText='Close Icon'
+                onClick={() => {
+                  setIsCreatingCategory(false)
+                  setNewCategory('')
+                }}
+                iconSize={8}
               />
             </DashBoardButtonLayoutOption>
           </div>
-      </div>
+        </div>
       )}
 
-  </div>
+    </div>
   );
 }

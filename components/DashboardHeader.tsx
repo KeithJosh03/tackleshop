@@ -2,50 +2,45 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'; 
+import { usePathname } from 'next/navigation';
 
 export default function DashboardHeader() {
-  const pathname = usePathname(); 
+  const pathname = usePathname();
 
   return (
-    <header className='flex-1 border border-greyColor rounded p-4 w-full flex flex-col bg-blackgroundColor'>
-      <div className='flex flex-row'>
-        <h1 className='text-primaryColor font-extrabold text-2xl'>ADMIN</h1>
+    <header className='w-full bg-blackgroundColor border border-greyColor rounded-xl shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-y-4 font-sans'>
+      <div className='flex items-center'>
+        <h1 className='text-primaryColor font-bold tracking-tight text-xl'>ADMIN DASHBOARD</h1>
       </div>
-      <div className='flex flex-row items-center justify-items-center gap-y-2 font-extrabold text-base text-primaryColor bg-secondary rounded'>
-        <Link 
-        className='flex-1'
-        href='/admin//dashboard/category'
-        >
-          <div
-            className={`text-center hover:text-tertiaryColor p-2 rounded ${
-              pathname === '/admin/dashboard/category' ? 'bg-primaryColor text-white' : ''
+      <nav className='flex flex-row items-center gap-2 p-1 bg-secondary/10 border border-greyColor/30 rounded-lg overflow-x-auto scroller-hide'>
+        <Link
+          href='/admin/dashboard/category'
+          className={`flex-1 min-w-[160px] text-center px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-200 ${pathname.includes('/category')
+            ? 'bg-primaryColor text-white shadow-md'
+            : 'text-secondary hover:text-primaryColor hover:bg-secondary/5'
             }`}
-          >
-            PRODUCT CATEGORIES
-          </div>
-        </Link>
-        <Link 
-        href='/admin/dashboard/addproduct/'
-        className='flex-1'
         >
-        <div 
-          className={`text-center hover:text-tertiaryColor p-2 rounded ${
-              pathname === '/admin/dashboard/addproduct' ? 'bg-primaryColor text-white' : ''
+          PRODUCT CATEGORIES
+        </Link>
+        <Link
+          href='/admin/dashboard/addproduct/'
+          className={`flex-1 min-w-[160px] text-center px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-200 ${pathname.includes('/addproduct')
+            ? 'bg-primaryColor text-white shadow-md'
+            : 'text-secondary hover:text-primaryColor hover:bg-secondary/5'
             }`}
-        >ADD PRODUCT</div>
-        </Link>
-        <Link 
-        className='flex-1'
-        href='/admin/dashboard/productlist/'
         >
-          <div className={`text-center hover:text-tertiaryColor p-2 rounded ${
-                pathname === '/admin/dashboard/productlist' ? 'bg-primaryColor text-white' : ''
-              }`}
-          >PRODUCT LIST
-          </div>
+          ADD PRODUCT
         </Link>
-      </div>
+        <Link
+          href='/admin/dashboard/productlist/'
+          className={`flex-1 min-w-[160px] text-center px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-200 ${pathname.includes('/productlist')
+            ? 'bg-primaryColor text-white shadow-md'
+            : 'text-secondary hover:text-primaryColor hover:bg-secondary/5'
+            }`}
+        >
+          PRODUCT LIST
+        </Link>
+      </nav>
     </header>
   )
 }
