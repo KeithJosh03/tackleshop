@@ -111,11 +111,16 @@ export async function createProduct(product: ProductDetails) {
 
   console.log(productToSend);
 
-  axios.post('/api/products/store', productToSend)
-    .then((response) => {
-      console.log(response.data);
-    })
-    .catch((error) => console.error('Error fetching brands:', error));
+  try {
+    const response = await axios.post('/api/products/store', productToSend);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error creating product:', error);
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('An unexpected error occurred while creating the product.');
+  }
 }
 
 export async function createProductMedia(

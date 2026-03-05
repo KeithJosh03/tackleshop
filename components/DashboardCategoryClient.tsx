@@ -1,6 +1,7 @@
 'use client';
 import { worksans } from '@/types/fonts';
 import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { SubCategoryProps, CategorySubProps } from '@/types/dataprops';
 import axios from 'axios';
 
@@ -53,6 +54,19 @@ export default function DashboardCategoryClient({ categorylist }: Props) {
   const [isEditingSubCategory, setisEditingSubCategory] = useState(false);
   const [newEditingSubCategoryName, setnewEditingSubCategoryName] = useState('');
 
+  // Status Toast
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusType, setStatusType] = useState<'success' | 'error' | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setStatusMessage(message);
+    setStatusType(type);
+    setTimeout(() => {
+      setStatusMessage(null);
+      setStatusType(null);
+    }, 5000);
+  };
+
   useEffect(() => {
     if (!selectedCategory?.categoryId) return;
 
@@ -85,9 +99,9 @@ export default function DashboardCategoryClient({ categorylist }: Props) {
       setCategories([...categories, createdCategory]);
       setIsCreatingCategory(false);
       setNewCategory('');
-      console.log(`Category "${createdCategory.categoryName}" added successfully.`);
+      showToast(`Category "${createdCategory.categoryName}" added successfully.`, 'success');
     } else {
-      console.error('Failed to add category.');
+      showToast('Failed to add category.', 'error');
     }
   };
 
@@ -110,9 +124,9 @@ export default function DashboardCategoryClient({ categorylist }: Props) {
       setEditCategoryName('');
       setselectedCategory(null);
       setisEditingCategory(false);
-      console.log(`Category with ID ${updatedCategory.categoryId} updated successfully.`);
+      showToast(`Category updated successfully.`, 'success');
     } else {
-      console.error("Failed to update category.");
+      showToast("Failed to update category.", 'error');
     }
   };
 
@@ -131,12 +145,12 @@ export default function DashboardCategoryClient({ categorylist }: Props) {
         );
         setselectedCategory(null);
         setsubCategory([]); // Clear subcategories when category is deleted
-        console.log(`Category deleted successfully.`);
+        showToast(`Category deleted successfully.`, 'success');
       } else {
-        console.error('Failed to delete category.');
+        showToast('Failed to delete category.', 'error');
       }
     } catch (error) {
-      console.error(`Error deleting category: ${error}`);
+      showToast(`Error deleting category.`, 'error');
     }
   };
 
@@ -153,9 +167,9 @@ export default function DashboardCategoryClient({ categorylist }: Props) {
       setsubCategory([...subCategory, createdSubCategory]);
       setisCreatingSubcategory(false);
       setnewSubcategory('');
-      console.log(`Subcategory "${createdSubCategory.subCategoryName}" added successfully.`);
+      showToast(`Subcategory "${createdSubCategory.subCategoryName}" added successfully.`, 'success');
     } else {
-      console.error('Failed to add subcategory.');
+      showToast('Failed to add subcategory.', 'error');
     }
   };
 
@@ -179,9 +193,9 @@ export default function DashboardCategoryClient({ categorylist }: Props) {
       setisEditingSubCategory(false);
       setselectSubCategory(null);
       setnewEditingSubCategoryName('');
-      console.log(`Subcategory "${updatedSubCategory.subCategoryName}" updated successfully.`);
+      showToast(`Subcategory updated successfully.`, 'success');
     } else {
-      console.error('Failed to update subcategory.');
+      showToast('Failed to update subcategory.', 'error');
     }
   };
 
@@ -198,9 +212,9 @@ export default function DashboardCategoryClient({ categorylist }: Props) {
         )
       );
       setselectSubCategory(null);
-      console.log(`Subcategory deleted successfully.`);
+      showToast(`Subcategory deleted successfully.`, 'success');
     } else {
-      console.error('Failed to delete subcategory.');
+      showToast('Failed to delete subcategory.', 'error');
     }
   };
 
@@ -460,6 +474,44 @@ export default function DashboardCategoryClient({ categorylist }: Props) {
           </div>
         </div>
       )}
+
+      {/* ── Toast Notification ── */}
+      <AnimatePresence>
+        {statusMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className={`fixed bottom-8 right-8 z-50 flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border ${statusType === 'success' ? 'bg-[#1a2e1d] border-green-500/30' : 'bg-[#2e1a1a] border-red-500/30'
+              }`}
+          >
+            {statusType === 'success' ? (
+              <svg className="w-6 h-6 text-green-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6 text-red-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            )}
+            <div className="flex flex-col max-w-[300px]">
+              <span className={`text-sm font-bold ${statusType === 'success' ? 'text-green-400' : 'text-red-400'} uppercase tracking-wider`}>
+                {statusType === 'success' ? 'Success' : 'Error'}
+              </span>
+              <p className="text-white text-sm font-medium mt-0.5 leading-snug">{statusMessage}</p>
+            </div>
+            <button
+              onClick={() => setStatusMessage(null)}
+              className="ml-4 text-secondary hover:text-white transition-colors shrink-0"
+              title="Close notification"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

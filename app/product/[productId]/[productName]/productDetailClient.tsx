@@ -68,7 +68,7 @@ export default function ProductDetailClient({ productDetailProps }: { productDet
     return (basePrice + variantPrice).toFixed(2);
   };
 
-
+  console.log(productImages)
 
   return (
     <>
@@ -172,7 +172,7 @@ export default function ProductDetailClient({ productDetailProps }: { productDet
                   }`}
               >
                 <Image
-                  src={`${baseURL}${img.imageUrl}`}
+                  src={`${baseURL}${img.imageUrl || '/placeholder.png'}`}
                   alt="Thumbnail"
                   fill
                   sizes="96px"
@@ -184,9 +184,6 @@ export default function ProductDetailClient({ productDetailProps }: { productDet
             ))}
           </div>
         )}
-
-
-
       </motion.div>
     </>
   );

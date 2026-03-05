@@ -40,6 +40,15 @@ export default function DashboardHeader() {
         >
           PRODUCT LIST
         </Link>
+        <Link
+          href='/admin/dashboard/addsetup/'
+          className={`flex-1 min-w-[160px] text-center px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-200 ${pathname.includes('/addsetup')
+            ? 'bg-primaryColor text-white shadow-md'
+            : 'text-secondary hover:text-primaryColor hover:bg-secondary/5'
+            }`}
+        >
+          ADD SETUP
+        </Link>
       </nav>
     </header>
   )
