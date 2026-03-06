@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-// import SearchText from '@/components/SearchText';
 import { SearchText } from '@/components';
 import {
   ProductListDashboard,
@@ -127,7 +126,7 @@ export default function Page() {
                   <div className="flex gap-2">
                     <button className="px-3 py-1 text-xs rounded border border-primaryColor text-primaryColor">
                       <Link
-                      href={`/admin/dashboard/editproduct/${product.productId}`}
+                        href={`/admin/dashboard/editproduct/${product.productId}`}
                       >
                         Edit
                       </Link>
@@ -165,11 +164,10 @@ export default function Page() {
             <button
               key={pNum}
               onClick={() => setPage(pNum)}
-              className={`px-3 py-1 rounded border ${
-                page === pNum
+              className={`px-3 py-1 rounded border ${page === pNum
                   ? 'bg-primaryColor text-white border-primaryColor'
                   : 'border-greyColor text-greyColor hover:bg-primaryColor hover:text-white'
-              } transition`}
+                } transition`}
             >
               {pNum}
             </button>

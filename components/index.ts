@@ -18,6 +18,7 @@ import DashboardSelectCategory from './DashboardSelectCategory';
 import DashboardSelectSubCategory from './DashboardSelectSubCategory';
 import DashboardVariantsComponent from './DashboardVariantsComponent';
 import ProductMedia from './ProductMedia';
+import ProductContentInputs, { FieldError, FieldHint, SectionCard } from './ProductContentInputs';
 
 import SearchText from './SearchText';
 import InputText from './InputText';
@@ -44,7 +45,11 @@ export {
     DashboardSelectSubCategory,
     DashboardVariantsComponent,
     ProductMedia,
-    
+    ProductContentInputs,
+    FieldError,
+    FieldHint,
+    SectionCard,
+
     DropDownText,
     ImageIconUpload,
     SearchTextAdmin,

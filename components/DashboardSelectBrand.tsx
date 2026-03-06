@@ -16,23 +16,24 @@ import {
 type ReducerType = 'CREATE' | 'EDIT'
 
 interface BrandComponentProps {
-  dispatchProductDetailCreate?: React.Dispatch<ProductDetailActionCreate>; 
+  dispatchProductDetailCreate?: React.Dispatch<ProductDetailActionCreate>;
   ProductDetailEditReducer?: React.Dispatch<ProductDetailActionEdit>;
   reducerType: ReducerType;
   choosenBrand: BrandProps | null;
 }
 
 const DashboardSelectBrand: React.FC<BrandComponentProps> = (
-  { dispatchProductDetailCreate, 
+  { dispatchProductDetailCreate,
     ProductDetailEditReducer,
     reducerType,
-    choosenBrand 
+    choosenBrand
   }) => {
   const [brands, setBrands] = useState<BrandProps[]>([]);
   const [filteredBrands, setFilteredBrands] = useState<BrandProps[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBrand, setSelectedBrand] = useState<BrandProps | null>();
-  
+
+  console.log(choosenBrand)
 
   useEffect(() => {
     const fetchBrands = async () => {
@@ -48,18 +49,18 @@ const DashboardSelectBrand: React.FC<BrandComponentProps> = (
   }, []);
 
   useEffect(() => {
-    if(choosenBrand === null) {
+    if (choosenBrand === null) {
       setSelectedBrand(null);
       setSearchTerm('');
       return
     }
     setSelectedBrand(choosenBrand);
     setSearchTerm(choosenBrand.brandName);
-  },[choosenBrand])
+  }, [choosenBrand])
 
 
   useEffect(() => {
-    if(selectedBrand?.brandName.toLowerCase() === searchTerm.toLowerCase()){
+    if (selectedBrand?.brandName.toLowerCase() === searchTerm.toLowerCase()) {
       setFilteredBrands([])
       return;
     } else {
@@ -76,30 +77,30 @@ const DashboardSelectBrand: React.FC<BrandComponentProps> = (
   const clearSearch = () => {
     if (reducerType === 'CREATE' && dispatchProductDetailCreate) {
       dispatchProductDetailCreate({
-      type:'REMOVE_BRAND'
+        type: 'REMOVE_BRAND'
       })
     }
 
-    if(reducerType === 'EDIT' && ProductDetailEditReducer){
+    if (reducerType === 'EDIT' && ProductDetailEditReducer) {
       ProductDetailEditReducer({
-      type:'REMOVE_BRAND'
+        type: 'REMOVE_BRAND'
       })
     }
-    
+
     setSearchTerm('')
   }
 
   const dispatchBrandSelect = (brand: BrandProps) => {
     if (reducerType === 'EDIT' && ProductDetailEditReducer) {
       ProductDetailEditReducer({
-        type: 'UPDATE_BRAND', 
+        type: 'UPDATE_BRAND',
         payload: brand
       });
     }
-    if(reducerType === 'CREATE' && dispatchProductDetailCreate){
+    if (reducerType === 'CREATE' && dispatchProductDetailCreate) {
       dispatchProductDetailCreate({
-        type:'SELECT_BRAND',
-        payload:brand
+        type: 'SELECT_BRAND',
+        payload: brand
       })
     }
   };
@@ -108,7 +109,7 @@ const DashboardSelectBrand: React.FC<BrandComponentProps> = (
     <div className="flex-1 flex flex-col">
       <h1 className="text-primaryColor text-xl">SELECT BRAND</h1>
       <SearchText
-        choosen={selectedBrand} 
+        choosen={selectedBrand}
         onClear={clearSearch}
         placeholderText="Search Brand"
         value={searchTerm}
@@ -117,12 +118,12 @@ const DashboardSelectBrand: React.FC<BrandComponentProps> = (
       {filteredBrands.length > 0 && (
         <ul className="list-none bg-secondary border rounded border-primaryColor text-base max-h-40 overflow-y-auto">
           {filteredBrands.map((brand) => (
-            <DropDownText 
-              onClick={() => 
-                dispatchBrandSelect(brand) 
-              } 
-              key={brand.brandId} 
-              indexKey={brand.brandId} 
+            <DropDownText
+              onClick={() =>
+                dispatchBrandSelect(brand)
+              }
+              key={brand.brandId}
+              indexKey={brand.brandId}
               listName={brand.brandName}
             />
           ))}

@@ -1,25 +1,26 @@
 import { ProductDetailsEdit } from "@/lib/api/productService";
 import EditProductClient from "./ProductClientEdit";
 
-
 interface PageProps {
-  params: {
+  params: Promise<{
     productId: string;
-  };
+  }>;
 }
 
 export default async function Page({ params }: PageProps) {
-  const { productId } = params;
+  const { productId } = await params;
 
   const productDetailsEdit = await ProductDetailsEdit(Number(productId));
+
+  console.log(productDetailsEdit)
 
   if (!productDetailsEdit) {
     return <div>Product not found</div>;
   }
 
   return (
-    <EditProductClient 
-    productDetailEditProps={productDetailsEdit} 
+    <EditProductClient
+      productDetailEditProps={productDetailsEdit}
     />
   );
 }

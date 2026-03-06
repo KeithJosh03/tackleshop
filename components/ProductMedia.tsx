@@ -62,8 +62,9 @@ const ProductMedia: React.FC<MediaComponentProps> = ({
     }
 
     if (ReducerType === 'EDIT' && ProductDetailEditReducer) {
+      console
       ProductDetailEditReducer({
-        type: "UPDATE_MEDIA_MAIN",
+        type: "UPDATE_MEDIA_MAIN_EDIT",
         payload: index
       })
     }
