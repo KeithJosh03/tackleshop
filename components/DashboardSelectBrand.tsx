@@ -33,8 +33,6 @@ const DashboardSelectBrand: React.FC<BrandComponentProps> = (
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBrand, setSelectedBrand] = useState<BrandProps | null>();
 
-  console.log(choosenBrand)
-
   useEffect(() => {
     const fetchBrands = async () => {
       try {

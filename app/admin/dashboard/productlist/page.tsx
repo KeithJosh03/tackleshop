@@ -57,6 +57,8 @@ export default function Page() {
     fetchProducts();
   }, [searchProduct, page]);
 
+  console.log(productsLists);
+
   return (
     <div className="flex flex-col border border-greyColor p-4 gap-y-4 font-extrabold rounded bg-blackgroundColor">
       <h1 className="text-primaryColor text-xl">PRODUCT LISTS</h1>
@@ -165,8 +167,8 @@ export default function Page() {
               key={pNum}
               onClick={() => setPage(pNum)}
               className={`px-3 py-1 rounded border ${page === pNum
-                  ? 'bg-primaryColor text-white border-primaryColor'
-                  : 'border-greyColor text-greyColor hover:bg-primaryColor hover:text-white'
+                ? 'bg-primaryColor text-white border-primaryColor'
+                : 'border-greyColor text-greyColor hover:bg-primaryColor hover:text-white'
                 } transition`}
             >
               {pNum}

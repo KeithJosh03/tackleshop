@@ -137,17 +137,15 @@ function ProductDetailEditReducer(
       return state;
     case 'REMOVE_MEDIA': {
       if (!state.productMedias) return state;
-      const filtered = state.productMedias.filter((m) => m.productImgId !== action.payload);
+      const filtered = state.productMedias.filter((m) => m.imageId !== action.payload);
       return { ...state, productMedias: filtered.length ? filtered : null };
     }
     case 'UPDATE_MEDIA_MAIN_EDIT': {
-      console.log(action.payload);
       if (!state.productMedias) return state;
       const updatedMedias = state.productMedias.map((media) => ({
         ...media,
-        isMain: media.productImgId === action.payload,
+        isMain: media.imageId === action.payload,
       }));
-
       return {
         ...state,
         productMedias: updatedMedias,

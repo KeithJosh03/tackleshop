@@ -12,11 +12,12 @@ export default async function Page({ params }: PageProps) {
 
   const productDetailsEdit = await ProductDetailsEdit(Number(productId));
 
-  console.log(productDetailsEdit)
 
   if (!productDetailsEdit) {
     return <div>Product not found</div>;
   }
+
+  console.log(productDetailsEdit)
 
   return (
     <EditProductClient

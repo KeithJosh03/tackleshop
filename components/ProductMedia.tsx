@@ -62,7 +62,7 @@ const ProductMedia: React.FC<MediaComponentProps> = ({
     }
 
     if (ReducerType === 'EDIT' && ProductDetailEditReducer) {
-      console
+      console.log(index)
       ProductDetailEditReducer({
         type: "UPDATE_MEDIA_MAIN_EDIT",
         payload: index
@@ -142,7 +142,10 @@ const ProductMedia: React.FC<MediaComponentProps> = ({
                     key={index}
                     className={`relative min-w-[160px] h-40 w-40 rounded border ${media.isMain ? "border-primaryColor" : "border-greyColor"
                       }`}
-                    onClick={() => handleSetMainImage(media.productImgId)}
+                    onClick={() => {
+                      handleSetMainImage(media.imageId)
+                      console.log(media.imageId)
+                    }}
                   >
                     <div className="absolute top-2 right-2 z-10">
                       <IconButton
@@ -150,7 +153,7 @@ const ProductMedia: React.FC<MediaComponentProps> = ({
                         altText="Delete Icon"
                         iconSize={8}
                         onClick={(e) => {
-                          handleDeleteProductMedia(media.productImgId)
+                          handleDeleteProductMedia(media.imageId)
                         }}
                       />
                     </div>
