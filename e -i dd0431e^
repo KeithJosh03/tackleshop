@@ -1,0 +1,302 @@
+[33mcommit 18918af3702f5b747544a0ee5b631edf46e3e5ba[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Wed Apr 8 13:35:39 2026 +0800
+
+    removing some files
+
+[33mcommit dd0431eb8bea81f8e865ebb75769a782cf2ce32e[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Wed Apr 8 13:33:54 2026 +0800
+
+    add some alert and function to delete some product
+
+[33mcommit 60d51306701743faefcafd1b4ab5223bd05b3d59[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Sat Mar 7 11:12:05 2026 +0800
+
+    remake ui/ux footer and header
+
+[33mcommit a1a86383f9e61057bd62d174a6383e5288e8bfe7[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Fri Mar 6 16:49:15 2026 +0800
+
+    fixing ui/ux categorry
+
+[33mcommit 185f41eb17eedd4d4f02932139e3859198f4f59c[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Thu Mar 5 11:32:25 2026 +0800
+
+    add ui/ux for successful add or delete Dashboard Product,Brand,Category,Subcategory
+
+[33mcommit f317bd52f8145a6fe5a8dede2a83dda98b64824c[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Sat Feb 28 23:13:58 2026 +0800
+
+    DashboardHeader UI/UX and Category
+
+[33mcommit 1449734f5df80311bdb089d37e697ec5820219c6[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Sat Feb 28 17:53:26 2026 +0800
+
+    Fixing ui/ux of Collections and Brands logo
+
+[33mcommit a81d7432138d99b09a3c5ea00758c7a7a4bed141[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Wed Feb 25 22:31:29 2026 +0800
+
+    fixing interface for productdetails
+
+[33mcommit 3a090771539e85eeb10148ab1c341edda149f9f4[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Tue Feb 3 21:49:54 2026 +0800
+
+    fixing reducer for create and edit product details
+
+[33mcommit 2bb8ea179609c3c826ea49b234bb679b2888cb8c[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Wed Jan 28 05:45:39 2026 +0800
+
+    Fixing Dashboards
+
+[33mcommit 7d4f4ec89339c030332eff0e0dee242b62bbec86[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Fri Jan 16 04:30:07 2026 +0800
+
+    making file for edit products
+
+[33mcommit 14465082a2cda894f71c7bf1b5b573ceea11106c[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Thu Jan 15 04:03:32 2026 +0800
+
+    Add Pagination in Admin Dashboard and Category Routes
+
+[33mcommit 6c8e0ba8df09a3af4d9365e2a06ad497177e6e3b[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Tue Dec 30 02:45:16 2025 +0800
+
+    fix product routes
+
+[33mcommit 9d1112545aa6278751f32839079370d19cf2e2ef[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Sun Dec 21 23:43:29 2025 +0800
+
+    make admin dashboard making push products
+
+[33mcommit d59be75634a4ec4938470ad2d502321b929b3c41[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Fri Nov 7 07:04:29 2025 +0800
+
+    fixing formdata append for product post
+
+[33mcommit 462c218f9d34f29fb6ab8e94bc86b20655a67e15[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Fri Nov 7 06:36:52 2025 +0800
+
+    adding prdouctadd admin dashboard
+
+[33mcommit 08b09ed45dc92a0623b7d2ba9c2de0658ee13db4[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Wed Oct 29 06:00:03 2025 +0800
+
+    add admin dashboard
+
+[33mcommit 5db87e220f42cb10ffbcfa9b70fbd8ba426c2274[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Tue Oct 21 22:44:11 2025 +0800
+
+    added fetches when reaches bottom and pagination
+
+[33mcommit 9bb3ca2d92f234b02b6d8aaf7585a7ffa20ba02c[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Thu Oct 16 22:30:34 2025 +0800
+
+    add button for discounts and setups for more products view
+
+[33mcommit dc17d0c88fa7be7f0823c9f1ba034cf478961c89[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Thu Oct 16 22:27:30 2025 +0800
+
+    make headeer for mobile responsive burger drawer slide
+
+[33mcommit 590649121b1324dffb116d04953c476b158c787c[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Wed Oct 15 23:35:19 2025 +0800
+
+    add ui for promo routes and fetches data
+
+[33mcommit 30754f26bf0854161a775e5e0d02f71409a7f57a[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Sat Oct 11 17:22:08 2025 +0800
+
+    Make Setups/Discount/Collection Responsive Section
+    
+    CategoryCollection Done
+    Setups Done
+
+[33mcommit b77fbfc7114903040194867fcc5d2c0b7643ee8e[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Fri Oct 10 16:37:34 2025 +0800
+
+    fixing UI of CollectionProduct ProductDiscount anad Setup, added some function for calculation and currency numerice function to display numbers
+
+[33mcommit 460e8a7986f2c311538725167c810e09cb9add92[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Thu Oct 9 12:01:08 2025 +0800
+
+    Add Discount and Setup Section/Component integrate Typescript Annotation
+
+[33mcommit 01a1c31b75c4c6412bfe5556462b9f2aaf67d93d[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Tue Oct 7 11:15:34 2025 +0800
+
+    Adding Clean Typescript annotation and changing keys properties from database
+
+[33mcommit e63fcedb3960bcdd11c5e86e5c6f2449b479fd92[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Tue Sep 9 05:38:25 2025 +0800
+
+    fixing UI responsive
+
+[33mcommit 0a6386fef9260dd7da4f710e2fdc4c3f57d85329[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Fri Aug 22 19:55:40 2025 +0800
+
+    fixing ui dropdowm header
+
+[33mcommit e9e83507a55493e25519c8bf78cb0d934c955bcb[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Thu Aug 21 17:43:24 2025 +0800
+
+    details/ui in product dynamic folder
+
+[33mcommit fe75aa29acc8be259cadd95b290d83b12570d79e[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Wed Aug 20 19:06:43 2025 +0800
+
+    make search function to retrieve product
+
+[33mcommit af8afec2b6ae9cacaf44059d42ea80267ef7e8b5[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Tue Aug 19 20:23:38 2025 +0800
+
+    adding product dynamic product for viewing its details
+
+[33mcommit 3ea7a331de1ce14302daf1b4033a88894ad84042[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Mon Aug 18 05:56:35 2025 +0800
+
+    fix dataprops typescript and category dynamic folder added and fix features
+
+[33mcommit 8ef79f788ebde7efa1e86f455cb108326408c33f[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Fri Aug 15 05:57:23 2025 +0800
+
+    fixing url for retrive categoried products for collections component and redirect to dynamic folder of category
+
+[33mcommit c710568a0f9f4f0a021a43b5333ee8e2a5562855[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Wed Aug 13 22:08:22 2025 +0800
+
+    fixing structure folder for collection and adding type static for data retrieve
+
+[33mcommit 222ac801faf4ed303f95b838fb0863be0d05b71e[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Tue Aug 12 06:17:49 2025 +0800
+
+    added axios for http request fetching data for apparel, categories, products and for collection component
+
+[33mcommit 802df3368223f49393112587a271d18147f9dd3d[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Sun Aug 3 21:56:12 2025 +0800
+
+    adding slugs request to backend specific brand
+
+[33mcommit 3d04ff3ae3d99d43b724dc917be5039e4c838ccd[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Fri Aug 1 04:57:38 2025 +0800
+
+    header brand button dropdown href to dynamic folder
+
+[33mcommit 695de69264981325f741b00cad3120b1432e36e3[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Thu Jul 31 19:17:17 2025 +0800
+
+    fixing ui of header
+
+[33mcommit e4e8a86d06aea55cb8fbd6c7429345c37c654584[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Tue Jul 29 22:15:29 2025 +0800
+
+    adding axios request for getting apparel available
+
+[33mcommit 2d79edc1a830a64a7426967ec8a2eb4f080ed97d[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Tue Jul 29 21:44:48 2025 +0800
+
+    adding server in next.config
+
+[33mcommit 2020d0f2959e8191195bed5ebc2c82415601ce40[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Mon Jul 28 22:04:21 2025 +0800
+
+    testing axios http resquest to laravelbackend
+
+[33mcommit 8143a91e599822365ed192c0de99f51bc9ec8fd8[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Sat Jul 26 18:03:26 2025 +0800
+
+    adding axios in project
+
+[33mcommit a0e9ad87bf2ec73a4a4e6437a07584f0df8a13f1[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Fri Jul 25 13:50:03 2025 +0800
+
+    adding footer social media leading new tabs to its url
+
+[33mcommit 53fcb00cfb4e91b404dcf7dd218d5e2297ff8fef[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Thu Jul 24 18:51:13 2025 +0800
+
+    fixing ui of footer
+
+[33mcommit ae7715a18399502fc87d02f55ae2a0f5f913235f[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Thu Jul 24 12:09:52 2025 +0800
+
+    fixing footers ui
+
+[33mcommit 74c94256ca53be9a9d4125aaf8bf784ae65715c0[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Wed Jul 23 21:32:03 2025 +0800
+
+    fixing folder structure and layout of footer
+
+[33mcommit 48ed64ca014f594c05784f60578808f4b64775e4[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Tue Jul 22 05:31:19 2025 +0800
+
+    fixing folder structure in collection feature for dynamic reusable component
+
+[33mcommit 80550a0fa664206b6de4d4530e3398364bdfc20c[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Mon Jul 21 19:06:41 2025 +0800
+
+    initiating blogs feature dynamic route folder
+
+[33mcommit 5bd625e62457d7ac88cc81e6254d7fd481f884f6[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Sat Jul 19 05:17:10 2025 +0800
+
+    Updating Version of Tailwind and NextJS, fixing UIadding features Brands,HighLights and Reviews
+
+[33mcommit a8f58aec3a21c320ace4918afba85f03d8422473[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Wed May 21 15:32:37 2025 +0800
+
+    initializing tackleshop website for inquiries
+
+[33mcommit 72878719cb22384b20645422a83452010df856b7[m
+Author: KeithJosh03 <kitjuswa0304@gmail.com>
+Date:   Tue May 20 21:58:48 2025 +0800
+
+    Initial commit from Create Next App
