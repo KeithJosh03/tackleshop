@@ -15,7 +15,8 @@ const ImageIconUpload: React.FC<ImageUploadProps> = ({
   onFileChange,
   uploadImage,
   imageAlt = "Upload Image",
-  maxImages
+  maxImages,
+  className
 }) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +38,7 @@ const ImageIconUpload: React.FC<ImageUploadProps> = ({
 
   return (
     <label
-      className='cursor-pointer w-16 h-16 border-2 border-dashed border-secondary p-2 rounded-2xl text-center items-center justify-center flex group-hover:border-primaryColor hover:text-primaryColor'
+      className={className || 'cursor-pointer w-16 h-16 border-2 border-dashed border-secondary p-2 rounded-2xl text-center items-center justify-center flex group-hover:border-primaryColor hover:text-primaryColor'}
     >
       <input
         type="file"

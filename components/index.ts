@@ -1,8 +1,9 @@
 import Hero from './layout/Hero';
-import Brands from './layout/Brands';
+import Brands from './layout/brandlogo/Brands';
+import Services from './layout/Services';
 
 import Footer from './layout/Footer';
-import Header from './layout/Header';
+import Header from './layout/Header/Header';
 import Collections from './collections/Collection';
 import Setups from './setups';
 import Discounts from './sales';
@@ -34,6 +35,7 @@ export {
     Hero,
     Footer,
     Brands,
+    Services,
     Collections,
 
     DashboardBrandClient,

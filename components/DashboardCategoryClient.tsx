@@ -130,30 +130,6 @@ export default function DashboardCategoryClient({ categorylist }: Props) {
     }
   };
 
-  // DELETE CATEGORY
-  const handleDeleteCategory = async () => {
-    if (!selectedCategory) return;
-
-    const categoryId = selectedCategory.categoryId;
-
-    try {
-      const success = await deleteCategory(categoryId);
-
-      if (success) {
-        setCategories((prevCategories) =>
-          prevCategories.filter((category) => category.categoryId !== categoryId)
-        );
-        setselectedCategory(null);
-        setsubCategory([]); // Clear subcategories when category is deleted
-        showToast(`Category deleted successfully.`, 'success');
-      } else {
-        showToast('Failed to delete category.', 'error');
-      }
-    } catch (error) {
-      showToast(`Error deleting category.`, 'error');
-    }
-  };
-
   // ADD SUBCATEGORY
   const handleAddSubCategegory = async () => {
     if (!selectedCategory || !newSubcategory.length) return;
@@ -196,25 +172,6 @@ export default function DashboardCategoryClient({ categorylist }: Props) {
       showToast(`Subcategory updated successfully.`, 'success');
     } else {
       showToast('Failed to update subcategory.', 'error');
-    }
-  };
-
-  // DELETE SUBCATEGORY
-  const handleDeleteSubCategory = async () => {
-    if (!selectedSubCategory) return;
-
-    const success = await deleteSubCategory(selectedSubCategory.subCategoryId);
-
-    if (success) {
-      setsubCategory((prevSubcategories) =>
-        prevSubcategories.filter(
-          (subcategory) => subcategory.subCategoryId !== selectedSubCategory.subCategoryId
-        )
-      );
-      setselectSubCategory(null);
-      showToast(`Subcategory deleted successfully.`, 'success');
-    } else {
-      showToast('Failed to delete subcategory.', 'error');
     }
   };
 
@@ -283,13 +240,6 @@ export default function DashboardCategoryClient({ categorylist }: Props) {
                     icon='/icons/editicon.svg'
                     altText='close Icon'
                     onClick={() => { setisEditingCategory(true) }}
-                    iconSize={8}
-                  />
-
-                  <IconButton
-                    icon='/icons/deleteicon.svg'
-                    altText='delete Icon'
-                    onClick={handleDeleteCategory}
                     iconSize={8}
                   />
                 </>
@@ -403,12 +353,6 @@ export default function DashboardCategoryClient({ categorylist }: Props) {
                     icon='/icons/editicon.svg'
                     altText='close Icon'
                     onClick={() => { setisEditingSubCategory(true) }}
-                    iconSize={8}
-                  />
-                  <IconButton
-                    icon='/icons/deleteicon.svg'
-                    altText='delete Icon'
-                    onClick={handleDeleteSubCategory}
                     iconSize={8}
                   />
                 </>

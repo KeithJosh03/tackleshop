@@ -3,9 +3,9 @@ import { useReducer, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { createProduct } from '@/lib/api/productService';
-import { BrandProps } from '@/types/brandType';
-import { Category } from '@/types/categoryType';
-import { SubCategory } from '@/types/subCategoryTypes';
+
+import { ProductDetailCreateReducer, ProductDetails } from '@/lib/reducer/productReducer';
+import { AddProductValidation } from '@/lib/validation/AddProductValidation';
 
 import {
   InputText,
@@ -21,221 +21,11 @@ import {
   FieldHint,
 } from '@/components'
 
-export interface VariantDetails {
-  variantTypeName: string;
-  variantOptions: VariantOption[];
-}
-
-export interface VariantOption {
-  variantOptionValue: string;
-  price_adjusting: string;
-  variant_image: File | null;
-}
-
-interface ProductImage {
-  file: File;
-  isMain: boolean;
-}
-
-interface ProductDetails {
-  productTitle: string;
-  basePrice: string;
-  brand: BrandProps | null;
-  category: Category | null;
-  subCategory: SubCategory | null;
-  description: string | null;
-  features: string | null;
-  specifications: string | null;
-  variants: VariantDetails[];
-  medias: ProductImage[];
-}
-
-export type ProductDetailActionCreate =
-  | { type: 'CLEAR_INPUTS'; payload: ProductDetails }
-  | { type: 'UPDATE_PRODUCT_TITLE'; payload: string }
-  | { type: 'UPDATE_BASE_PRICE'; payload: string }
-  | { type: 'UPDATE_DESCRIPTION'; payload: string | null }
-  | { type: 'UPDATE_FEATURES'; payload: string | null }
-  | { type: 'UPDATE_SPECIFICATIONS'; payload: string | null }
-  | { type: 'ADD_MEDIAS'; payload: ProductImage[] }
-  | { type: 'ADD_VARIANTS'; payload: VariantDetails }
-  | { type: 'SELECT_BRAND'; payload: BrandProps }
-  | { type: 'REMOVE_BRAND'; }
-  | { type: 'UPDATE_CATEGORY'; payload: Category }
-  | { type: 'REMOVE_CATEGORY'; }
-  | { type: 'SELECT_SUBCATEGORY'; payload: SubCategory }
-  | { type: 'SELECT_SUBCATEGORY_DELETE'; }
-  | { type: 'UPDATE_MAIN_IMAGE'; payload: number }
-  | { type: 'DELETE_PRODUCT_IMAGE'; payload: number }
-  | { type: 'SELECT_PRODUCT_IMAGE_THUMBNAIL'; payload: number }
-  | { type: 'ADJUST_PRICE'; payload: { variantIndex: number, price_adjust: string, optiontIndex: number } }
-  | { type: 'ADD_IMAGE_VARIANT'; payload: { variantIndex: number, variantImage: File, optiontIndex: number } }
-  | { type: 'REMOVE_VARIANT_IMAGE'; payload: { variantIndex: number, optionIndex: number } }
-
-
-
-function ProductDetailCreateReducer(
-  state: ProductDetails,
-  action: ProductDetailActionCreate
-): ProductDetails {
-  switch (action.type) {
-    case 'CLEAR_INPUTS': {
-      return { ...action.payload }
-    }
-    case "UPDATE_PRODUCT_TITLE": {
-      return { ...state, productTitle: action.payload };
-    }
-    case "UPDATE_BASE_PRICE": {
-      const price = action.payload
-      return { ...state, basePrice: String(Number(price).toFixed(2)) };
-    }
-    case "UPDATE_DESCRIPTION": {
-      return { ...state, description: action.payload };
-    }
-    case "UPDATE_SPECIFICATIONS": {
-      return { ...state, specifications: action.payload };
-    }
-    case "UPDATE_FEATURES": {
-      return { ...state, features: action.payload };
-    }
-    case "ADD_MEDIAS": {
-      return {
-        ...state,
-        medias: state.medias
-          ? [...state.medias, ...action.payload]
-          : [...action.payload],
-      };
-    }
-    case "ADD_VARIANTS": {
-      console.log(action.payload)
-      return {
-        ...state,
-        variants: [...state.variants, action.payload]
-      };
-    }
-    case "SELECT_BRAND": {
-      return {
-        ...state,
-        brand: action.payload,
-      };
-    }
-    case 'REMOVE_BRAND': {
-      return {
-        ...state,
-        brand: null
-      }
-    }
-    case "UPDATE_CATEGORY": {
-      return {
-        ...state,
-        category: action.payload,
-      };
-    }
-    case "REMOVE_CATEGORY": {
-      return { ...state, category: null }
-    }
-    case "SELECT_SUBCATEGORY": {
-      return {
-        ...state,
-        subCategory: action.payload,
-      };
-    }
-    case "SELECT_SUBCATEGORY_DELETE": {
-      return {
-        ...state,
-        subCategory: null
-      }
-    }
-    case "UPDATE_MAIN_IMAGE": {
-      const updatedMedias = state.medias.map((media, index) => ({
-        ...media,
-        isMain: index === action.payload ? true : media.isMain,
-      }));
-      return {
-        ...state,
-        medias: updatedMedias,
-      };
-    }
-    case "DELETE_PRODUCT_IMAGE": {
-      return {
-        ...state,
-        medias: state.medias.filter((_, index) => index !== action.payload),
-      };
-    }
-    case 'SELECT_PRODUCT_IMAGE_THUMBNAIL': {
-      const updatedMedias = state.medias.map((media, index) => ({
-        ...media,
-        isMain: index === action.payload ? true : false,
-      }));
-      return {
-        ...state,
-        medias: updatedMedias,
-      };
-    }
-    case "ADJUST_PRICE":
-      const updatedVariantOptions = state.variants.map((variant, variantIndex) => {
-        if (variantIndex === action.payload.variantIndex) {
-          const updatedOptions = variant.variantOptions.map((option, optionIndex) => {
-            if (optionIndex === action.payload.optiontIndex) {
-              const price = action.payload.price_adjust
-              return { ...option, price_adjusting: String(Number(price).toFixed(2)) };
-            }
-            return option;
-          });
-          return { ...variant, variantOptions: updatedOptions };
-        }
-        return variant;
-      });
-      return {
-        ...state,
-        variants: updatedVariantOptions,
-      };
-
-    case 'ADD_IMAGE_VARIANT':
-      console.log(action.payload.variantImage)
-      const updateImagevariant = state.variants.map((variant, variantIndex) => {
-        if (variantIndex === action.payload.variantIndex) {
-          const updatedOptions = variant.variantOptions.map((option, optionIndex) => {
-            if (optionIndex === action.payload.optiontIndex) {
-              return { ...option, variant_image: action.payload.variantImage };
-            }
-            return option;
-          });
-          return { ...variant, variantOptions: updatedOptions };
-        }
-        return variant;
-      });
-      return {
-        ...state,
-        variants: updateImagevariant,
-      };
-    case 'REMOVE_VARIANT_IMAGE':
-      const updateImagevariantremove = state.variants.map((variant, variantIndex) => {
-        if (variantIndex === action.payload.variantIndex) {
-          const updatedOptions = variant.variantOptions.map((option, optionIndex) => {
-            if (optionIndex === action.payload.optionIndex) {
-              return { ...option, variant_image: null };
-            }
-            return option;
-          });
-          return { ...variant, variantOptions: updatedOptions };
-        }
-        return variant;
-      });
-      return {
-        ...state,
-        variants: updateImagevariantremove,
-      };
-    default:
-      return state;
-  }
-}
-
 /* ─── SectionCard, FieldError, FieldHint are now imported from @/components ── */
 
 export default function page() {
 
-  const initialProductDetailState = {
+  const initialProductDetailState: ProductDetails = {
     productTitle: '',
     basePrice: '',
     description: null,
@@ -254,64 +44,10 @@ export default function page() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [statusType, setStatusType] = useState<'success' | 'error' | null>(null)
 
-  const validate = () => {
-    const {
-      productTitle, basePrice, brand, category,
-      subCategory, description, variants, medias
-    } = ProductDetailState;
-
-    const newErrors: Record<string, string> = {}
-    const parsePrice = (price: string | undefined | null) => {
-      if (!price) return NaN;
-      return parseFloat(price.replace(/[^0-9.-]+/g, ''));
-    };
-
-    if (!productTitle || !productTitle.trim())
-      newErrors.productTitle = 'Product title is required.';
-
-    if (!brand) newErrors.brand = 'Please select a brand.';
-    if (!category) newErrors.category = 'Please select a category.';
-    if (!subCategory) newErrors.subCategory = 'Please select a sub-category.';
-
-    if (!description || !description.trim())
-      newErrors.description = 'Description is required.';
-
-    const parsedBasePrice = parsePrice(basePrice);
-    if (isNaN(parsedBasePrice)) {
-      newErrors.basePrice = 'Enter a valid base price.';
-    } else if (parsedBasePrice === 0) {
-      if (!variants || variants.length === 0) {
-        newErrors.basePrice = 'Add at least one variant with a price when base price is ₱0.';
-      } else {
-        const hasInvalidVariantPrice = variants.some(v =>
-          !v.variantOptions || v.variantOptions.length === 0 ||
-          v.variantOptions.some(o => {
-            const p = parsePrice(o.price_adjusting);
-            return isNaN(p) || p === 0;
-          })
-        );
-        if (hasInvalidVariantPrice)
-          newErrors.basePrice = 'All variant options must have a non-zero price adjustment.';
-      }
-    }
-
-    const isMediasEmpty = !medias || medias.length === 0;
-    if (isMediasEmpty) {
-      if (!variants || variants.length === 0) {
-        newErrors.media = 'Upload at least one product image, or add at least one variant.';
-      }
-    } else {
-      const hasThumb = medias.some(m => m.isMain === true);
-      if (!hasThumb)
-        newErrors.media = 'Please select a thumbnail image.';
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
   const handleProductAdd = async () => {
-    if (!validate()) return;
+    const { isValid, errors: newErrors } = AddProductValidation(ProductDetailState);
+    setErrors(newErrors);
+    if (!isValid) return;
     setIsSaving(true)
     setStatusMessage(null)
     try {
@@ -346,6 +82,8 @@ export default function page() {
     !!(ProductDetailState.description?.trim()),
     ProductDetailState.medias.length > 0 || ProductDetailState.variants.length > 0,
   ].filter(Boolean).length;
+
+  console.log(ProductDetailState)
 
   return (
     <div className='flex flex-col gap-y-4 pb-10'>

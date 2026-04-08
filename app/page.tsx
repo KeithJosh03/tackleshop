@@ -1,26 +1,28 @@
-import { 
+import {
   Hero,
   Brands,
   Collections,
   Setups,
-  Discounts
+  Discounts,
+  Services
 } from "@/components";
 
-import Header from "@/components/layout/Header";
+import Header from "@/components/layout/Header/Header";
 import Footer from "@/components/layout/Footer";
 
 export default function Home() {
   return (
-  <>
-  <Header />
-  <main className="flex flex-col items-center relative z-10 gap-y-2 mb-20 mt-40">
-    <Hero />
-    <Brands />
-    {/* <Discounts /> */}
-    {/* <Setups /> */}
-    <Collections />
-  </main>
-  <Footer />
-  </>
+    <>
+      <Header />
+      <main className="flex flex-col items-center relative z-10 gap-y-2 mb-20 mt-40">
+        <Hero />
+        <Services />
+        <Brands />
+        {/* <Discounts /> */}
+        {/* <Setups /> */}
+        <Collections />
+      </main>
+      <Footer />
+    </>
   );
 }

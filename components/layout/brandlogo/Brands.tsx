@@ -3,10 +3,9 @@ import BrandLogoClient from "./BrandsClient";
 
 export default async function Brands() {
   const brandlogos = await BrandLogos();
-
   return (
-    <BrandLogoClient 
-    brandlogos={brandlogos}
+    <BrandLogoClient
+      brandlogos={brandlogos}
     />
   )
 }

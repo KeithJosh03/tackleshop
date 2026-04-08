@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 
-import { ProductDetailActionCreate } from "../app/admin/dashboard/addproduct/page";
+import { ProductDetailActionCreate } from "@/lib/reducer/productReducer";
 import { ProductDetailActionEdit } from "@/app/admin/dashboard/editproduct/[productId]/ProductClientEdit";
 import { BrandProps } from "@/types/brandType";
 

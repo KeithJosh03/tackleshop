@@ -1,12 +1,12 @@
 import { BrandProps } from "./brandType";
 import { SubCategory } from "./subCategoryTypes";
 import { Category } from "./categoryType";
-import { ProductVariantTypes } from "./productVariants";
+import { ProductVariantTypes } from "./productVariantsTypes";
 import { ProductMedias } from "./productMedia";
 
 
 export interface ProductDetails {
-  productId:number;
+  productId: number;
   productTitle: string;
   basePrice: string;
   specifications: string | null;
@@ -29,7 +29,7 @@ export interface ProductDetails {
 
 
 export interface ProductDetailsEditProps {
-  productId:number;
+  productId: number;
   productTitle: string;
   basePrice: string;
   specifications: string | null;
@@ -39,5 +39,5 @@ export interface ProductDetailsEditProps {
   category: Category | null;
   brand: BrandProps | null;
   productMedias: ProductMedias[] | null;
-  productVariantsTypes: ProductVariantTypes[];
+  productVariants: ProductVariantTypes[];
 }

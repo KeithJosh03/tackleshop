@@ -16,13 +16,13 @@ interface VariantDetails {
 interface VariantOption {
   variantOptionValue: string;
   price_adjusting: string;
-  variant_image: File | null;
+  imageUrl: File | null;
 }
 
 interface VariantOptionToSend {
   variantOptionValue: string;
   price_adjustment: string;
-  variant_image: string | null;
+  imageUrl: string | null;
 }
 
 interface VariantDetailsToSend {
@@ -123,6 +123,38 @@ export async function createProduct(product: ProductDetails) {
   }
 }
 
+
+
+// ProductDetailsShow
+export async function editProductDetails(id: number, testData: any) {
+  console.log("Editing Product ID:", id, "- Data:", testData);
+  // try {
+  //   const res = await fetch(
+  //     `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/productdetail/${id}`,
+  //     { 
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(testData),
+  //       cache: "no-store" 
+  //     } // optional
+  //   );
+
+  //   if (!res.ok) {
+  //     throw new Error("Failed to edit product details");
+  //   }
+
+  //   const data = await res.json();
+  //   return data.productdetail;
+  // } catch (err) {
+  //   console.error(err);
+  //   return null;
+  // }
+}
+
+
+
 export async function createProductMedia(
   medias: ProductImageInput[]
 ): Promise<ProductImageToSend[]> {
@@ -162,9 +194,9 @@ async function createProductVariant(
     const toUploadImage: UploadImageProps[] = [];
 
     variant.variantOptions.forEach((option, index) => {
-      if (option.variant_image) {
+      if (option.imageUrl) {
         toUploadImage.push({
-          file: option.variant_image,
+          file: option.imageUrl,
           originIndex: index
         });
       }
@@ -184,7 +216,7 @@ async function createProductVariant(
         return {
           variantOptionValue: option.variantOptionValue,
           price_adjustment: option.price_adjusting === '' ? '0' : option.price_adjusting,
-          variant_image: uploadedImage ? uploadedImage.url : null
+          imageUrl: uploadedImage ? uploadedImage.url : null
         };
       });
 
@@ -220,7 +252,7 @@ export interface ProductDetailsShow {
   productTitle: string;
   basePrice: string;
   brandName: string;
-  specification: string;
+  specifications: string;
   features: string;
   description: string;
   subCategoryName: string;
@@ -228,6 +260,7 @@ export interface ProductDetailsShow {
   productVariants: ProductVariantShow[] | null;
 }
 
+// ProductDetailsShow
 
 export async function ProductDetails(id: number) {
   try {
@@ -280,6 +313,40 @@ export interface ProductListDashboard {
   }[];
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ProductListDashboard - Search
+
 export async function ProductListDashboardSearch(
   search: string,
   page: number
@@ -299,6 +366,8 @@ export async function ProductListDashboardSearch(
 
 
 
+// ProductDetailsEdit - Dashboard
+
 export async function ProductDetailsEdit(id: number) {
   try {
     const res = await fetch(
@@ -315,5 +384,16 @@ export async function ProductDetailsEdit(id: number) {
   } catch (err) {
     console.error(err);
     return null;
+  }
+}
+
+// Product Delete - Dashboard
+export async function DeleteProductDashboard(id: number) {
+  try {
+    const res = await axios.delete(`/api/products/delete/${id}`);
+    return res.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
 }

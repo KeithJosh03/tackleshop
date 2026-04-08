@@ -19,7 +19,6 @@ export default function CollectionClient({ categoryProductsProps }: Props) {
         setLoading(false);
     }, []);
 
-    console.log(categoryProducts);
     return (
         <MainLayoutCollection>
             {loading ? (

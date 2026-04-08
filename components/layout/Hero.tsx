@@ -1,62 +1,86 @@
+"use client";
+
 import { worksans, inter } from "@/types/fonts";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, MessageCircle, Star } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section
-    className={`${worksans.className} relative min-h-screen w-full flex flex-col justify-center items-center overflow-hidden`}
-    >
-      <div className="text-primaryColor text-center flex flex-col gap-y-4 px-4 z-20 relative">
-        <h1 className="font-extrabold text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
-          <p>BRANDED & AFFORDABLE</p> 
-          <p>FISHING GEARS</p>
-        </h1>
-        <h3
-          className={`${inter.className} text-tertiaryColor text-sm sm:text-base md:text-lg lg:text-xl font-bold max-w-xl mx-auto`}
-        >
-          SMOOTH CASTING TACKLES SHOP OFFERS A WIDE SELECTION OF AFFORDABLE
-          BRANDED AND PREMIUM-QUALITY FISHING GEAR FOR EVERY ANGLER.
-        </h3>
+    <section className="relative min-h-[90vh] w-full flex flex-col justify-center items-center overflow-hidden bg-mainBackgroundColor">
+      {/* Background Image */}
+      <div className="absolute inset-0 w-full h-full z-0">
+        <Image
+          src="/shopbg.jpg"
+          alt="Smooth Casting Tackle Shop Interior"
+          fill
+          priority
+          className="object-cover object-center scale-105 animate-slow-zoom"
+        />
+        {/* Dark Overlay for Text Readability - improved gradient for richer look */}
+        <div className="absolute inset-0 bg-gradient-to-b from-mainBackgroundColor/80 via-blackgroundColor/70 to-mainBackgroundColor z-10" />
       </div>
 
-      <div className="absolute inset-0 w-full h-full z-10">
-        <svg
-          viewBox="0 0 1440 590"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full"
-          preserveAspectRatio="none"
+      {/* Content */}
+      <div className="relative z-20 text-center flex flex-col items-center justify-center gap-y-6 px-4 max-w-5xl mx-auto mt-16 sm:mt-0">
+        {/* Main Heading */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, delay: 0.1, ease: "easeOut" }}
+          className={`${worksans.className} flex flex-col gap-2`}
         >
-          <style>
-            {`
-              .path-0 { animation: pathAnim-0 4s linear infinite; }
-              @keyframes pathAnim-0 {
-                0% { d: path("M 0,600 L 0,150 C 65.96,139.51 131.92,129.02 188,144 C 244.08,158.98 290.28,199.43 341,204 C 391.72,208.57 446.97,177.27 491,164 C 535.03,150.73 567.85,155.48 615,141 C 662.15,126.52 723.64,92.79 778,100 C 832.36,107.21 879.58,155.36 932,165 C 984.42,174.64 1042.04,145.79 1097,130 C 1151.96,114.21 1204.28,111.49 1261,117 C 1317.72,122.51 1378.86,136.26 1440,150 L 1440,600 L 0,600 Z"); }
-                50% { d: path("M 0,600 L 0,150 C 72.52,127.48 145.05,104.96 189,99 C 232.95,93.04 248.33,103.64 297,116 C 345.67,128.36 427.64,142.49 495,168 C 562.36,193.51 615.12,230.4 657,207 C 698.88,183.6 729.87,99.92 780,84 C 830.13,68.08 899.4,119.94 967,149 C 1034.6,178.06 1100.55,184.32 1143,190 C 1185.45,195.68 1204.42,200.76 1250,194 C 1295.58,187.24 1367.79,168.62 1440,150 L 1440,600 L 0,600 Z"); }
-                100% { d: path("M 0,600 L 0,150 C 65.96,139.51 131.92,129.02 188,144 C 244.08,158.98 290.28,199.43 341,204 C 391.72,208.57 446.97,177.27 491,164 C 535.03,150.73 567.85,155.48 615,141 C 662.15,126.52 723.64,92.79 778,100 C 832.36,107.21 879.58,155.36 932,165 C 984.42,174.64 1042.04,145.79 1097,130 C 1151.96,114.21 1204.28,111.49 1261,117 C 1317.72,122.51 1378.86,136.26 1440,150 L 1440,600 L 0,600 Z"); }
-              }
+          <h1 className="font-extrabold text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-tertiaryColor tracking-tight drop-shadow-2xl uppercase">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primaryColor via-[#ffb370] to-primaryColor pb-2">
+              Branded &
+            </span>
+            <span className="block mt-2">Affordable</span>
+            <span className="block mt-2 text-tertiaryColor/90">Fishing Gears</span>
+          </h1>
+        </motion.div>
 
-              .path-1 { animation: pathAnim-1 4s linear infinite; }
-              @keyframes pathAnim-1 {
-                0% { d: path("M 0,600 L 0,350 C 35.9,323.06 71.8,296.12 135,300 C 198.2,303.88 288.7,338.58 346,366 C 403.3,393.42 427.4,413.55 476,418 C 524.6,422.45 597.7,411.2 652,376 C 706.29,340.8 741.75,281.63 796,295 C 850.25,308.37 923.28,394.26 986,408 C 1048.72,421.74 1101.12,363.31 1142,358 C 1182.88,352.69 1212.25,400.48 1260,408 C 1307.75,415.52 1373.87,382.76 1440,350 L 1440,600 L 0,600 Z"); }
-                50% { d: path("M 0,600 L 0,350 C 51.52,384.45 103.04,418.9 159,419 C 215,419.1 275.38,384.86 326,384 C 376.62,383.14 417.46,415.66 472,417 C 526.54,418.34 594.78,388.52 647,384 C 699.22,379.48 735.42,400.28 783,407 C 830.58,413.72 889.56,406.36 946,401 C 1002.44,395.64 1056.35,392.29 1111,399 C 1165.65,405.71 1221.04,422.49 1276,416 C 1330.96,409.51 1385.48,379.76 1440,350 L 1440,600 L 0,600 Z"); }
-                100% { d: path("M 0,600 L 0,350 C 35.9,323.06 71.8,296.12 135,300 C 198.2,303.88 288.7,338.58 346,366 C 403.3,393.42 427.4,413.55 476,418 C 524.6,422.45 597.7,411.2 652,376 C 706.29,340.8 741.75,281.63 796,295 C 850.25,308.37 923.28,394.26 986,408 C 1048.72,421.74 1101.12,363.31 1142,358 C 1182.88,352.69 1212.25,400.48 1260,408 C 1307.75,415.52 1373.87,382.76 1440,350 L 1440,600 L 0,600 Z"); }
-              }
-            `}
-          </style>
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+          className={`${inter.className} text-tertiaryColor/80 text-base sm:text-lg md:text-xl font-medium max-w-2xl mx-auto drop-shadow-md leading-relaxed mt-4`}
+        >
+          SMOOTH CASTING TACKLES SHOP OFFERS A WIDE SELECTION OF AFFORDABLE,
+          BRANDED, AND PREMIUM-QUALITY FISHING GEAR FOR EVERY ANGLER.
+        </motion.p>
 
-          <path
-            d="M 0,600 L 0,150 C 65.96,139.51 131.92,129.02 188,144 C 244.08,158.98 290.28,199.43 341,204 C 391.72,208.57 446.97,177.27 491,164 C 535.03,150.73 567.85,155.48 615,141 C 662.15,126.52 723.64,92.79 778,100 C 832.36,107.21 879.58,155.36 932,165 C 984.42,174.64 1042.04,145.79 1097,130 C 1151.96,114.21 1204.28,111.49 1261,117 C 1317.72,122.51 1378.86,136.26 1440,150 L 1440,600 L 0,600 Z"
-            fill="#e6963b"
-            fillOpacity="0.53"
-            className="path-0"
-          />
-          <path
-            d="M 0,600 L 0,350 C 35.9,323.06 71.8,296.12 135,300 C 198.2,303.88 288.7,338.58 346,366 C 403.3,393.42 427.4,413.55 476,418 C 524.6,422.45 597.7,411.2 652,376 C 706.29,340.8 741.75,281.63 796,295 C 850.25,308.37 923.28,394.26 986,408 C 1048.72,421.74 1101.12,363.31 1142,358 C 1182.88,352.69 1212.25,400.48 1260,408 C 1307.75,415.52 1373.87,382.76 1440,350 L 1440,600 L 0,600 Z"
-            fill="#e6963b"
-            fillOpacity="1"
-            className="path-1"
-          />
-        </svg>
+        {/* Call to Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
+          className="flex flex-col sm:flex-row items-center gap-4 mt-8 w-full sm:w-auto"
+        >
+          <Link href="/#brands" className="group inline-flex items-center justify-center px-8 py-4 font-bold text-tertiaryColor transition-all duration-300 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/20 focus:ring-offset-mainBackgroundColor w-full sm:w-auto">
+            <span className="relative flex items-center gap-2">
+              Explore Brands
+              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1 text-primaryColor" />
+            </span>
+          </Link>
+          <Link href="/#services" className="group inline-flex items-center justify-center px-8 py-4 font-bold text-tertiaryColor transition-all duration-300 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/20 focus:ring-offset-mainBackgroundColor w-full sm:w-auto">
+            <span className="relative flex items-center gap-2">
+              Explore Services
+              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1 text-primaryColor" />
+            </span>
+          </Link>
+          <Link href="/#collections" className="group inline-flex items-center justify-center px-8 py-4 font-bold text-tertiaryColor transition-all duration-300 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/20 focus:ring-offset-mainBackgroundColor w-full sm:w-auto">
+            <span className="relative flex items-center gap-2">
+              Explore Collections
+              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1 text-primaryColor" />
+            </span>
+          </Link>
+        </motion.div>
       </div>
+
+      {/* Decorative Bottom Gradient (blends into next section) */}
+      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-mainBackgroundColor to-transparent z-10 pointer-events-none" />
     </section>
   );
 }

@@ -199,35 +199,6 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
     }
   };
 
-
-
-
-
-
-
-
-
-
-
-  // Good
-  const handleDeleteBrand = async () => {
-    if (!selectedBrand) return;
-    try {
-      await deleteBrand({ brandId: selectedBrand.brandId });
-
-      setBrands((prev) =>
-        prev.filter(
-          (brand) => brand.brandId !== selectedBrand.brandId
-        )
-      );
-      setSelectedBrand(null);
-      showToast('Brand deleted successfully', 'success');
-    } catch (error) {
-      console.error('Error deleting brand:', error);
-      showToast('Failed to delete brand', 'error');
-    }
-  };
-
   const cancelAddBrand = () => {
     dispatchCreateBrand({
       type: 'CANCEL_BRAND_CREATE',
@@ -356,15 +327,8 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                     onClick={() => seteditMode(true)}
                     iconSize={8}
                   />
-                  <IconButton
-                    icon='/icons/deleteicon.svg'
-                    altText='Delete Icon'
-                    onClick={handleDeleteBrand}
-                    iconSize={8}
-                  />
                 </>
               )}
-
               {editMode && (
                 <>
                   <SearchTextAdmin

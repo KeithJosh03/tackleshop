@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import './globals.css';
 
 import { worksans } from "@/types/fonts";
+import FloatingMessageButton from "@/components/layout/FloatingMessageButton";
 
 export const metadata: Metadata = {
-  title: "Smooth Casting", 
+  title: "Smooth Casting",
   description: "Tackles Shop Quality and Branded Products",
-    icons: {
+  icons: {
     icon: "/logo.png"
   },
 };
@@ -20,6 +21,7 @@ export default function RootLayout({
       {/* <meta name="viewport" content="width=device-width, initial-scale=1.0"/> */}
       <body className={`relative ${worksans.className}`}>
         {children}
+        <FloatingMessageButton />
       </body>
     </html>
   );

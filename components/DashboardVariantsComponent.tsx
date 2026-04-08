@@ -12,12 +12,11 @@ import {
     InputPrice
 } from '@/components'
 
-import { VariantDetails, VariantOption } from "../app/admin/dashboard/addproduct/page";
+import { VariantDetails, VariantOption, ProductDetailActionCreate } from "@/lib/reducer/productReducer";
 import ImageIconUpload from "@/components/ImageIconUpload";
 // ACTION REDUCER
-import { ProductDetailActionCreate } from "../app/admin/dashboard/addproduct/page";
 import { ProductDetailActionEdit } from "@/app/admin/dashboard/editproduct/[productId]/ProductClientEdit";
-import { ProductVariantTypes } from "@/types/productVariants";
+import { ProductVariantTypes } from "@/types/productVariantsTypes";
 import { ProductDetailsEdit } from "@/lib/api/productService";
 
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
@@ -56,7 +55,7 @@ function VariantDetailReducer(
             const newOption: VariantOption = {
                 variantOptionValue: action.payload,
                 price_adjusting: '',
-                variant_image: null
+                imageUrl: null
             };
             return {
                 ...state,
@@ -178,21 +177,55 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = (
                                 >
                                     <div className="flex items-center justify-between px-4 py-2 border-b border-greyColor"
                                         style={{ background: 'rgba(131,93,50,0.12)' }}>
-                                        <div className="flex items-center gap-2">
-                                            <svg className="w-3.5 h-3.5 text-primaryColor" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                            <svg className="w-3.5 h-3.5 text-primaryColor shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h10M7 12h6" />
                                             </svg>
-                                            <span className="text-xs font-black text-primaryColor uppercase tracking-widest">{variant.variantTypeName}</span>
+                                            {dispatchProductDetailCreate ? (
+                                                <input
+                                                    className="bg-transparent text-xs font-black text-primaryColor uppercase tracking-widest border-b border-transparent hover:border-greyColor focus:border-primaryColor outline-none w-full transition-colors"
+                                                    value={variant.variantTypeName}
+                                                    onChange={(e) => dispatchProductDetailCreate({
+                                                        type: 'UPDATE_VARIANT_TYPE_NAME',
+                                                        payload: { variantIndex: index, variantTypeName: e.target.value }
+                                                    })}
+                                                />
+                                            ) : (
+                                                <span className="text-xs font-black text-primaryColor uppercase tracking-widest">{variant.variantTypeName}</span>
+                                            )}
                                         </div>
-                                        <span className="text-xs text-secondary font-semibold">{variant.variantOptions.length} option{variant.variantOptions.length !== 1 ? 's' : ''}</span>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-xs text-secondary font-semibold">{variant.variantOptions.length} option{variant.variantOptions.length !== 1 ? 's' : ''}</span>
+                                            {dispatchProductDetailCreate && (
+                                                <button
+                                                    onClick={() => dispatchProductDetailCreate({ type: 'REMOVE_VARIANT_TYPE', payload: { variantIndex: index } })}
+                                                    className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 transition-colors"
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                    Remove
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="flex flex-wrap gap-2 px-4 py-3">
                                         {variant.variantOptions.map((option, oi) => (
                                             <span key={oi}
-                                                className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold"
+                                                className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1 rounded-full text-xs font-bold"
                                                 style={{ background: 'rgba(232,147,71,0.15)', color: '#E89347', border: '1px solid rgba(232,147,71,0.35)' }}
                                             >
                                                 {option.variantOptionValue}
+                                                {dispatchProductDetailCreate && (
+                                                    <button
+                                                        onClick={() => dispatchProductDetailCreate({ type: 'REMOVE_VARIANT_OPTION', payload: { variantIndex: index, optionIndex: oi } })}
+                                                        className="flex items-center justify-center w-3.5 h-3.5 rounded-full hover:bg-primaryColor/30 transition-colors ml-0.5"
+                                                    >
+                                                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                )}
                                             </span>
                                         ))}
                                     </div>
@@ -398,7 +431,7 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = (
                                             {/* image col */}
                                             <div className="w-[120px] h-[88px] rounded-lg overflow-hidden border border-greyColor flex items-center justify-center shrink-0"
                                                 style={{ background: 'rgba(17,26,45,0.8)' }}>
-                                                {option.variant_image === null ? (
+                                                {option.imageUrl === null ? (
                                                     <ImageIconUpload
                                                         uploadImage="/icons/imageupload.svg"
                                                         maxImages={1}
@@ -414,7 +447,7 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = (
                                                 ) : (
                                                     <div className="relative w-full h-full group">
                                                         <Image
-                                                            src={URL.createObjectURL(option.variant_image)}
+                                                            src={URL.createObjectURL(option.imageUrl!)}
                                                             alt={`variant-${optionIndex}`}
                                                             fill
                                                             className="object-contain rounded-lg"
@@ -439,9 +472,24 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = (
                                                 )}
                                             </div>
 
-                                            {/* option name */}
-                                            <div>
-                                                <span className="text-sm font-bold text-primaryColor">{option.variantOptionValue}</span>
+                                            {/* option name (editable) */}
+                                            <div className="flex flex-col gap-1">
+                                                {dispatchProductDetailCreate ? (
+                                                    <input
+                                                        className="bg-transparent text-sm font-bold text-primaryColor border-b border-transparent hover:border-greyColor focus:border-primaryColor outline-none transition-colors w-full"
+                                                        value={option.variantOptionValue}
+                                                        onChange={(e) => dispatchProductDetailCreate({
+                                                            type: 'UPDATE_VARIANT_OPTION_NAME',
+                                                            payload: {
+                                                                variantIndex: variantIndex,
+                                                                optionIndex: optionIndex,
+                                                                variantOptionValue: e.target.value
+                                                            }
+                                                        })}
+                                                    />
+                                                ) : (
+                                                    <span className="text-sm font-bold text-primaryColor">{option.variantOptionValue}</span>
+                                                )}
                                             </div>
 
                                             {/* price adjustment */}
@@ -480,216 +528,202 @@ const DashboardVariantsComponent: React.FC<VariantsComponentProps> = (
 
 
 
-            {/* EDIT VARIANT TYPE & LIST RENDER*/}
-            {(ReduceType == 'EDIT' &&
-                ProductDetailEditReducer) && (
-                    <div className="flex flex-col gap-y-2">
-                        {Array.isArray(currentVariants) && currentVariants.length > 0 && (
-                            currentVariants.map((variant, index) => (
-                                <div className="flex flex-col gap-y-2 text-primaryColor p-6 border rounded w-full border-greyColor relative"
-                                    key={index | variant.variantTypeId}
+            {/* ══ EDIT MODE ════════════════════════════════════════════════ */}
+            {ReduceType === 'EDIT' && ProductDetailEditReducer && (
+                <div className="flex flex-col gap-y-4">
+
+                    {/* ── Variant type summary cards ── */}
+                    {Array.isArray(currentVariants) && currentVariants.length > 0 && (
+                        <div className="flex flex-col gap-y-2">
+                            {currentVariants.map((variant, index) => (
+                                <div key={variant.variantTypeId ?? index}
+                                    className="rounded-lg border border-greyColor overflow-hidden"
+                                    style={{ background: 'rgba(17,26,45,0.7)' }}
                                 >
-                                    <h1 className="text-sm font-extrabold">VARIANT TYPE</h1>
-                                    <InputText
-                                        key={variant.variantTypeId | index}
-                                        value={variant.variantTypeName}
-                                        onChange={(e) => {
-                                            ProductDetailEditReducer({
-                                                type: 'UPDATE_VARIANT_TYPE',
-                                                payload: {
-                                                    variantTypeId: variant.variantTypeId,
-                                                    variantTypeName: e.target.value
-                                                }
-                                            })
-                                        }}
-                                        placeholder="Enter Model"
-                                    />
-                                    <CustomButton
-                                        text="DELETE VARIANT TYPE"
-                                        className="absolute top-2 right-2 button-view text-md font-extrabold"
-                                        onClick={() => {
-                                            ProductDetailEditReducer({
-                                                type: 'REMOVE_VARIANT_TYPE',
-                                                payload: {
-                                                    variantTypeId: variant.variantTypeId,
-                                                }
-                                            })
-                                        }}
-                                    />
-                                    <div className="flex flex-col mt-4 border-t border-greyColor pt-2">
-                                        <h1 className="text-sm font-extrabold">VARIANT OPTIONS</h1>
-                                        <ul className="flex flex-row gap-x-2 mt-2">
-                                            {variant.variantOptions.map((option, index) => (
-                                                <InputText
-                                                    key={option.variantOptionId}
-                                                    value={option.variantOptionValue}
-                                                    onChange={(e) => {
-                                                        ProductDetailEditReducer({
-                                                            type: 'UPDATE_VARIANT_OPTION_NAME',
-                                                            payload: {
-                                                                variantTypeId: variant.variantTypeId,
-                                                                variantOptionId: option.variantOptionId,
-                                                                variantOptionValue: e.target.value
-                                                            }
-                                                        });
-                                                    }}
-                                                    placeholder="Enter Model"
-                                                />
-                                            ))}
-                                        </ul>
+                                    {/* card header – editable type name */}
+                                    <div className="flex items-center justify-between px-4 py-2 border-b border-greyColor"
+                                        style={{ background: 'rgba(131,93,50,0.12)' }}>
+                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                            <svg className="w-3.5 h-3.5 text-primaryColor shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h10M7 12h6" />
+                                            </svg>
+                                            <input
+                                                className="bg-transparent text-xs font-black text-primaryColor uppercase tracking-widest border-b border-transparent hover:border-greyColor focus:border-primaryColor outline-none w-full transition-colors"
+                                                value={variant.variantTypeName}
+                                                onChange={(e) => ProductDetailEditReducer({
+                                                    type: 'UPDATE_VARIANT_TYPE',
+                                                    payload: { variantTypeId: variant.variantTypeId, variantTypeName: e.target.value }
+                                                })}
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-3 shrink-0 ml-4">
+                                            <span className="text-xs text-secondary font-semibold">
+                                                {variant.variantOptions.length} option{variant.variantOptions.length !== 1 ? 's' : ''}
+                                            </span>
+                                            <button
+                                                onClick={() => ProductDetailEditReducer({
+                                                    type: 'REMOVE_VARIANT_TYPE',
+                                                    payload: { variantTypeId: variant.variantTypeId }
+                                                })}
+                                                className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 transition-colors"
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* option name pills */}
+                                    <div className="flex flex-wrap gap-2 px-4 py-3">
+                                        {variant.variantOptions.map((option, oi) => (
+                                            <span key={option.variantOptionId ?? oi}
+                                                className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold"
+                                                style={{ background: 'rgba(232,147,71,0.15)', color: '#E89347', border: '1px solid rgba(232,147,71,0.35)' }}
+                                            >
+                                                {option.variantOptionValue}
+                                            </span>
+                                        ))}
                                     </div>
                                 </div>
-                            ))
-                        )}
-                    </div>
-                )}
+                            ))}
+                        </div>
+                    )}
 
+                    {/* ── Options price / image table ── */}
+                    {Array.isArray(currentVariants) && currentVariants.length > 0 && (
+                        <div className="flex flex-col gap-y-4 mt-2">
+                            {currentVariants.map((variant, variantIndex) => (
+                                <div key={variant.variantTypeId ?? variantIndex} className="rounded-xl border border-greyColor overflow-hidden">
 
-            {/* ══ EDIT MODE ═══════════════════════════════════════════════ */}
-
-            {/* EDIT VARIANT TYPE & LIST RENDER*/}
-            {(ReduceType == 'EDIT' &&
-                ProductDetailEditReducer) && (
-                    <div className="flex flex-col gap-y-2">
-                        {Array.isArray(currentVariants) && currentVariants.length > 0 && (
-                            currentVariants.map((variant, index) => (
-                                <div className="flex flex-col gap-y-2 text-primaryColor p-6 border rounded w-full border-greyColor relative"
-                                    key={index | variant.variantTypeId}
-                                >
-                                    <h1 className="text-sm font-extrabold">VARIANT TYPE</h1>
-                                    <InputText
-                                        key={variant.variantTypeId | index}
-                                        value={variant.variantTypeName}
-                                        onChange={(e) => {
-                                            ProductDetailEditReducer({
-                                                type: 'UPDATE_VARIANT_TYPE',
-                                                payload: {
-                                                    variantTypeId: variant.variantTypeId,
-                                                    variantTypeName: e.target.value
-                                                }
-                                            })
-                                        }}
-                                        placeholder="Enter Model"
-                                    />
-                                    <CustomButton
-                                        text="DELETE VARIANT TYPE"
-                                        className="absolute top-2 right-2 button-view text-md font-extrabold"
-                                        onClick={() => {
-                                            ProductDetailEditReducer({
-                                                type: 'REMOVE_VARIANT_TYPE',
-                                                payload: {
-                                                    variantTypeId: variant.variantTypeId,
-                                                }
-                                            })
-                                        }}
-                                    />
-                                    <div className="flex flex-col mt-4 border-t border-greyColor pt-2">
-                                        <h1 className="text-sm font-extrabold">VARIANT OPTIONS</h1>
-                                        <ul className="flex flex-row gap-x-2 mt-2">
-                                            {variant.variantOptions.map((option, index) => (
-                                                <InputText
-                                                    key={option.variantOptionId}
-                                                    value={option.variantOptionValue}
-                                                    onChange={(e) => {
-                                                        ProductDetailEditReducer({
-                                                            type: 'UPDATE_VARIANT_OPTION_NAME',
-                                                            payload: {
-                                                                variantTypeId: variant.variantTypeId,
-                                                                variantOptionId: option.variantOptionId,
-                                                                variantOptionValue: e.target.value
-                                                            }
-                                                        });
-                                                    }}
-                                                    placeholder="Enter Model"
-                                                />
-                                            ))}
-                                        </ul>
+                                    {/* group header */}
+                                    <div className="px-4 py-2.5 border-b border-greyColor flex items-center gap-2"
+                                        style={{ background: 'rgba(131,93,50,0.12)' }}>
+                                        <span className="text-xs font-black text-primaryColor uppercase tracking-widest">{variant.variantTypeName}</span>
+                                        <span className="text-xs text-secondary">— set price per option</span>
                                     </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                )}
 
-            {/* EDIT PRICE VARIANT OPTION */}
-            {(Array.isArray(currentVariants) &&
-                currentVariants.length > 0
-                && ReduceType === 'EDIT'
-                && ProductDetailEditReducer) && (
-                    <div className="flex flex-col gap-y-1 border-t border-greyColor mt-10">
-                        {Array.isArray(currentVariants) && currentVariants.length > 0 && (
-                            <ul className="flex flex-row items-center justify-between p-2 text-xl text-primaryColor">
-                                <li className="flex-1">
-                                    Variant Image
-                                    <span className="ml-1 text-xs font-normal text-secondary">(optional)</span>
-                                </li>
-                                <li className="flex-1">Variant Name</li>
-                                <li className="flex-1">Price Adjustment</li>
-                                <li className="flex-1">Price (Base + Variant)</li>
-                            </ul>
-                        )}
-                        {currentVariants.map((variant, variantIndex) => (
-                            <div key={variantIndex} className="flex flex-col">
-                                <div className="flex flex-col gap-y-2">
+                                    {/* column headings */}
+                                    <div className="grid grid-cols-[140px_1fr_1fr_1fr] items-center px-4 py-2 border-b border-greyColor">
+                                        <span className="text-xs font-bold text-secondary uppercase tracking-wider">
+                                            Image
+                                            <span className="ml-1 normal-case font-normal">(optional)</span>
+                                        </span>
+                                        <span className="text-xs font-bold text-secondary uppercase tracking-wider">Option</span>
+                                        <span className="text-xs font-bold text-secondary uppercase tracking-wider">Price Adjustment</span>
+                                        <span className="text-xs font-bold text-secondary uppercase tracking-wider">Final Price</span>
+                                    </div>
+
+                                    {/* option rows */}
                                     {variant.variantOptions.map((option, optionIndex) => (
-                                        <div key={optionIndex} className="flex items-center gap-y-2 justify-between p-2">
-                                            <div className="flex-1 flex flex-row items-center justify-between gap-x-4 border border-secondary rounded py-2 px-4 relative">
-                                                <CustomButton
-                                                    text="DELETE"
-                                                    className="absolute top-2 right-2 button-view text-md font-extrabold"
-                                                    onClick={() => {
-                                                        ProductDetailEditReducer({
-                                                            type: 'REMOVE_VARIANT_OPTION_NAME',
-                                                            payload: {
-                                                                variantTypeId: variant.variantTypeId,
-                                                                variantOptionId: option.variantOptionId
+                                        <div key={option.variantOptionId ?? optionIndex}
+                                            className="grid grid-cols-[140px_1fr_1fr_1fr] items-center gap-x-4 px-4 py-3 border-b border-greyColor last:border-b-0 hover:bg-white/[0.02] transition-colors"
+                                        >
+                                            {/* image col */}
+                                            <div className="w-[120px] h-[88px] rounded-lg overflow-hidden border border-greyColor flex items-center justify-center shrink-0"
+                                                style={{ background: 'rgba(17,26,45,0.8)' }}>
+                                                {option.imageUrl ? (
+                                                    <div className="relative w-full h-full group">
+                                                        <Image
+                                                            src={option.imageUrl instanceof File ? URL.createObjectURL(option.imageUrl) : `${baseURL}${option.imageUrl}`}
+                                                            alt={`variant-${optionIndex}`}
+                                                            fill
+                                                            className="object-contain rounded-lg"
+                                                        />
+                                                        <button
+                                                            onClick={() => ProductDetailEditReducer({
+                                                                type: 'REMOVE_VARIANT_IMAGE',
+                                                                payload: { variantTypeId: variant.variantTypeId, variantOptionId: option.variantOptionId }
+                                                            })}
+                                                            className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            style={{ background: 'rgba(248,113,113,0.9)' }}
+                                                        >
+                                                            <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <ImageIconUpload
+                                                        uploadImage="/icons/imageupload.svg"
+                                                        maxImages={1}
+                                                        onFileChange={(file: File) => {
+                                                            if (file) {
+                                                                ProductDetailEditReducer({
+                                                                    type: 'UPDATE_VARIANT_IMAGE',
+                                                                    payload: {
+                                                                        variantTypeId: variant.variantTypeId,
+                                                                        variantOptionId: option.variantOptionId,
+                                                                        imageFile: file
+                                                                    }
+                                                                });
                                                             }
-                                                        })
-                                                    }}
-                                                />
-                                                <div className="flex-1">
-                                                    {option.imageUrl !== null && (
-                                                        <div className="relative min-w-[160px] h-40 w-40 rounded border border-primaryColor">
-                                                            <Image
-                                                                src={`${baseURL}${option.imageUrl}`}
-                                                                alt={`media-${optionIndex}`}
-                                                                fill
-                                                                className="object-contain rounded"
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <h1 className="font-bold text-primaryColor text-xl">{option.variantOptionValue}</h1>
-                                                </div>
-                                                <div className="flex-1">
-                                                    <InputPrice
-                                                        isUnit={true}
-                                                        placeholder="Base Price"
-                                                        value={`${option.variantOptionPrice}`}
-                                                        onChange={(e) => {
-                                                            ProductDetailEditReducer({
-                                                                type: 'UPDATE_PRICE_OPTION',
-                                                                payload: {
-                                                                    variantTypeId: variant.variantTypeId,
-                                                                    variantOptionId: option.variantOptionId,
-                                                                    variantOptionPrice: e.target.value
-                                                                }
-                                                            });
                                                         }}
                                                     />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <h1 className="font-bold text-primaryColor text-xl">{`₱ ${(parseFloat((option.variantOptionPrice !== '' ? option.variantOptionPrice : '0')) + parseFloat((basePrice !== '' ? basePrice : '0'))).toFixed(2)}`}</h1>
-                                                </div>
+                                                )}
+                                            </div>
+
+                                            {/* option name (editable) */}
+                                            <div className="flex flex-col gap-1">
+                                                <input
+                                                    className="bg-transparent text-sm font-bold text-primaryColor border-b border-transparent hover:border-greyColor focus:border-primaryColor outline-none transition-colors w-full"
+                                                    value={option.variantOptionValue}
+                                                    onChange={(e) => ProductDetailEditReducer({
+                                                        type: 'UPDATE_VARIANT_OPTION_NAME',
+                                                        payload: {
+                                                            variantTypeId: variant.variantTypeId,
+                                                            variantOptionId: option.variantOptionId,
+                                                            variantOptionValue: e.target.value
+                                                        }
+                                                    })}
+                                                />
+                                                <button
+                                                    onClick={() => ProductDetailEditReducer({
+                                                        type: 'REMOVE_VARIANT_OPTION_NAME',
+                                                        payload: {
+                                                            variantTypeId: variant.variantTypeId,
+                                                            variantOptionId: option.variantOptionId
+                                                        }
+                                                    })}
+                                                    className="self-start text-[10px] text-red-400 hover:text-red-300 transition-colors"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </div>
+
+                                            {/* price adjustment */}
+                                            <div>
+                                                <InputPrice
+                                                    isUnit={true}
+                                                    placeholder="₱ 0.00"
+                                                    value={`${option.variantOptionPrice}`}
+                                                    onChange={(e) => ProductDetailEditReducer({
+                                                        type: 'UPDATE_PRICE_OPTION',
+                                                        payload: {
+                                                            variantTypeId: variant.variantTypeId,
+                                                            variantOptionId: option.variantOptionId,
+                                                            variantOptionPrice: e.target.value
+                                                        }
+                                                    })}
+                                                />
+                                            </div>
+
+                                            {/* final price */}
+                                            <div>
+                                                <span className="text-sm font-bold" style={{ color: '#E89347' }}>
+                                                    {`₱ ${(parseFloat(option.variantOptionPrice !== '' ? option.variantOptionPrice : '0') + parseFloat(basePrice !== '' ? basePrice : '0')).toFixed(2)}`}
+                                                </span>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                            ))}
+                        </div>
+                    )}
+
+                </div>
+            )}
 
         </div>
     );

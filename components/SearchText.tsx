@@ -1,5 +1,5 @@
 import React from 'react';
-import { 
+import {
   CategoryProps,
 } from '@/types/dataprops';
 
@@ -14,7 +14,7 @@ interface SearchTextProps {
   value: string;
   choosen: BrandProps | CategoryProps | SubCategory | ProductListDashboard | undefined | null;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onClear: () => void; 
+  onClear: () => void;
 }
 
 
@@ -25,10 +25,6 @@ const SearchText: React.FC<SearchTextProps> = ({
   choosen,
   onClear,
 }) => {
-  
-  
-
-
   return (
     <div className="relative w-full">
       <input
@@ -36,9 +32,8 @@ const SearchText: React.FC<SearchTextProps> = ({
         placeholder={placeholderText}
         value={value}
         onChange={onChange}
-        className={`border p-2 pr-8 placeholder:text-base rounded-md w-full outline-none border-primaryColor ${
-          choosen && value !== '' ? 'text-primaryColor bg-secondary' : 'text-secondary'
-        }`}
+        className={`border p-2 pr-8 placeholder:text-base rounded-md w-full outline-none border-primaryColor ${choosen && value !== '' ? 'text-primaryColor bg-secondary' : 'text-secondary'
+          }`}
       />
 
       {choosen && (

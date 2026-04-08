@@ -17,145 +17,9 @@ import {
 } from "@/components";
 
 import { ProductDetailsEditProps } from "@/types/productTypes";
-import { BrandProps } from "@/types/brandType";
-import { Category } from "@/types/categoryType";
-import { SubCategory } from "@/types/subCategoryTypes";
-
-/* ─── Types ─────────────────────────────────────────────────────────────── */
-
-export type ProductDetailActionEdit =
-  | { type: 'SET_INITIAL_PRODUCT'; payload: ProductDetailsEditProps }
-  | { type: 'UPDATE_PRODUCT_TITLE'; payload: string }
-  | { type: 'UPDATE_BASE_PRICE'; payload: string }
-  | { type: 'UPDATE_DESCRIPTION'; payload: string }
-  | { type: 'UPDATE_SPECIFICATION'; payload: string }
-  | { type: 'UPDATE_FEATURES'; payload: string }
-  | { type: 'UPDATE_BRAND'; payload: BrandProps }
-  | { type: 'REMOVE_BRAND' }
-  | { type: 'UPDATE_CATEGORY'; payload: Category }
-  | { type: 'REMOVE_CATEGORY' }
-  | { type: 'UPDATE_SUBCATEGORY'; payload: SubCategory }
-  | { type: 'REMOVE_SUBCATEGORY' }
-  | { type: 'UPDATE_MEDIA_MAIN_EDIT'; payload: number }
-  | { type: 'REMOVE_MEDIA'; payload: number }
-  | { type: 'UPDATE_PRICE_OPTION'; payload: { variantTypeId: number; variantOptionPrice: string; variantOptionId: number } }
-  | { type: 'UPDATE_VARIANT_TYPE'; payload: { variantTypeId: number; variantTypeName: string } }
-  | { type: 'REMOVE_VARIANT_TYPE'; payload: { variantTypeId: number } }
-  | { type: 'UPDATE_VARIANT_OPTION_NAME'; payload: { variantTypeId: number; variantOptionValue: string; variantOptionId: number } }
-  | { type: 'REMOVE_VARIANT_OPTION_NAME'; payload: { variantTypeId: number; variantOptionId: number } }
-
-/* ─── Reducer ────────────────────────────────────────────────────────────── */
-
-const initialProductDetailState: ProductDetailsEditProps = {
-  productId: 0,
-  productTitle: '',
-  basePrice: '',
-  description: null,
-  features: null,
-  specifications: null,
-  brand: null,
-  category: { categoryName: '', categoryId: 0 },
-  subCategory: { subCategoryId: 0, subCategoryName: '' },
-  productVariantsTypes: [],
-  productMedias: [],
-};
-
-function ProductDetailEditReducer(
-  state: ProductDetailsEditProps,
-  action: ProductDetailActionEdit
-): ProductDetailsEditProps {
-  switch (action.type) {
-    case 'SET_INITIAL_PRODUCT':
-      return {
-        ...action.payload,
-        productVariantsTypes: action.payload.productVariantsTypes ?? [],
-        productMedias: action.payload.productMedias ?? [],
-      };
-    case 'UPDATE_PRODUCT_TITLE':
-      return { ...state, productTitle: action.payload };
-    case 'UPDATE_BASE_PRICE':
-      return { ...state, basePrice: String(Number(action.payload).toFixed(2)) };
-    case 'UPDATE_DESCRIPTION':
-      return { ...state, description: action.payload };
-    case 'UPDATE_SPECIFICATION':
-      return { ...state, specifications: action.payload };
-    case 'UPDATE_FEATURES':
-      return { ...state, features: action.payload };
-    case 'UPDATE_BRAND':
-      return { ...state, brand: action.payload };
-    case 'REMOVE_BRAND':
-      return { ...state, brand: null };
-    case 'UPDATE_CATEGORY':
-      return { ...state, category: action.payload };
-    case 'REMOVE_CATEGORY':
-      return { ...state, category: null };
-    case 'UPDATE_SUBCATEGORY':
-      return { ...state, subCategory: action.payload };
-    case 'REMOVE_SUBCATEGORY':
-      return { ...state, subCategory: null };
-    case 'UPDATE_PRICE_OPTION': {
-      const updated = state.productVariantsTypes.map((variant) => {
-        if (variant.variantTypeId !== action.payload.variantTypeId) return variant;
-        return {
-          ...variant,
-          variantOptions: variant.variantOptions.map((opt) =>
-            opt.variantOptionId === action.payload.variantOptionId
-              ? { ...opt, variantOptionPrice: String(Number(action.payload.variantOptionPrice).toFixed(2)) }
-              : opt
-          ),
-        };
-      });
-      return { ...state, productVariantsTypes: updated };
-    }
-    case 'UPDATE_VARIANT_TYPE': {
-      const updated = state.productVariantsTypes.map((v) =>
-        v.variantTypeId === action.payload.variantTypeId
-          ? { ...v, variantTypeName: action.payload.variantTypeName }
-          : v
-      );
-      return { ...state, productVariantsTypes: updated };
-    }
-    case 'UPDATE_VARIANT_OPTION_NAME': {
-      const updated = state.productVariantsTypes.map((variant) => {
-        if (variant.variantTypeId !== action.payload.variantTypeId) return variant;
-        return {
-          ...variant,
-          variantOptions: variant.variantOptions.map((opt) =>
-            opt.variantOptionId === action.payload.variantOptionId
-              ? { ...opt, variantOptionValue: action.payload.variantOptionValue }
-              : opt
-          ),
-        };
-      });
-      return { ...state, productVariantsTypes: updated };
-    }
-    case 'REMOVE_VARIANT_OPTION_NAME':
-      console.log(action.payload);
-      return state;
-    case 'REMOVE_VARIANT_TYPE':
-      console.log(action.payload);
-      return state;
-    case 'REMOVE_MEDIA': {
-      if (!state.productMedias) return state;
-      const filtered = state.productMedias.filter((m) => m.imageId !== action.payload);
-      return { ...state, productMedias: filtered.length ? filtered : null };
-    }
-    case 'UPDATE_MEDIA_MAIN_EDIT': {
-      if (!state.productMedias) return state;
-      const updatedMedias = state.productMedias.map((media) => ({
-        ...media,
-        isMain: media.imageId === action.payload,
-      }));
-      return {
-        ...state,
-        productMedias: updatedMedias,
-      };
-    }
-    default:
-      return state;
-  }
-}
-
+import { validateEditProduct } from "@/lib/validation/EditProductValidation";
+import { ProductDetailEditReducer, initialProductDetailState } from "@/lib/reducer/editProductReducer";
+import { getModifiedFields } from "@/lib/utils/editProductUtils";
 
 /* ─── SectionCard, FieldError, FieldHint are now imported from @/components ── */
 
@@ -183,45 +47,26 @@ export default function EditProductClient({
     }
   }, [productDetailEditProps]);
 
-  /* ── Validation ── */
-  const validate = () => {
-    const { productTitle, basePrice, brand, category, subCategory, description } = productDetailState;
-    const newErrors: Record<string, string> = {};
-    const parsePrice = (price: string | undefined | null) => {
-      if (!price) return NaN;
-      return parseFloat(price.replace(/[^0-9.-]+/g, ''));
-    };
-
-    if (!productTitle || !productTitle.trim())
-      newErrors.productTitle = 'Product title is required.';
-    if (!brand) newErrors.brand = 'Please select a brand.';
-    if (!category) newErrors.category = 'Please select a category.';
-    if (!subCategory) newErrors.subCategory = 'Please select a sub-category.';
-    if (!description || !description.trim())
-      newErrors.description = 'Description is required.';
-
-    const parsedBasePrice = parsePrice(basePrice);
-    if (isNaN(parsedBasePrice)) {
-      newErrors.basePrice = 'Enter a valid base price.';
-    } else if (parsedBasePrice === 0) {
-      const variants = productDetailState.productVariantsTypes;
-      if (!variants || variants.length === 0) {
-        newErrors.basePrice = 'Add at least one variant with a price when base price is ₱0.';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   /* ── Save handler ── */
   const handleProductEdit = async () => {
-    if (!validate()) return;
+    console.log('Edited State: ', productDetailState);
+    console.log('Original State: ', productDetailEditProps);
+    const { isValid, errors: validationErrors } = validateEditProduct(productDetailState);
+    if (!isValid) {
+      console.log('Validation failed — errors:', validationErrors);
+      setErrors(validationErrors);
+      return;
+    }
+    setErrors({});
     setIsSaving(true);
     setStatusMessage(null);
     try {
-      // TODO: wire up editProduct service call
-      console.log(productDetailState);
+      const changedProperties = getModifiedFields(productDetailEditProps, productDetailState);
+      console.log('Extracted Changed Properties To Submit:', changedProperties);
+
+      // Call the API service with the changed fields
+      // await editProductDetails(productDetailState.productId, changedProperties);
+
       setStatusType('success');
       setStatusMessage('Product updated successfully!');
       setTimeout(() => { setStatusMessage(null); setStatusType(null); }, 5000);
@@ -242,8 +87,10 @@ export default function EditProductClient({
     !!productDetailState.category?.categoryId,
     !!productDetailState.subCategory?.subCategoryId,
     !!(productDetailState.description?.trim()),
-    (productDetailState.productMedias?.length ?? 0) > 0 || (productDetailState.productVariantsTypes?.length ?? 0) > 0,
+    (productDetailState.productMedias?.length ?? 0) > 0 || (productDetailState.productVariants?.length ?? 0) > 0,
   ].filter(Boolean).length;
+
+
 
   return (
     <div className='flex flex-col gap-y-4 pb-10'>
@@ -425,14 +272,17 @@ export default function EditProductClient({
       </SectionCard>
 
       {/* ── Section 5 · Variants ── */}
-      <SectionCard step={5} title='Variants'>
-        <DashboardVariantsComponent
-          ReduceType='EDIT'
-          currentVariants={productDetailState.productVariantsTypes}
-          basePrice={productDetailState.basePrice}
-          ProductDetailEditReducer={dispatchProductDetailEdit}
-        />
-      </SectionCard>
+      {Array.isArray(productDetailEditProps.productVariants) && productDetailEditProps.productVariants.length > 0 && (
+        <SectionCard step={5} title='Variants'>
+          <DashboardVariantsComponent
+            ReduceType='EDIT'
+            currentVariants={productDetailState.productVariants}
+            basePrice={productDetailState.basePrice}
+            ProductDetailEditReducer={dispatchProductDetailEdit}
+          />
+        </SectionCard>
+      )}
+
 
       {/* ── Toast Notification ── */}
       <AnimatePresence>

@@ -1,5 +1,6 @@
 export interface ProductMedias {
-    imageId: number;
-    imageUrl: string;
+    imageId?: number;
+    imageUrl?: string;
+    file?: File;
     isMain: boolean;
 }

@@ -2,7 +2,7 @@ export type UIProductImage = {
   id: string;
   imageUrl: string;
   source: 'product' | 'variant';
-  isMain?: boolean; // optional, only for product images
+  isMain?: boolean;
 };
 
 
@@ -17,7 +17,7 @@ export const buildProductImages = (
     images.push({
       id: `product-${index}`,
       imageUrl: media.imageUrl,
-      source:'product',
+      source: 'product',
       isMain: media.isMain,
     });
   });
@@ -27,7 +27,7 @@ export const buildProductImages = (
       images.push({
         id: `variant-${option.variantOptionId}`,
         imageUrl: option.imageUrl,
-        source:'variant'
+        source: 'variant'
       });
     });
   });

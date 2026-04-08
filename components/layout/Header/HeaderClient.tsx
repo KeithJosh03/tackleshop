@@ -6,10 +6,10 @@ import Link from 'next/link';
 import slugify from 'slugify';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, MessageCircle } from 'lucide-react';
 
 import CustomButton from '@/components/CustomButton';
-import SearchBar from './SearchBar';
+import SearchBar from '../SearchBar';
 
 import { BrandHeaderProps } from '@/lib/api/brandService';
 import { CategoryProps } from '@/lib/api/categoryService';
@@ -92,14 +92,6 @@ export default function HeaderClient({ brands, categories }: Props) {
               </div>
             </Link>
           </div>
-
-          {/* Message button right */}
-          <div className="flex justify-end items-center">
-            <CustomButton
-              text='MESSAGE US'
-              onClick={() => console.log('Message US')}
-            />
-          </div>
         </div>
 
         {/* Search full-width below top bar on mobile and when not home on desktop */}
@@ -109,7 +101,7 @@ export default function HeaderClient({ brands, categories }: Props) {
 
         {/* Desktop Nav */}
         {isHome && (
-          <div className="hidden md:flex items-center justify-center gap-8 text-[15px] font-extrabold w-full pb-4 pt-1 uppercase tracking-wide">
+          <div className="hidden md:flex items-center justify-center gap-8 text-[15px] font-extrabold w-full uppercase tracking-wide">
             <div className="relative group">
               <Link href="/newarrival" className="flex items-center gap-1 text-primaryColor hover:text-[#FFB86C] transition-colors py-2">
                 NEW ARRIVALS

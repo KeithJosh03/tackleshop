@@ -2,14 +2,14 @@ import ProductDetailClient from "./productDetailClient";
 import { ProductDetails } from "@/lib/api/productService";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     productId: string;
     productName: string;
-  };
+  }>;
 }
 
 export default async function Page({ params }: PageProps) {
-  const { productId } = params;
+  const { productId } = await params;
 
   const productDetails = await ProductDetails(Number(productId));
 
@@ -18,11 +18,9 @@ export default async function Page({ params }: PageProps) {
     return <div>Product not found</div>;
   }
 
-  console.log(productDetails)
-
   return (
-    <ProductDetailClient 
-    productDetailProps={productDetails} 
+    <ProductDetailClient
+      productDetailProps={productDetails}
     />
   );
 }

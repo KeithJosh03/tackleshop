@@ -17,8 +17,6 @@ export default async function Page({ params }: PageProps) {
     return <div>Product not found</div>;
   }
 
-  console.log(productDetailsEdit)
-
   return (
     <EditProductClient
       productDetailEditProps={productDetailsEdit}
