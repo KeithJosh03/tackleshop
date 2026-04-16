@@ -4,7 +4,8 @@ import {
   Collections,
   Setups,
   Discounts,
-  Services
+  Services,
+  FacebookReviewClient
 } from "@/components";
 
 import Header from "@/components/layout/Header/Header";
@@ -21,6 +22,7 @@ export default function Home() {
         {/* <Discounts /> */}
         {/* <Setups /> */}
         <Collections />
+        <FacebookReviewClient />
       </main>
       <Footer />
     </>

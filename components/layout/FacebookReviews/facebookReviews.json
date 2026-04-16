@@ -1,0 +1,44 @@
+[
+    {
+        "review_id": "fbr_001",
+        "reviewer_name": "Juan dela Cruz",
+        "rating": 5,
+        "review_date": "2026-04-10",
+        "comment": "Best fishing gear store in the Philippines! Got my rod and reel here and the quality is unmatched. Highly recommend!"
+    },
+    {
+        "review_id": "fbr_002",
+        "reviewer_name": "Mark Santos",
+        "rating": 5,
+        "review_date": "2026-04-08",
+        "comment": "Amazing customer service! They helped me pick the perfect lure set for my bass fishing trip. Will definitely come back."
+    },
+    {
+        "review_id": "fbr_003",
+        "reviewer_name": "Rico Fernandez",
+        "rating": 4,
+        "review_date": "2026-04-05",
+        "comment": "Great selection of tackle and accessories. Prices are very competitive. Fast shipping too!"
+    },
+    {
+        "review_id": "fbr_004",
+        "reviewer_name": "Lito Reyes",
+        "rating": 5,
+        "review_date": "2026-04-02",
+        "comment": "Legit shop with authentic brands. I ordered a Shimano reel and it arrived in perfect condition. 5 stars!"
+    },
+    {
+        "review_id": "fbr_005",
+        "reviewer_name": "Carlo Mendoza",
+        "rating": 4,
+        "review_date": "2026-03-28",
+        "comment": "Good variety of products. The staff is knowledgeable and very helpful when I had questions about my setup."
+    },
+    {
+        "review_id": "fbr_006",
+        "reviewer_name": "Dominic Aquino",
+        "rating": 5,
+        "review_date": "2026-03-25",
+        "comment": "My go-to tackle shop! Everything I need for weekend fishing trips — all in one place. Super satisfied!"
+    }
+]

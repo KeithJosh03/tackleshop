@@ -17,7 +17,9 @@ import {
 } from "@/components";
 
 import { ProductDetailsEditProps } from "@/types/productTypes";
+
 import { validateEditProduct } from "@/lib/validation/EditProductValidation";
+import { editProductDetails } from "@/lib/api/productService";
 import { ProductDetailEditReducer, initialProductDetailState } from "@/lib/reducer/editProductReducer";
 import { getModifiedFields } from "@/lib/utils/editProductUtils";
 
@@ -65,7 +67,7 @@ export default function EditProductClient({
       console.log('Extracted Changed Properties To Submit:', changedProperties);
 
       // Call the API service with the changed fields
-      // await editProductDetails(productDetailState.productId, changedProperties);
+      await editProductDetails(productDetailState.productId, changedProperties);
 
       setStatusType('success');
       setStatusMessage('Product updated successfully!');

@@ -11,6 +11,7 @@ import Discounts from './sales';
 import { DashboardBrandClient } from './DashboardBrandClient';
 import DashBoardButtonLayoutOption from './DashBoardButtonLayoutOption';
 import IconButton from '@/components/IconButton';
+import FacebookReviewClient from './layout/FacebookReviews/FacebookReviewClient';
 
 import DashboardCategoryClient from './DashboardCategoryClient';
 import DashboardHeader from './DashboardHeader';
@@ -36,6 +37,7 @@ export {
     Footer,
     Brands,
     Services,
+    FacebookReviewClient,
     Collections,
 
     DashboardBrandClient,
