@@ -2,14 +2,12 @@ import {
   Hero,
   Brands,
   Collections,
-  Setups,
-  Discounts,
-  Services,
+  StoreServices,
   FacebookReviewClient
 } from "@/components";
 
-import Header from "@/components/layout/Header/Header";
-import Footer from "@/components/layout/Footer";
+import Header from "@/components/sections/Header/Header";
+import Footer from "@/components/sections/Footer/Footer";
 
 export default function Home() {
   return (
@@ -17,10 +15,8 @@ export default function Home() {
       <Header />
       <main className="flex flex-col items-center relative z-10 gap-y-2 mb-20 mt-40">
         <Hero />
-        <Services />
+        <StoreServices />
         <Brands />
-        {/* <Discounts /> */}
-        {/* <Setups /> */}
         <Collections />
         <FacebookReviewClient />
       </main>

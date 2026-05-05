@@ -1,17 +1,18 @@
-import Hero from './layout/Hero';
-import Brands from './layout/brandlogo/Brands';
-import Services from './layout/Services';
+import Header from './sections/Header/Header';
+import Hero from './sections/Hero/Hero';
+import Brands from './sections/BrandsLogo/Brands';
+import Collections from './sections/ProductCollections/Collection';
 
-import Footer from './layout/Footer';
-import Header from './layout/Header/Header';
-import Collections from './collections/Collection';
-import Setups from './setups';
-import Discounts from './sales';
+import StoreServices from './sections/StoreServices/StoreServices';
+import Footer from './sections/Footer/Footer';
+
+// import Setups from './setups';
+// import Discounts from './sales';
 
 import { DashboardBrandClient } from './DashboardBrandClient';
 import DashBoardButtonLayoutOption from './DashBoardButtonLayoutOption';
 import IconButton from '@/components/IconButton';
-import FacebookReviewClient from './layout/FacebookReviews/FacebookReviewClient';
+import FacebookReviewClient from './sections/FacebookReviews/FacebookReviewClient';
 
 import DashboardCategoryClient from './DashboardCategoryClient';
 import DashboardHeader from './DashboardHeader';
@@ -36,7 +37,7 @@ export {
     Hero,
     Footer,
     Brands,
-    Services,
+    StoreServices,
     FacebookReviewClient,
     Collections,
 
@@ -64,7 +65,7 @@ export {
     InputPrice,
     IconButton,
 
-    Setups,
-    Discounts,
+    // Setups,
+    // Discounts,
 }
 

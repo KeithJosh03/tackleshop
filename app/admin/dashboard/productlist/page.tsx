@@ -13,6 +13,7 @@ import Link from 'next/link';
 
 export default function Page() {
   const [searchProduct, setSearchProduct] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [productsLists, setProductLists] = useState<ProductListDashboard[]>([]);
   const [page, setPage] = useState(1);
 
@@ -57,6 +58,7 @@ export default function Page() {
 
   const clearSearch = () => {
     setSearchProduct('');
+    setDebouncedSearch('');
     setSelectedProduct(undefined);
     setPage(1);
   };
@@ -74,10 +76,19 @@ export default function Page() {
     }
   };
 
+  // Debounce: update debouncedSearch 400ms after the user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchProduct.trim());
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchProduct]);
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await ProductListDashboardSearch(searchProduct, page);
+        const res = await ProductListDashboardSearch(debouncedSearch, page);
+        console.log(res);
         setProductLists(res.products);
         setPagination(res.pagination);
       } catch (error) {
@@ -86,9 +97,8 @@ export default function Page() {
     };
 
     fetchProducts();
-  }, [searchProduct, page]);
+  }, [debouncedSearch, page]);
 
-  console.log(productsLists);
 
   return (
     <div className="flex flex-col border border-greyColor p-4 gap-y-4 font-extrabold rounded bg-blackgroundColor">

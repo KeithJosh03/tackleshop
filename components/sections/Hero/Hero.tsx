@@ -4,7 +4,7 @@ import { worksans, inter } from "@/types/fonts";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, MessageCircle, Star } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
   return (

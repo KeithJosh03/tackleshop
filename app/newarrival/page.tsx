@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from "react"
 import NewArrivalLayout from "./NewArrivalLayout";
-import ProductCards from "@/components/layout/ProductCards";
+import ProductCards from "@/components/sections/ProductCards";
 
 import axios from "axios";
 
@@ -11,7 +11,7 @@ import Link from "next/link"
 
 interface NewArrivalResponse {
   status: boolean;
-  products: NewArrivalProduct[]; 
+  products: NewArrivalProduct[];
 }
 
 function NewArrival() {
@@ -20,7 +20,7 @@ function NewArrival() {
   useEffect(() => {
     axios.get<NewArrivalResponse>('/api/products/newarrival/')
       .then(res => {
-        setNewArriveProducts(res.data.products); 
+        setNewArriveProducts(res.data.products);
       })
       .catch(err => {
         console.error(err);
@@ -36,7 +36,7 @@ function NewArrival() {
       </div>
       <NewArrivalLayout>
         {newArriveProducts?.map((product, index) => (
-          <ProductCards 
+          <ProductCards
             key={`${product.productId}-${index}`}
             product={product}
             index={index}

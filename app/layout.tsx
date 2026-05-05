@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import './globals.css';
 
 import { worksans } from "@/types/fonts";
-import FloatingMessageButton from "@/components/layout/FloatingMessageButton";
+import FloatingMessageButton from "@/components/sections/FloatingMessageButton";
 
 export const metadata: Metadata = {
   title: "Smooth Casting",

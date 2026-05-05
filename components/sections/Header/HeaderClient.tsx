@@ -99,100 +99,127 @@ export default function HeaderClient({ brands, categories }: Props) {
           {isHome ? <SearchBar /> : null}
         </div>
 
-        {/* Desktop Nav */}
-        {isHome && (
-          <div className="hidden md:flex items-center justify-center gap-8 text-[15px] font-extrabold w-full uppercase tracking-wide">
-            <div className="relative group">
-              <Link href="/newarrival" className="flex items-center gap-1 text-primaryColor hover:text-[#FFB86C] transition-colors py-2">
-                NEW ARRIVALS
-                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-primaryColor group-hover:w-full transition-all duration-300 rounded-full leading-none"></span>
-              </Link>
-            </div>
-
-            <div
-              className="relative group"
-              onMouseEnter={() => setActiveDropdown('brands')}
-              onMouseLeave={() => setActiveDropdown(null)}
+        {/* Desktop Nav — visible on all pages */}
+        <div className="hidden md:flex items-center justify-center gap-8 text-[15px] font-extrabold w-full uppercase tracking-wide">
+          <div className="relative group">
+            <Link
+              href="/newarrival"
+              className={`flex items-center gap-1 transition-colors py-2 ${pathname === '/newarrival' ? 'text-primaryColor' : 'text-primaryColor hover:text-[#FFB86C]'
+                }`}
             >
-              <button className="flex items-center gap-1 text-primaryColor hover:text-[#FFB86C] transition-colors py-2 outline-none uppercase font-extrabold cursor-pointer">
-                BRANDS
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'brands' ? 'rotate-180 text-white' : ''}`} />
-                <span className={`absolute bottom-0 left-0 h-[2px] bg-primaryColor transition-all duration-300 rounded-full ${activeDropdown === 'brands' ? 'w-full' : 'w-0'}`}></span>
-              </button>
-
-              <AnimatePresence>
-                {activeDropdown === 'brands' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-56 bg-blackgroundColor/95 backdrop-blur-xl border border-greyColor/40 shadow-2xl rounded-2xl overflow-hidden py-3 z-50 pointer-events-auto"
-                  >
-                    <ul className="flex flex-col max-h-[60vh] overflow-y-auto custom-scrollbar px-2 gap-1 font-bold">
-                      {brands?.map(({ brandName, brandId }) => (
-                        <li key={brandId}>
-                          <Link
-                            href={`/brand/${slugify(brandName).toLowerCase()}`}
-                            className="block px-4 py-2.5 text-sm text-primaryColor/80 hover:text-primaryColor hover:bg-primaryColor/15 rounded-xl transition-all"
-                            onClick={() => setActiveDropdown(null)}
-                          >
-                            {brandName}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <div
-              className="relative group"
-              onMouseEnter={() => setActiveDropdown('categories')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <button className="flex items-center gap-1 text-primaryColor hover:text-[#FFB86C] transition-colors py-2 outline-none uppercase font-extrabold cursor-pointer">
-                CATEGORIES
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'categories' ? 'rotate-180 text-white' : ''}`} />
-                <span className={`absolute bottom-0 left-0 h-[2px] bg-primaryColor transition-all duration-300 rounded-full ${activeDropdown === 'categories' ? 'w-full' : 'w-0'}`}></span>
-              </button>
-
-              <AnimatePresence>
-                {activeDropdown === 'categories' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-56 bg-blackgroundColor/95 backdrop-blur-xl border border-greyColor/40 shadow-2xl rounded-2xl overflow-hidden py-3 z-50 pointer-events-auto"
-                  >
-                    <ul className="flex flex-col max-h-[60vh] overflow-y-auto custom-scrollbar px-2 gap-1 font-bold">
-                      {categories.map(({ categoryName, categoryId }) => (
-                        <li key={categoryId}>
-                          <Link
-                            href={`/category/${slugify(categoryName).toLowerCase()}`}
-                            className="block px-4 py-2.5 text-sm text-primaryColor/80 hover:text-primaryColor hover:bg-primaryColor/15 rounded-xl transition-all"
-                            onClick={() => setActiveDropdown(null)}
-                          >
-                            {categoryName}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <div className="relative group">
-              <Link href="/category/apparel" className="flex items-center gap-1 text-primaryColor hover:text-[#FFB86C] transition-colors py-2">
-                APPAREL
-                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-primaryColor group-hover:w-full transition-all duration-300 rounded-full"></span>
-              </Link>
-            </div>
+              NEW ARRIVALS
+              <span
+                className={`absolute bottom-0 left-0 h-[2px] bg-primaryColor rounded-full transition-all duration-300 ${pathname === '/newarrival' ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`}
+              />
+            </Link>
           </div>
-        )}
+
+          <div
+            className="relative group"
+            onMouseEnter={() => setActiveDropdown('brands')}
+            onMouseLeave={() => setActiveDropdown(null)}
+          >
+            <button
+              className={`flex items-center gap-1 transition-colors py-2 outline-none uppercase font-extrabold cursor-pointer ${pathname.startsWith('/brand') ? 'text-primaryColor' : 'text-primaryColor hover:text-[#FFB86C]'
+                }`}
+            >
+              BRANDS
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'brands' ? 'rotate-180 text-white' : ''}`} />
+              <span
+                className={`absolute bottom-0 left-0 h-[2px] bg-primaryColor rounded-full transition-all duration-300 ${pathname.startsWith('/brand')
+                  ? 'w-full'
+                  : activeDropdown === 'brands' ? 'w-full' : 'w-0'
+                  }`}
+              />
+            </button>
+            <AnimatePresence>
+              {activeDropdown === 'brands' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-56 bg-blackgroundColor/95 backdrop-blur-xl border border-greyColor/40 shadow-2xl rounded-2xl overflow-hidden py-3 z-50 pointer-events-auto"
+                >
+                  <ul className="flex flex-col max-h-[60vh] overflow-y-auto custom-scrollbar px-2 gap-1 font-bold">
+                    {brands?.map(({ brandName, brandId }) => (
+                      <li key={brandId}>
+                        <Link
+                          href={`/brand/${slugify(brandName).toLowerCase()}`}
+                          className="block px-4 py-2.5 text-sm text-primaryColor/80 hover:text-primaryColor hover:bg-primaryColor/15 rounded-xl transition-all"
+                          onClick={() => setActiveDropdown(null)}
+                        >
+                          {brandName}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div
+            className="relative group"
+            onMouseEnter={() => setActiveDropdown('categories')}
+            onMouseLeave={() => setActiveDropdown(null)}
+          >
+            <button
+              className={`flex items-center gap-1 transition-colors py-2 outline-none uppercase font-extrabold cursor-pointer ${pathname.startsWith('/category') ? 'text-primaryColor' : 'text-primaryColor hover:text-[#FFB86C]'
+                }`}
+            >
+              CATEGORIES
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'categories' ? 'rotate-180 text-white' : ''}`} />
+              <span
+                className={`absolute bottom-0 left-0 h-[2px] bg-primaryColor rounded-full transition-all duration-300 ${pathname.startsWith('/category')
+                  ? 'w-full'
+                  : activeDropdown === 'categories' ? 'w-full' : 'w-0'
+                  }`}
+              />
+            </button>
+
+            <AnimatePresence>
+              {activeDropdown === 'categories' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-56 bg-blackgroundColor/95 backdrop-blur-xl border border-greyColor/40 shadow-2xl rounded-2xl overflow-hidden py-3 z-50 pointer-events-auto"
+                >
+                  <ul className="flex flex-col max-h-[60vh] overflow-y-auto custom-scrollbar px-2 gap-1 font-bold">
+                    {categories.map(({ categoryName, categoryId }) => (
+                      <li key={categoryId}>
+                        <Link
+                          href={`/category/${slugify(categoryName).toLowerCase()}`}
+                          className="block px-4 py-2.5 text-sm text-primaryColor/80 hover:text-primaryColor hover:bg-primaryColor/15 rounded-xl transition-all"
+                          onClick={() => setActiveDropdown(null)}
+                        >
+                          {categoryName}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="relative group">
+            <Link
+              href="/category/apparel"
+              className={`flex items-center gap-1 transition-colors py-2 ${pathname === '/category/apparel' ? 'text-primaryColor' : 'text-primaryColor hover:text-[#FFB86C]'
+                }`}
+            >
+              APPAREL
+              <span
+                className={`absolute bottom-0 left-0 h-[2px] bg-primaryColor rounded-full transition-all duration-300 ${pathname === '/category/apparel' ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`}
+              />
+            </Link>
+          </div>
+        </div>
 
         {/* Mobile Drawer Backdrop */}
         <AnimatePresence>
