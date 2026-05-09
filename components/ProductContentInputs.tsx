@@ -2,6 +2,7 @@
 
 import { useReducer } from 'react';
 import { UIComponentReducer, initialUIComponent } from '@/lib/api/reDucer';
+import CollapsibleTextarea from './ui/CollapsibleTextarea';
 
 /* ─── Shared UI helpers ──────────────────────────────────────────────────── */
 
@@ -75,131 +76,49 @@ export default function ProductContentInputs({
     return (
         <div className='flex flex-col gap-3'>
 
-            {/* Description */}
-            <div className='rounded-lg border border-greyColor overflow-hidden'>
-                <button
-                    type='button'
-                    className='w-full flex items-center justify-between px-4 py-3 transition-colors duration-150 group'
-                    style={{ background: uiState.descriptionUI ? 'rgba(232,147,71,0.08)' : 'transparent' }}
-                    onClick={() => dispatchUI({ type: 'UPDATE_FIELD', field: 'descriptionUI', value: !uiState.descriptionUI })}
-                >
-                    <div className='flex items-center gap-2'>
-                        <svg className='w-4 h-4 text-primaryColor' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
-                            <path strokeLinecap='round' strokeLinejoin='round' d='M4 6h16M4 12h16M4 18h10' />
-                        </svg>
-                        <span className='text-sm font-bold text-primaryColor uppercase tracking-wider'>
-                            Description <span className='text-red-400'>*</span>
-                        </span>
-                    </div>
-                    <div className='flex items-center gap-3'>
-                        {description?.length ? (
-                            <span className='text-xs text-secondary'>{description.length} chars</span>
-                        ) : null}
-                        <svg
-                            className={`w-4 h-4 text-secondary transition-transform duration-200 ${uiState.descriptionUI ? 'rotate-180' : ''}`}
-                            fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'
-                        >
-                            <path strokeLinecap='round' strokeLinejoin='round' d='M19 9l-7 7-7-7' />
-                        </svg>
-                    </div>
-                </button>
+            <CollapsibleTextarea
+                label='Description'
+                required
+                icon={
+                    <svg className='w-4 h-4 text-primaryColor' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' d='M4 6h16M4 12h16M4 18h10' />
+                    </svg>
+                }
+                isOpen={uiState.descriptionUI}
+                onToggle={() => dispatchUI({ type: 'UPDATE_FIELD', field: 'descriptionUI', value: !uiState.descriptionUI })}
+                value={description}
+                placeholder='Describe the product in detail…'
+                onChange={(val) => { onDescriptionChange(val); onDescriptionErrorClear?.(); }}
+                error={errors.description}
+            />
 
-                {uiState.descriptionUI && (
-                    <div className='border-t border-greyColor'>
-                        <textarea
-                            rows={7}
-                            placeholder='Describe the product in detail…'
-                            value={description || ''}
-                            onChange={(e) => {
-                                onDescriptionChange(e.target.value);
-                                onDescriptionErrorClear?.();
-                            }}
-                            className='w-full bg-transparent text-sm text-primaryColor placeholder:text-secondary p-4 resize-none outline-none'
-                        />
-                    </div>
-                )}
-                {errors.description && <div className='px-4 pb-2'><FieldError msg={errors.description} /></div>}
-            </div>
+            <CollapsibleTextarea
+                label='Specifications'
+                icon={
+                    <svg className='w-4 h-4 text-primaryColor' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' />
+                    </svg>
+                }
+                isOpen={uiState.specificationsUI}
+                onToggle={() => dispatchUI({ type: 'UPDATE_FIELD', field: 'specificationsUI', value: !uiState.specificationsUI })}
+                value={specifications}
+                placeholder='List specifications (weight, dimensions, material…)'
+                onChange={onSpecificationsChange}
+            />
 
-            {/* Specifications */}
-            <div className='rounded-lg border border-greyColor overflow-hidden'>
-                <button
-                    type='button'
-                    className='w-full flex items-center justify-between px-4 py-3 transition-colors duration-150'
-                    style={{ background: uiState.specificationsUI ? 'rgba(232,147,71,0.08)' : 'transparent' }}
-                    onClick={() => dispatchUI({ type: 'UPDATE_FIELD', field: 'specificationsUI', value: !uiState.specificationsUI })}
-                >
-                    <div className='flex items-center gap-2'>
-                        <svg className='w-4 h-4 text-primaryColor' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
-                            <path strokeLinecap='round' strokeLinejoin='round' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' />
-                        </svg>
-                        <span className='text-sm font-bold text-primaryColor uppercase tracking-wider'>Specifications</span>
-                    </div>
-                    <div className='flex items-center gap-3'>
-                        {specifications?.length ? (
-                            <span className='text-xs text-secondary'>{specifications.length} chars</span>
-                        ) : null}
-                        <svg
-                            className={`w-4 h-4 text-secondary transition-transform duration-200 ${uiState.specificationsUI ? 'rotate-180' : ''}`}
-                            fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'
-                        >
-                            <path strokeLinecap='round' strokeLinejoin='round' d='M19 9l-7 7-7-7' />
-                        </svg>
-                    </div>
-                </button>
-
-                {uiState.specificationsUI && (
-                    <div className='border-t border-greyColor'>
-                        <textarea
-                            rows={7}
-                            placeholder='List specifications (weight, dimensions, material…)'
-                            value={specifications || ''}
-                            onChange={(e) => onSpecificationsChange(e.target.value)}
-                            className='w-full bg-transparent text-sm text-primaryColor placeholder:text-secondary p-4 resize-none outline-none'
-                        />
-                    </div>
-                )}
-            </div>
-
-            {/* Features */}
-            <div className='rounded-lg border border-greyColor overflow-hidden'>
-                <button
-                    type='button'
-                    className='w-full flex items-center justify-between px-4 py-3 transition-colors duration-150'
-                    style={{ background: uiState.featuresUI ? 'rgba(232,147,71,0.08)' : 'transparent' }}
-                    onClick={() => dispatchUI({ type: 'UPDATE_FIELD', field: 'featuresUI', value: !uiState.featuresUI })}
-                >
-                    <div className='flex items-center gap-2'>
-                        <svg className='w-4 h-4 text-primaryColor' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
-                            <path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' />
-                        </svg>
-                        <span className='text-sm font-bold text-primaryColor uppercase tracking-wider'>Features</span>
-                    </div>
-                    <div className='flex items-center gap-3'>
-                        {features?.length ? (
-                            <span className='text-xs text-secondary'>{features.length} chars</span>
-                        ) : null}
-                        <svg
-                            className={`w-4 h-4 text-secondary transition-transform duration-200 ${uiState.featuresUI ? 'rotate-180' : ''}`}
-                            fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'
-                        >
-                            <path strokeLinecap='round' strokeLinejoin='round' d='M19 9l-7 7-7-7' />
-                        </svg>
-                    </div>
-                </button>
-
-                {uiState.featuresUI && (
-                    <div className='border-t border-greyColor'>
-                        <textarea
-                            rows={7}
-                            placeholder='Highlight key product features…'
-                            value={features || ''}
-                            onChange={(e) => onFeaturesChange(e.target.value)}
-                            className='w-full bg-transparent text-sm text-primaryColor placeholder:text-secondary p-4 resize-none outline-none'
-                        />
-                    </div>
-                )}
-            </div>
+            <CollapsibleTextarea
+                label='Features'
+                icon={
+                    <svg className='w-4 h-4 text-primaryColor' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' />
+                    </svg>
+                }
+                isOpen={uiState.featuresUI}
+                onToggle={() => dispatchUI({ type: 'UPDATE_FIELD', field: 'featuresUI', value: !uiState.featuresUI })}
+                value={features}
+                placeholder='Highlight key product features…'
+                onChange={onFeaturesChange}
+            />
 
         </div>
     );

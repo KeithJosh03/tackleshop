@@ -5,7 +5,6 @@ import { BrandProps } from "@/types/dataprops";
 import { Category } from "@/types/categoryType";
 import { SubCategory } from "@/types/subCategoryTypes";
 
-import { option } from "framer-motion/client";
 
 
 interface VariantDetails {
@@ -385,6 +384,19 @@ export async function ProductDetailsEdit(id: number) {
     console.error(err);
     return null;
   }
+}
+
+// Product Search - SearchBar
+export async function searchProductsTitleSearchBar(productTitle: string) {
+  const res = await axios.get(
+    '/api/products/productsearch',
+    {
+      params: {
+        productTitle: productTitle,
+      },
+    }
+  );
+  return res.data.products || [];
 }
 
 // Product Delete - Dashboard

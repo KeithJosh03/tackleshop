@@ -8,8 +8,6 @@ import { ProductDetailCreateReducer, ProductDetails } from '@/lib/reducer/produc
 import { AddProductValidation } from '@/lib/validation/AddProductValidation';
 
 import {
-  InputText,
-  InputPrice,
   DashboardSelectBrand,
   DashboardSelectCategory,
   DashboardSelectSubCategory,
@@ -20,6 +18,9 @@ import {
   FieldError,
   FieldHint,
 } from '@/components'
+
+import { InputText, InputPrice } from '@/components/ui';
+
 
 /* ─── SectionCard, FieldError, FieldHint are now imported from @/components ── */
 
@@ -83,7 +84,6 @@ export default function page() {
     ProductDetailState.medias.length > 0 || ProductDetailState.variants.length > 0,
   ].filter(Boolean).length;
 
-  console.log(ProductDetailState)
 
   return (
     <div className='flex flex-col gap-y-4 pb-10'>

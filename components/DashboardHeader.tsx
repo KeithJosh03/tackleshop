@@ -49,6 +49,15 @@ export default function DashboardHeader() {
         >
           ADD SETUP
         </Link>
+        <Link
+          href='/admin/dashboard/reviews/'
+          className={`flex-1 min-w-[160px] text-center px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-200 ${pathname.includes('/reviews')
+            ? 'bg-primaryColor text-white shadow-md'
+            : 'text-secondary hover:text-primaryColor hover:bg-secondary/5'
+            }`}
+        >
+          REVIEWS
+        </Link>
       </nav>
     </header>
   )

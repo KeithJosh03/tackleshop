@@ -1,12 +1,9 @@
 "use client";
 
 import { inter } from "@/types/fonts";
-import reviewsData from "./facebookReviews.json";
 import { useEffect, useRef, useState } from "react";
-import ReviewCard, { StarRating, type Review } from "./ReviewCard";
-
-const reviews: Review[] = reviewsData;
-
+import ReviewCard, { StarRating } from "./ReviewCard";
+import { getReviews, type Review } from "@/lib/api/reviewService";
 
 export default function FacebookReviewClient() {
     const trackRef = useRef<HTMLDivElement>(null);
@@ -14,6 +11,23 @@ export default function FacebookReviewClient() {
     const positionRef = useRef(0);
     const animFrameRef = useRef<number | null>(null);
     const speed = 0.5; // px per frame
+    const [reviews, setReviews] = useState<Review[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Fetch reviews from API
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                const data = await getReviews();
+                setReviews(data);
+            } catch {
+                // silently keep empty — carousel just won't show
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchReviews();
+    }, []);
 
     // Duplicate reviews for seamless loop
     const loopedReviews = [...reviews, ...reviews];
@@ -152,7 +166,7 @@ export default function FacebookReviewClient() {
                 >
                     {loopedReviews.map((review, index) => (
                         <ReviewCard
-                            key={`${review.review_id}-${index}`}
+                            key={`${review.reviewId}-${index}`}
                             review={review}
                             index={index % reviews.length}
                         />

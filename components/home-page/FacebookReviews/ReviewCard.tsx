@@ -1,10 +1,10 @@
 import { inter } from "@/types/fonts";
 
 export interface Review {
-    review_id: string;
-    reviewer_name: string;
+    reviewId: number;
+    reviewerName: string;
     rating: number;
-    review_date: string;
+    reviewDate: string;
     comment: string;
 }
 
@@ -65,18 +65,18 @@ export default function ReviewCard({ review, index }: { review: Review; index: n
                                 "linear-gradient(135deg, #E89347 0%, #835d32 100%)",
                         }}
                     >
-                        {getInitials(review.reviewer_name)}
+                        {getInitials(review.reviewerName)}
                     </div>
                     <div className="flex flex-col">
                         <span
                             className={`${inter.className} text-sm font-semibold text-white leading-tight`}
                         >
-                            {review.reviewer_name}
+                            {review.reviewerName}
                         </span>
                         <span
                             className={`${inter.className} text-xs text-tertiaryColor/50`}
                         >
-                            {formatDate(review.review_date)}
+                            {formatDate(review.reviewDate)}
                         </span>
                     </div>
                 </div>

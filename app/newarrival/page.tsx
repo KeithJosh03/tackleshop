@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from "react"
 import NewArrivalLayout from "./NewArrivalLayout";
-import ProductCards from "@/components/sections/ProductCards";
+import ProductCards from "@/components/ProductCards";
 
 import axios from "axios";
 

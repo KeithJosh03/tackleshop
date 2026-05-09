@@ -8,8 +8,9 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown, MessageCircle } from 'lucide-react';
 
-import CustomButton from '@/components/CustomButton';
-import SearchBar from '../SearchBar';
+import {
+  SearchBar,
+} from '@/components/ui';
 
 import { BrandHeaderProps } from '@/lib/api/brandService';
 import { CategoryProps } from '@/lib/api/categoryService';

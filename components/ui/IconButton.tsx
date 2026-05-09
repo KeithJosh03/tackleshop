@@ -2,11 +2,11 @@ import React from 'react';
 import Image from 'next/image';
 
 interface IconButtonProps {
-  icon: string;    
-  altText: string;   
+  icon: string;
+  altText: string;
   onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-  className?: string;  
-  iconSize?: number;  
+  className?: string;
+  iconSize?: number;
 }
 
 const IconButton: React.FC<IconButtonProps> = ({

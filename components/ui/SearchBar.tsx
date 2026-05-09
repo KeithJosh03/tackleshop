@@ -1,17 +1,14 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import { searchProductsTitleSearchBar } from "@/lib/api/productService";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, Loader2 } from "lucide-react";
 import { ProductSearchProps } from "@/types/dataprops";
 import slugify from "slugify";
 
-interface ProductSearchResponse {
-  status: boolean;
-  products: ProductSearchProps[];
-}
+
 
 export default function SearchBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,11 +35,8 @@ export default function SearchBar() {
 
     setIsLoading(true);
     const delayDebounce = setTimeout(() => {
-      axios
-        .get<ProductSearchResponse>(`/api/products/productsearch?productTitle=${search}`)
-        .then((res) => {
-          setResults(res.data.products || []);
-        })
+      searchProductsTitleSearchBar(search)
+        .then((products) => setResults(products))
         .catch((err) => console.error(err))
         .finally(() => setIsLoading(false));
     }, 400);

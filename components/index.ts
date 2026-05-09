@@ -1,18 +1,22 @@
-import Header from './sections/Header/Header';
-import Hero from './sections/Hero/Hero';
-import Brands from './sections/BrandsLogo/Brands';
-import Collections from './sections/ProductCollections/Collection';
 
-import StoreServices from './sections/StoreServices/StoreServices';
-import Footer from './sections/Footer/Footer';
+// layout
+import Header from './layout/Header/Header';
+import Footer from './layout/Footer/Footer';
+
+import Hero from './home-page/Hero/Hero';
+import Brands from './home-page/BrandsLogo/Brands';
+import Collections from './home-page/ProductCollections/Collection';
+
+import StoreServices from './home-page/StoreServices/StoreServices';
+
 
 // import Setups from './setups';
 // import Discounts from './sales';
 
 import { DashboardBrandClient } from './DashboardBrandClient';
 import DashBoardButtonLayoutOption from './DashBoardButtonLayoutOption';
-import IconButton from '@/components/IconButton';
-import FacebookReviewClient from './sections/FacebookReviews/FacebookReviewClient';
+import IconButton from '@/components/ui/IconButton';
+import FacebookReviewClient from './home-page/FacebookReviews/FacebookReviewClient';
 
 import DashboardCategoryClient from './DashboardCategoryClient';
 import DashboardHeader from './DashboardHeader';
@@ -24,23 +28,24 @@ import ProductMedia from './ProductMedia';
 import ProductContentInputs, { FieldError, FieldHint, SectionCard } from './ProductContentInputs';
 
 import SearchText from './SearchText';
-import InputText from './InputText';
 import TextBox from './TextBox';
-import CustomButton from './CustomButton';
-import InputPrice from './InputPrice';
-import SearchTextAdmin from '@/components/SearchTextAdmin';
-import ImageIconUpload from '@/components/ImageIconUpload';
-import DropDownText from '@/components/DropDownText';
+import CustomButton from './ui/CustomButton';
+import ImageIconUpload from '@/components/ui/ImageIconUpload';
+import DropDownText from '@/components/ui/DropDownText';
 
 export {
+    // layout
     Header,
-    Hero,
     Footer,
+
+    // home page
+    Hero,
     Brands,
     StoreServices,
     FacebookReviewClient,
     Collections,
 
+    // dashboard
     DashboardBrandClient,
     DashBoardButtonLayoutOption,
     DashboardCategoryClient,
@@ -55,15 +60,14 @@ export {
     FieldHint,
     SectionCard,
 
+    // ui
     DropDownText,
     ImageIconUpload,
-    SearchTextAdmin,
-    InputText,
     SearchText,
     TextBox,
     CustomButton,
-    InputPrice,
     IconButton,
+
 
     // Setups,
     // Discounts,

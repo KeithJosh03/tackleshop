@@ -1,9 +1,9 @@
 import React from 'react';
 
 interface CustomButtonProps {
-  text: string; 
-  onClick: () => void;  
-  className?: string;  
+  text: string;
+  onClick: () => void;
+  className?: string;
 }
 
 
@@ -18,7 +18,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       onClick={onClick}
       className={`${className}`}
     >
-    {text}
+      {text}
     </button>
   );
 }

@@ -6,7 +6,7 @@ import { Category } from '@/types/categoryType';
 
 import { SubCategory } from '@/types/subCategoryTypes';
 
-import DropDownText from '@/components/DropDownText'
+import DropDownText from '@/components/ui/DropDownText'
 import SearchText from './SearchText'
 
 // ACTION TYPES REDUCER

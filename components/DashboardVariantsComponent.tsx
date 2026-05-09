@@ -10,12 +10,13 @@ import {
     CustomButton,
     SearchTextAdmin,
     InputPrice
-} from '@/components'
+} from '@/components/ui'
 
 import { VariantDetails, VariantOption, ProductDetailActionCreate } from "@/lib/reducer/productReducer";
-import ImageIconUpload from "@/components/ImageIconUpload";
+import ImageIconUpload from "@/components/ui/ImageIconUpload";
 // ACTION REDUCER
-import { ProductDetailActionEdit } from "@/app/admin/dashboard/editproduct/[productId]/ProductClientEdit";
+
+import { ProductDetailActionEdit } from "@/lib/reducer/editProductReducer";
 import { ProductVariantTypes } from "@/types/productVariantsTypes";
 import { ProductDetailsEdit } from "@/lib/api/productService";
 

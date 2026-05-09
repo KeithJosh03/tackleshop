@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import './globals.css';
 
 import { worksans } from "@/types/fonts";
-import FloatingMessageButton from "@/components/sections/FloatingMessageButton";
+import { FloatingMessageButton } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Smooth Casting",
@@ -11,6 +11,7 @@ export const metadata: Metadata = {
     icon: "/logo.png"
   },
 };
+
 export default function RootLayout({
   children,
 }: Readonly<{

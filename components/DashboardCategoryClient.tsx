@@ -5,9 +5,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { SubCategoryProps, CategorySubProps } from '@/types/dataprops';
 import axios from 'axios';
 
-import SearchTextAdmin from '@/components/SearchTextAdmin';
-import DropDownText from '@/components/DropDownText';
-import IconButton from '@/components/IconButton';
+import SearchTextAdmin from '@/components/ui/SearchTextAdmin';
+import DropDownText from '@/components/ui/DropDownText';
+import IconButton from '@/components/ui/IconButton';
 import DashBoardButtonLayoutOption from '@/components/DashBoardButtonLayoutOption';
 
 

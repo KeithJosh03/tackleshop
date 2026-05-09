@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import axios from "axios";
 import Link from "next/link";
-import SaleProductCards from "@/components/sales/SaleProductCards";
+import SaleProductCards from "@/components/home-page/Sales/SaleProductCards";
 import { DiscountProductCollection } from "@/types/dataprops";
 
 interface SalesResponse {
@@ -24,19 +24,19 @@ export default function Sales() {
 
   const fetchProducts = useCallback(async (page: number, isLoadMore: boolean = false) => {
     if (loading) return;
-    
+
     setLoading(true);
     try {
       const response = await axios.get<SalesResponse>(
         `/api/productDiscounted/discountedProducts?page=${page}`
       );
-      
+
       if (isLoadMore) {
         setSalesProducts(prev => [...prev, ...response.data.products]);
       } else {
         setSalesProducts(response.data.products);
       }
-      
+
       setHasMore(response.data.hasMore);
       setCurrentPage(page);
     } catch (err) {
@@ -76,7 +76,7 @@ export default function Sales() {
           <h4>SALES</h4>
         </div>
       </div>
-      
+
       {initialLoading ? (
         <div className="h-96 text-center items-center justify-center text-primaryColor font-bold">
           <h3>Loading sales products...</h3>
@@ -86,14 +86,14 @@ export default function Sales() {
           <div className="w-full">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
               {salesProducts?.map((product, index) => (
-                <SaleProductCards 
+                <SaleProductCards
                   key={`${product.productId}-${product.variantId}-${index}`}
                   discountProduct={product}
                 />
               ))}
             </div>
           </div>
-          
+
           {/* Infinite scroll trigger */}
           <div ref={observerRef} className="h-10 flex items-center justify-center">
             {loading && (

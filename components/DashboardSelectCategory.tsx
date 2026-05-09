@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { showCategories, CategoryPropsResponse } from '@/lib/api/categoryService';
 import { CategoryProps } from '@/types/dataprops';
 
-import DropDownText from '@/components/DropDownText';
+import DropDownText from '@/components/ui/DropDownText';
 import SearchText from './SearchText';
 
 import { Category } from '@/types/categoryType';

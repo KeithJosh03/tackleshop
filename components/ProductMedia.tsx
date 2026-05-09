@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from "react";
-import IconButton from "@/components/IconButton";
+import IconButton from "@/components/ui/IconButton";
 import Image from "next/image";
-import ImageIconUpload from "@/components/ImageIconUpload";
+import ImageIconUpload from "@/components/ui/ImageIconUpload";
 
 import { ProductMedias } from "@/types/productMedia";
 
