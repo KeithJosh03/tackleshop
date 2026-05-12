@@ -86,7 +86,7 @@ export default function page() {
 
 
   return (
-    <div className='flex flex-col gap-y-4 pb-10'>
+    <div className='flex flex-col gap-y-4 pb-10 max-w-5xl mx-auto w-full px-6 lg:px-12'>
 
       {/* ── Sticky page header ── */}
       <div className='sticky top-0 z-20 rounded-xl border border-greyColor px-5 py-3 flex items-center justify-between gap-4'

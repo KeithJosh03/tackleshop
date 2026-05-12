@@ -24,11 +24,13 @@ export const buildProductImages = (
 
   details.productVariants?.forEach((variant) => {
     variant.variantOptions.forEach((option) => {
-      images.push({
-        id: `variant-${option.variantOptionId}`,
-        imageUrl: option.imageUrl,
-        source: 'variant'
-      });
+      if (option.imageUrl) {
+        images.push({
+          id: `variant-${option.variantOptionId}`,
+          imageUrl: option.imageUrl,
+          source: 'variant',
+        });
+      }
     });
   });
   return images;

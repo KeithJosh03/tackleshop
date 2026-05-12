@@ -8,15 +8,13 @@ export default function ProductPageLayout({
 }) {
   return (
     <>
-    <Header />
-      <main className="flex flex-col items-center relative z-10 gap-y-2 mb-20 mt-36">
-        <div className="relative w-full 2xl:px-52 lg:px-20 mt-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-            {children}
-          </div>
+      <Header />
+      <main className="relative z-10 mb-20 mt-36">
+        <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-20 xl:px-28 mt-60">
+          {children}
         </div>
       </main>
-    <Footer />
+      <Footer />
     </>
   );
 }

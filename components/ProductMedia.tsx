@@ -109,11 +109,11 @@ const ProductMedia: React.FC<MediaComponentProps> = ({
       </div>
 
       {/* ── Grid Gallery ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
 
         {/* Upload Button Box */}
         {totalImages < 20 && (
-          <div className="relative w-full aspect-square rounded-xl border-2 border-dashed transition-all hover:bg-primaryColor/5 overflow-hidden group"
+          <div className="relative w-full aspect-[4/5] rounded-xl border-2 border-dashed transition-all hover:bg-primaryColor/5 overflow-hidden group"
             style={{ borderColor: 'rgba(232,147,71,0.3)', background: 'rgba(17,26,45,0.4)' }}>
             <ImageIconUpload
               className="absolute inset-0 w-full h-full flex flex-col items-center justify-center cursor-pointer opacity-80 group-hover:opacity-100 transition-opacity"
@@ -138,7 +138,7 @@ const ProductMedia: React.FC<MediaComponentProps> = ({
           return (
             <div
               key={itemId}
-              className={`relative w-full aspect-square rounded-xl overflow-hidden group transition-all duration-300 ${isMain ? "border-2 opacity-100 scale-[1.02] shadow-[0_0_15px_rgba(232,147,71,0.3)] z-10" : "border opacity-80 hover:opacity-100 hover:scale-[1.01]"
+              className={`relative w-full aspect-[4/5] rounded-xl overflow-hidden group transition-all duration-300 ${isMain ? "border-2 opacity-100 scale-[1.02] shadow-[0_0_15px_rgba(232,147,71,0.3)] z-10" : "border opacity-80 hover:opacity-100 hover:scale-[1.01]"
                 }`}
               style={{
                 borderColor: isMain ? '#E89347' : '#2A3441',

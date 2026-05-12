@@ -26,7 +26,6 @@ import { getChangedFieldsBrands } from '@/hooks/brandFieldsChange';
 
 import {
   createBrand,
-  deleteBrand,
   updateBrand
 } from '@/lib/api/brandService';
 

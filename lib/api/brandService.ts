@@ -83,26 +83,3 @@ export async function updateBrand(data: UpdateBrandData) {
   );
   return response.data;
 }
-
-
-export async function deleteBrand({
-  brandId,
-}: {
-  brandId: number;
-}) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/brands/${brandId}`,
-    {
-      method: 'DELETE',
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error('Failed to delete brand');
-  }
-
-  return;
-}
-
-
-
