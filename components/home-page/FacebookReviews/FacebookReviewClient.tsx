@@ -5,29 +5,14 @@ import { useEffect, useRef, useState } from "react";
 import ReviewCard, { StarRating } from "./ReviewCard";
 import { getReviews, type Review } from "@/lib/api/reviewService";
 
-export default function FacebookReviewClient() {
+export default function FacebookReviewClient({ reviews }: { reviews: Review[] }) {
     const trackRef = useRef<HTMLDivElement>(null);
     const [isPaused, setIsPaused] = useState(false);
     const positionRef = useRef(0);
     const animFrameRef = useRef<number | null>(null);
     const speed = 0.5; // px per frame
-    const [reviews, setReviews] = useState<Review[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Fetch reviews from API
-    useEffect(() => {
-        const fetchReviews = async () => {
-            try {
-                const data = await getReviews();
-                setReviews(data);
-            } catch {
-                // silently keep empty — carousel just won't show
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchReviews();
-    }, []);
 
     // Duplicate reviews for seamless loop
     const loopedReviews = [...reviews, ...reviews];

@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
-import { 
-  SubCategoryProps, 
+import {
+  SubCategoryProps,
   CategoryProducts,
   CategorizeProduct
 } from "@/types/dataprops";
@@ -33,12 +33,12 @@ export async function CategoryList(): Promise<CategoryProps[]> {
 
 
 export interface selectedCategorySubCategoriesProps {
-  subCategoryId:number;
-  subCategoryName:string;
+  subCategoryId: number;
+  subCategoryName: string;
 }
 
 interface selectedCategorySubCategoryProps {
-  status:boolean;
+  status: boolean;
   categorySubs: selectedCategorySubCategoriesProps[];
 }
 
@@ -161,8 +161,8 @@ export async function editCategory(
 
 
 interface CategorySubResponse {
-  status:boolean;
-  categorySub:SubCategoryProps[];
+  status: boolean;
+  categorySub: SubCategoryProps[];
 }
 
 export interface CategoryPropsResponse {
@@ -171,22 +171,22 @@ export interface CategoryPropsResponse {
 }
 
 export interface ProductCollections {
-  productId:number;
-  productTitle:string;
-  basePrice:string;
-  brandName:string;
-  productThumbNail:string;
-  subCategoryName:string;
+  productId: number;
+  productTitle: string;
+  basePrice: string;
+  brandName: string;
+  productThumbNail: string;
+  subCategoryName: string;
 }
 
 export interface CategoryCollectionProps {
   categoryId: number;
-  categoryName:string;
+  categoryName: string;
   products: ProductCollections[]
 }
 
 interface CategoryCollectionResponse {
-  categories:CategoryCollectionProps[];
+  categories: CategoryCollectionProps[];
 }
 
 
@@ -211,7 +211,7 @@ export async function fetchCategoryCollection(): Promise<CategoryCollectionProps
 
 
 export const showCategories = async (): Promise<CategoryPropsResponse | any> => {
-  try{
+  try {
     const response = await axios.get<CategoryProps>('/api/categories');
     return response.data;
   } catch (err) {
@@ -220,8 +220,8 @@ export const showCategories = async (): Promise<CategoryPropsResponse | any> => 
   }
 }
 
-export const showSubCategory = async (id:number): Promise<SubCategoryProps[] | null> => {
-  try{
+export const showSubCategory = async (id: number): Promise<SubCategoryProps[] | null> => {
+  try {
     const response = await axios.get<CategorySubResponse>(`/api/categories/SubCatByCategoryId/${id}`)
     return response.data.categorySub;
   } catch (err) {

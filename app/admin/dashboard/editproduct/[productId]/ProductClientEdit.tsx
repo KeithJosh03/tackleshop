@@ -2,9 +2,14 @@
 
 import { useEffect, useReducer, useState } from "react";
 import { AnimatePresence, motion } from 'framer-motion';
+
 import {
   InputText,
-  InputPrice,
+  InputPrice
+} from "@/components/ui/";
+
+
+import {
   ProductMedia,
   DashboardSelectBrand,
   DashboardSelectCategory,
@@ -15,6 +20,8 @@ import {
   FieldError,
   FieldHint,
 } from "@/components";
+
+
 
 import { ProductDetailsEditProps } from "@/types/productTypes";
 

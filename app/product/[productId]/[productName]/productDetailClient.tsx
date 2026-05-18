@@ -67,6 +67,7 @@ export default function ProductDetailClient({
 
   const currentImage = productImages.find((img) => img.id === selectedImageId);
 
+  console.log(productDetails);
   return (
     <div className="mx-auto px-10 md:px-16 lg:px-20 xl:px-28 py-10 max-w-6xl w-full">
       <div className="flex flex-col lg:flex-row gap-10 lg:gap-16 items-center">

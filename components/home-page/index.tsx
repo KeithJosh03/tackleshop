@@ -2,7 +2,7 @@ import Hero from "./Hero/Hero";
 import Brands from "./BrandsLogo/Brands";
 import Collections from "./ProductCollections/Collection";
 import StoreServices from "./StoreServices/StoreServices";
-import FacebookReviewClient from "./FacebookReviews/FacebookReviewClient";
+// import FacebookReviewClient from "./FacebookReviews/FacebookReviewClient";
 import { Header, Footer } from "../layout";
 
 export default function HomePage() {
@@ -14,7 +14,7 @@ export default function HomePage() {
                 <StoreServices />
                 <Brands />
                 <Collections />
-                <FacebookReviewClient />
+                {/* <FacebookReviewClient /> */}
             </main>
             <Footer />
         </>
