@@ -24,7 +24,7 @@ export default function Brand() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const observerRef = useRef<HTMLDivElement>(null);
-  const { brand } = useParams<{ brand: string }>();
+  const { brandName } = useParams<{ brandName: string }>();
 
   const fetchProducts = useCallback(async (page: number, isLoadMore: boolean = false) => {
     if (loading) return;
@@ -32,7 +32,7 @@ export default function Brand() {
     setLoading(true);
     try {
       const response = await axios.get<BrandProductsResponse>(
-        `/api/brands/specificbrand/${brand.replaceAll("-", " ").toLowerCase()}?page=${page}`
+        `/api/brands/specificbrand/${brandName.replaceAll("-", " ").toLowerCase()}?page=${page}`
       );
 
       if (isLoadMore) {
@@ -49,11 +49,11 @@ export default function Brand() {
       setLoading(false);
       setInitialLoading(false);
     }
-  }, [brand, loading]);
+  }, [brandName, loading]);
 
   useEffect(() => {
     fetchProducts(1);
-  }, [brand]);
+  }, [brandName]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -85,7 +85,7 @@ export default function Brand() {
             backgroundClip: 'text',
           }}
         >
-          {brand.replaceAll("-", " ")}
+          {brandName.replaceAll("-", " ")}
         </h2>
         <div className="h-px w-24 bg-gradient-to-r from-transparent via-primaryColor to-transparent" />
       </div>
@@ -121,7 +121,7 @@ export default function Brand() {
         </div>
       ) : (
         <div className="h-96 text-center items-center justify-center text-primaryColor font-bold">
-          <h3>{`No ${brand.replaceAll("-", " ")} Available`}</h3>
+          <h3>{`No ${brandName.replaceAll("-", " ")} Available`}</h3>
           <Link href={`/`}>
             <button className="bg-secondary text-md font-extrabold button-view mt-10">Go Back</button>
           </Link>
