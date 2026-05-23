@@ -9,7 +9,7 @@ import SearchText from './SearchText';
 import { Category } from '@/types/categoryType';
 
 import { ProductDetailActionCreate } from "@/lib/reducer/productReducer";
-import { ProductDetailActionEdit } from "@/app/admin/dashboard/editproduct/[productId]/ProductClientEdit";
+import { ProductDetailActionEdit } from "@/app/admin/dashboard/products/[productId]/ProductClientEdit";
 
 
 type ReducerType = 'CREATE' | 'EDIT'

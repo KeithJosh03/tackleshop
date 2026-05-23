@@ -49,7 +49,7 @@ export type BrandActionUpdateType =
   | { type: 'BRAND_NAME_UPDATE'; payload: string }
   | { type: 'BRAND_IMAGE_UPDATE'; payload: File }
   | { type: 'CANCEL_BRAND_UPDATE'; payload: BrandReduceEditProps }
-  | { type: 'SET_BRAND_UPDATE'; payload: {brandName: string , imageUrl: string | null} }
+  | { type: 'SET_BRAND_UPDATE'; payload: { brandName: string, imageUrl: string | null } }
 
 
 const brandEditState: BrandReduceEditProps = {
@@ -69,9 +69,9 @@ function brandupdateReducer(
       return { ...state, imageUrl: action.payload };
     case 'CANCEL_BRAND_UPDATE':
       return { ...action.payload };
-    case 'SET_BRAND_UPDATE' : 
+    case 'SET_BRAND_UPDATE':
       console.log(action.payload)
-      return {...action.payload}
+      return { ...action.payload }
     default:
       return state;
   }

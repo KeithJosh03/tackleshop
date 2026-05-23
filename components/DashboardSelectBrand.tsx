@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 
 import { ProductDetailActionCreate } from "@/lib/reducer/productReducer";
-import { ProductDetailActionEdit } from "@/app/admin/dashboard/editproduct/[productId]/ProductClientEdit";
+import { ProductDetailActionEdit } from "@/app/admin/dashboard/products/[productId]/ProductClientEdit";
 import { BrandProps } from "@/types/brandType";
 
 import { showBrandListName } from "@/lib/api/brandService";

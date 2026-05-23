@@ -1,12 +1,12 @@
 import React from 'react'
 
 
-import { showBrandListName } from "@/lib/api/brandService";
+import { BrandLogos } from "@/lib/api/brandService";
 import { DashboardCategoryClient, DashboardBrandClient } from '@/components';
 import { CategoryList } from '@/lib/api/categoryService';
 
 export default async function page() {
-    const brandslist = await showBrandListName();
+    const brandslist = await BrandLogos();
     const categorylist = await CategoryList();
 
     return (

@@ -11,7 +11,7 @@ import SearchText from './SearchText'
 
 // ACTION TYPES REDUCER
 import { ProductDetailActionCreate } from '@/lib/reducer/productReducer'
-import { ProductDetailActionEdit } from "@/app/admin/dashboard/editproduct/[productId]/ProductClientEdit";
+import { ProductDetailActionEdit } from "@/app/admin/dashboard/products/[productId]/ProductClientEdit";
 
 interface SubCategorySelectionProps {
   currentCategory?: Category | null;

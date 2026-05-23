@@ -169,7 +169,7 @@ export default function Page() {
                   <div className="flex gap-2">
                     <button className="px-3 py-1 text-xs rounded border border-primaryColor text-primaryColor">
                       <Link
-                        href={`/admin/dashboard/editproduct/${product.productId}`}
+                        href={`/admin/dashboard/products/${product.productId}`}
                       >
                         Edit
                       </Link>
