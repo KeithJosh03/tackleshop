@@ -60,8 +60,8 @@ export const validateEditProduct = (productDetailState: ProductDetailsEditProps)
         newErrors.variants = 'All variant type names and option values are required.';
     }
 
-    // Validate images: either main medias exist or at least one variant option has an image
-    const hasMainMedia = productMedias && productMedias.length > 0;
+    // Validate images: either main medias have real values (string URL or File) or at least one variant option has an image
+    const hasMainMedia = productMedias && productMedias.some(m => m.imageUrl || m.file);
     let hasVariantImage = false;
     if (productVariants) {
         for (const variant of productVariants) {

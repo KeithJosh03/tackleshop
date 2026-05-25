@@ -125,31 +125,133 @@ export async function createProduct(product: ProductDetails) {
 
 
 // ProductDetailsShow
-export async function editProductDetails(id: number, testData: any) {
-  console.log("Editing Product ID:", id, "- Data:", testData);
-  // try {
-  //   const res = await fetch(
-  //     `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/productdetail/${id}`,
-  //     { 
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(testData),
-  //       cache: "no-store" 
-  //     } // optional
-  //   );
+export async function editProductDetails(id: number, changedFields: any) {
+  const payload: Record<string, any> = {};
 
-  //   if (!res.ok) {
-  //     throw new Error("Failed to edit product details");
-  //   }
+  // ── 1. Map scalar fields to snake_case ──
+  if (changedFields.productTitle !== undefined) payload.product_title = changedFields.productTitle;
+  if (changedFields.basePrice !== undefined) payload.base_price = parseFloat(changedFields.basePrice === '' ? '0' : changedFields.basePrice);
+  if (changedFields.description !== undefined) payload.description = changedFields.description;
+  if (changedFields.features !== undefined) payload.features = changedFields.features;
+  if (changedFields.specifications !== undefined) payload.specifications = changedFields.specifications;
 
-  //   const data = await res.json();
-  //   return data.productdetail;
-  // } catch (err) {
-  //   console.error(err);
-  //   return null;
-  // }
+  if (changedFields.brand !== undefined) payload.brand_id = changedFields.brand?.brandId ?? null;
+  if (changedFields.category !== undefined) payload.category_id = changedFields.category?.categoryId ?? null;
+  if (changedFields.subCategory !== undefined) payload.sub_category_id = changedFields.subCategory?.subCategoryId ?? null;
+
+  // ── 2. Handle product medias (upload new Files, keep existing URLs) ──
+  if (changedFields.productMedias !== undefined) {
+    const mediasToUpload: UploadImageProps[] = [];
+    const mediasPayload: { image_id?: number; url?: string; isMain?: boolean }[] = [];
+
+    changedFields.productMedias.forEach((media: any, index: number) => {
+      if (media.file instanceof File) {
+        // New media — needs upload
+        mediasToUpload.push({ file: media.file, originIndex: index });
+        mediasPayload.push({ isMain: media.isMain ?? false }); // url filled after upload
+      } else if (media.imageId) {
+        // Existing media — send ID + changed fields only
+        const entry: any = { image_id: media.imageId };
+        if (media.isMain !== undefined) entry.isMain = media.isMain;
+        mediasPayload.push(entry);
+      }
+    });
+
+    // Upload new media files
+    if (mediasToUpload.length > 0) {
+      const uploaded = await uploadImages(mediasToUpload);
+      uploaded.forEach((file) => {
+        mediasPayload[file.originIndex] = {
+          ...mediasPayload[file.originIndex],
+          url: file.url,
+        };
+      });
+    }
+
+    payload.medias = mediasPayload;
+  }
+
+  // ── 3. Removed media IDs ──
+  if (changedFields.removedMediaIds && changedFields.removedMediaIds.length > 0) {
+    payload.removed_media_ids = changedFields.removedMediaIds;
+  }
+
+  // ── 4. Handle variants (upload new variant option images, transform keys) ──
+  if (changedFields.productVariants !== undefined) {
+    const variantsPayload: any[] = [];
+
+    for (const variant of changedFields.productVariants) {
+      const variantEntry: any = {};
+
+      if (variant.variantTypeId) variantEntry.variant_type_id = variant.variantTypeId;
+      if (variant.variantTypeName !== undefined) variantEntry.variant_type_name = variant.variantTypeName;
+
+      if (variant.variantOptions) {
+        const optionsPayload: any[] = [];
+        const optionsToUpload: UploadImageProps[] = [];
+        const optionUploadIndexMap: number[] = []; // maps upload index back to option index
+
+        variant.variantOptions.forEach((opt: any, optIndex: number) => {
+          const optEntry: any = {};
+          if (opt.variantOptionId) optEntry.variant_option_id = opt.variantOptionId;
+          if (opt.variantOptionValue !== undefined) optEntry.variant_option_value = opt.variantOptionValue;
+          if (opt.variantOptionPrice !== undefined) optEntry.price_adjustment = parseFloat(opt.variantOptionPrice === '' ? '0' : opt.variantOptionPrice);
+
+          // Handle variant option image
+          if (opt.imageUrl instanceof File) {
+            // New file — upload it
+            optionsToUpload.push({ file: opt.imageUrl, originIndex: optionsToUpload.length });
+            optionUploadIndexMap.push(optIndex);
+            // image_url placeholder, filled after upload
+          } else if (opt.imageUrl === null) {
+            optEntry.image_url = null; // removed
+          } else if (typeof opt.imageUrl === 'string') {
+            optEntry.image_url = opt.imageUrl; // changed URL string
+          }
+
+          optionsPayload.push(optEntry);
+        });
+
+        // Upload variant option images
+        if (optionsToUpload.length > 0) {
+          const uploaded = await uploadImages(optionsToUpload);
+          uploaded.forEach((file) => {
+            const optIndex = optionUploadIndexMap[file.originIndex];
+            optionsPayload[optIndex].image_url = file.url;
+          });
+        }
+
+        variantEntry.variant_options = optionsPayload;
+      }
+
+      variantsPayload.push(variantEntry);
+    }
+
+    payload.variants = variantsPayload;
+  }
+
+  // ── 5. Removed variant type IDs ──
+  if (changedFields.removedVariantTypeIds && changedFields.removedVariantTypeIds.length > 0) {
+    payload.removed_variant_type_ids = changedFields.removedVariantTypeIds;
+  }
+
+  // ── 6. Removed variant option IDs ──
+  if (changedFields.removedVariantOptionIds && changedFields.removedVariantOptionIds.length > 0) {
+    payload.removed_variant_option_ids = changedFields.removedVariantOptionIds;
+  }
+
+  console.log("Edit Product Payload:", payload);
+
+  try {
+    const response = await axios.put(`/api/products/${id}`, payload);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error updating product:', error);
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('An unexpected error occurred while updating the product.');
+  }
 }
 
 
