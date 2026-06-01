@@ -4,7 +4,7 @@ import { worksans, inter } from "@/types/fonts";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 
 export default function Hero() {
   return (
@@ -78,6 +78,26 @@ export default function Hero() {
           </Link>
         </motion.div>
       </div>
+
+      {/* Scroll Down Indicator */}
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.8 }}
+        onClick={() => {
+          const hero = document.querySelector('section');
+          if (hero?.nextElementSibling) {
+            hero.nextElementSibling.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
+        className="relative z-20 mt-12 mb-8 flex flex-col items-center gap-1 cursor-pointer group"
+        aria-label="Scroll down"
+      >
+        <span className={`${inter.className} text-tertiaryColor/50 text-xs uppercase tracking-[0.25em] group-hover:text-primaryColor transition-colors duration-300`}>
+          Scroll Down
+        </span>
+        <ChevronDown className="w-6 h-6 text-primaryColor/80 animate-hero-bounce group-hover:text-primaryColor transition-colors duration-300" />
+      </motion.button>
 
       {/* Decorative Bottom Gradient (blends into next section) */}
       <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-mainBackgroundColor to-transparent z-10 pointer-events-none" />

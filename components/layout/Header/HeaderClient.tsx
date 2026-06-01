@@ -56,7 +56,7 @@ export default function HeaderClient({ brands, categories }: Props) {
   return (
     <header
       className={`fixed top-0 w-full z-[999] transition-all duration-300 ${scrolled
-        ? 'bg-blackgroundColor/85 backdrop-blur-md shadow-lg border-b border-greyColor/50 text-primaryColor'
+        ? 'bg-blackgroundColor/90 backdrop-blur-md shadow-lg border-b border-greyColor/50 text-primaryColor'
         : 'bg-blackgroundColor border-b border-greyColor text-primaryColor'
         }`}
     >
