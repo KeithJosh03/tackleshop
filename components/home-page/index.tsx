@@ -1,20 +1,22 @@
 import Hero from "./Hero/Hero";
-import Brands from "./BrandsLogo/Brands";
+import Brands from "./BrandsLogo/BrandsLogo";
 import Collections from "./ProductCollections/Collection";
-import StoreServices from "./StoreServices/StoreServices";
-// import FacebookReviewClient from "./FacebookReviews/FacebookReviewClient";
+// import StoreServices from "./StoreServices/StoreServices";
+// import FacebookReview from "./FacebookReviews/FacebookReview";
 import { Header, Footer } from "../layout";
 
 export default function HomePage() {
     return (
         <>
             <Header />
-            <main className="flex flex-col items-center relative z-10 gap-y-2 mb-20 mt-52">
+            <main
+                className="relative z-10 mb-24 flex flex-col items-center bg-ma-background"
+            >
                 <Hero />
                 <Brands />
-                <StoreServices />
                 <Collections />
-                {/* <FacebookReviewClient /> */}
+                {/* <StoreServices /> */}
+                {/* <FacebookReview /> */}
             </main>
             <Footer />
         </>

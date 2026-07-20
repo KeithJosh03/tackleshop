@@ -2,44 +2,12 @@
 
 import { useReducer } from 'react';
 import { UIComponentReducer, initialUIComponent } from '@/lib/api/reDucer';
-import CollapsibleTextarea from './ui/CollapsibleTextarea';
+import CollapsibleTextarea from './CollapsibleTextarea';
 
-/* ─── Shared UI helpers ──────────────────────────────────────────────────── */
 
-export function FieldError({ msg }: { msg?: string }) {
-    if (!msg) return null;
-    return (
-        <p className='mt-1 flex items-center gap-1 text-xs font-semibold' style={{ color: '#f87171' }}>
-            <svg className='w-3 h-3 shrink-0' fill='currentColor' viewBox='0 0 20 20'>
-                <path fillRule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z' clipRule='evenodd' />
-            </svg>
-            {msg}
-        </p>
-    );
-}
 
-export function FieldHint({ msg }: { msg: string }) {
-    return <p className='mt-1 text-xs text-secondary'>{msg}</p>;
-}
 
-export function SectionCard({ step, title, children }: { step: number; title: string; children: React.ReactNode }) {
-    return (
-        <div className='rounded-xl border border-greyColor bg-blackgroundColor'>
-            <div className='flex items-center gap-3 px-5 py-3 border-b border-greyColor rounded-t-xl'
-                style={{ background: 'linear-gradient(90deg,rgba(17,26,45,1) 0%,rgba(19,29,41,0.6) 100%)' }}>
-                <span className='flex items-center justify-center w-7 h-7 rounded-full bg-primaryColor text-xs font-black text-white shrink-0'>
-                    {step}
-                </span>
-                <h2 className='text-primaryColor font-extrabold tracking-widest text-sm uppercase'>
-                    {title}
-                </h2>
-            </div>
-            <div className='p-5'>{children}</div>
-        </div>
-    );
-}
 
-/* ─── Props ──────────────────────────────────────────────────────────────── */
 
 export interface ProductContentInputsProps {
     description: string | null;
@@ -49,11 +17,9 @@ export interface ProductContentInputsProps {
     onDescriptionChange: (value: string) => void;
     onSpecificationsChange: (value: string) => void;
     onFeaturesChange: (value: string) => void;
-    /** Optional: called after description changes to clear its error */
     onDescriptionErrorClear?: () => void;
 }
 
-/* ─── Component ──────────────────────────────────────────────────────────── */
 
 export default function ProductContentInputs({
     description,

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { SearchText } from '@/components';
 import {
   ProductListDashboard,
   ProductListDashboardSearch,
@@ -10,16 +9,28 @@ import {
 } from '@/lib/api/productService';
 import { numericConverter } from '@/utils/priceUtils';
 import Link from 'next/link';
+import { worksans, inter } from '@/types/fonts';
+
+// Icons
+import {
+  Search,
+  Filter,
+  Eye,
+  Pencil,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  X,
+  AlertCircle,
+  CheckCircle2
+} from 'lucide-react';
 
 export default function Page() {
   const [searchProduct, setSearchProduct] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [productsLists, setProductLists] = useState<ProductListDashboard[]>([]);
   const [page, setPage] = useState(1);
-
-  // REQUIRED for SearchTextTest ❌ button
-  const [selectedProduct, setSelectedProduct] =
-    useState<ProductListDashboard | undefined>(undefined);
+  const [expandedRows, setExpandedRows] = useState<number[]>([]);
 
   const [productToDelete, setProductToDelete] = useState<ProductListDashboard | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -56,27 +67,11 @@ export default function Page() {
     total: 0,
   });
 
-  const clearSearch = () => {
-    setSearchProduct('');
-    setDebouncedSearch('');
-    setSelectedProduct(undefined);
-    setPage(1);
-  };
-
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchProduct(value);
+    setSearchProduct(e.target.value);
     setPage(1);
-
-    // IMPORTANT: this makes SearchTextTest work without changing it
-    if (value) {
-      setSelectedProduct({} as ProductListDashboard);
-    } else {
-      setSelectedProduct(undefined);
-    }
   };
 
-  // Debounce: update debouncedSearch 400ms after the user stops typing
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchProduct.trim());
@@ -88,7 +83,6 @@ export default function Page() {
     const fetchProducts = async () => {
       try {
         const res = await ProductListDashboardSearch(debouncedSearch, page);
-        console.log(res);
         setProductLists(res.products);
         setPagination(res.pagination);
       } catch (error) {
@@ -99,168 +93,269 @@ export default function Page() {
     fetchProducts();
   }, [debouncedSearch, page]);
 
+  const toggleRow = (id: number) => {
+    setExpandedRows(prev =>
+      prev.includes(id) ? prev.filter(rowId => rowId !== id) : [...prev, id]
+    );
+  };
 
   return (
-    <div className="flex flex-col border border-greyColor p-4 gap-y-4 font-extrabold rounded bg-blackgroundColor">
-      <h1 className="text-primaryColor text-xl">PRODUCT LISTS</h1>
-
-      <SearchText
-        placeholderText="Search Product"
-        value={searchProduct}
-        choosen={selectedProduct}
-        onChange={handleSearchChange}
-        onClear={clearSearch}
-      />
-
-      <div className="overflow-x-auto border border-greyColor rounded">
-        <table className="w-full text-sm text-secondary">
-          <thead className="bg-primaryColor text-tertiaryColor">
-            <tr>
-              <th className="p-3 text-left">ID</th>
-              <th className="p-3 text-left">Product</th>
-              <th className="p-3 text-left">Brand</th>
-              <th className="p-3 text-left">Category</th>
-              <th className="p-3 text-left">Base Price</th>
-              <th className="p-3 text-left">Variants</th>
-              <th className="p-3 text-left">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {productsLists.length === 0 && (
-              <tr>
-                <td colSpan={7} className="p-4 text-center text-greyColor">
-                  No products found
-                </td>
-              </tr>
-            )}
-
-            {productsLists.map((product) => (
-              <tr
-                key={product.productId}
-                className="border-t border-greyColor hover:bg-secondary text-primaryColor"
-              >
-                <td className="p-3">{product.productId}</td>
-                <td className="p-3">{product.productTitle}</td>
-                <td className="p-3">{product.brandName}</td>
-                <td className="p-3">{product.subCategoryName}</td>
-                <td className="p-3">
-                  {numericConverter(product.basePrice)}
-                </td>
-
-                <td className="p-3 text-xs">
-                  {product.productTypeVariant.length > 0 ? (
-                    product.productTypeVariant.map((variant) => (
-                      <div key={variant.variantTypeName}>
-                        <span className="text-primaryColor">
-                          {variant.variantTypeName}:
-                        </span>{' '}
-                        {variant.variantOptions
-                          .map((opt) => opt.optionName)
-                          .join(', ')}
-                      </div>
-                    ))
-                  ) : (
-                    <span className="text-greyColor">—</span>
-                  )}
-                </td>
-
-                <td className="p-3">
-                  <div className="flex gap-2">
-                    <button className="px-3 py-1 text-xs rounded border border-primaryColor text-primaryColor">
-                      <Link
-                        href={`/admin/dashboard/products/${product.productId}`}
-                      >
-                        Edit
-                      </Link>
-                    </button>
-                    <button
-                      onClick={() => setProductToDelete(product)}
-                      className="px-3 py-1 text-xs rounded border border-red-500 text-red-500 hover:bg-red-500/10 transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className={`${worksans.className} flex flex-col gap-y-6 text-[#d9e3f4] h-full`}>
+      {/* ── HEADER ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-4">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">Product Catalog</h1>
+          <p className={`${inter.className} text-[#a6a7a6] text-sm mt-1`}>
+            Manage your tackle inventory, SKUs, and stock levels.
+          </p>
+        </div>
+        <Link
+          href="/admin/dashboard/products/add"
+          className="bg-[#ffb77c] hover:bg-[#e89347] text-[#4d2600] font-bold py-2.5 px-5 rounded-lg transition-colors flex items-center gap-2 self-start sm:self-auto"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Add New Product
+        </Link>
       </div>
 
-
-
-      <div className="flex justify-between items-center text-sm text-secondary mt-4">
-        <span>
-          Showing {productsLists.length} of {pagination.total} results
-        </span>
-
-        <div className="flex gap-2 items-center">
-          {/* Previous Button */}
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-3 py-1 rounded border border-greyColor bg-white text-greyColor hover:bg-primaryColor hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            Prev
-          </button>
-
-          {/* Page Numbers */}
-          {Array.from({ length: pagination.last_page }, (_, i) => i + 1).map((pNum) => (
-            <button
-              key={pNum}
-              onClick={() => setPage(pNum)}
-              className={`px-3 py-1 rounded border ${page === pNum
-                ? 'bg-primaryColor text-white border-primaryColor'
-                : 'border-greyColor text-greyColor hover:bg-primaryColor hover:text-white'
-                } transition`}
-            >
-              {pNum}
+      {/* ── FILTERS ── */}
+      <div className="bg-[#121c28] border border-[#2c3542] rounded-xl p-4 flex flex-col gap-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#a6a7a6]" />
+            <input
+              type="text"
+              placeholder="Search by Product Title, SKU, or Brand..."
+              value={searchProduct}
+              onChange={handleSearchChange}
+              className={`${inter.className} w-full bg-[#0a1420] border border-[#303a47] rounded-lg pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#ffb77c]/50 transition-colors`}
+            />
+          </div>
+          <div className="flex gap-4">
+            <select className={`${inter.className} bg-[#212b37] border border-[#303a47] rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none appearance-none pr-8 cursor-pointer`}>
+              <option>Brand: All</option>
+            </select>
+            <select className={`${inter.className} bg-[#212b37] border border-[#303a47] rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none appearance-none pr-8 cursor-pointer`}>
+              <option>Category: All</option>
+            </select>
+            <select className={`${inter.className} bg-[#212b37] border border-[#303a47] rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none appearance-none pr-8 cursor-pointer`}>
+              <option>Status: All</option>
+            </select>
+            <button className="bg-[#212b37] border border-[#303a47] hover:bg-[#303a47] text-white p-2.5 rounded-lg transition-colors flex items-center justify-center">
+              <Filter className="w-5 h-5" />
             </button>
-          ))}
-
-          {/* Next Button */}
-          <button
-            onClick={() => setPage((p) => Math.min(pagination.last_page, p + 1))}
-            disabled={page === pagination.last_page}
-            className="px-3 py-1 rounded border border-greyColor bg-white text-greyColor hover:bg-primaryColor hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            Next
+          </div>
+        </div>
+        {/* Active Filters */}
+        <div className="flex items-center gap-2">
+          <span className="flex items-center gap-1 bg-[#ffb77c]/10 border border-[#ffb77c]/30 text-[#ffb77c] px-3 py-1 rounded-full text-xs font-semibold">
+            Category: Jigheads
+            <button className="hover:text-white ml-1"><X className="w-3 h-3" /></button>
+          </span>
+          <span className="flex items-center gap-1 bg-[#ffb77c]/10 border border-[#ffb77c]/30 text-[#ffb77c] px-3 py-1 rounded-full text-xs font-semibold">
+            Brand: TUKOB
+            <button className="hover:text-white ml-1"><X className="w-3 h-3" /></button>
+          </span>
+          <button className="text-[#a6a7a6] hover:text-white text-xs font-semibold ml-2 transition-colors">
+            Clear All
           </button>
         </div>
       </div>
 
+      {/* ── PRODUCT LIST ── */}
+      <div className="bg-[#121c28] border border-[#2c3542] rounded-xl flex flex-col flex-1 overflow-hidden">
+        {/* Header */}
+        <div className="grid grid-cols-[auto_2fr_1fr_1fr_1.5fr_auto] gap-4 p-5 border-b border-[#2c3542] items-center bg-[#16202c]">
+          <div className="flex items-center">
+            <input type="checkbox" className="w-4 h-4 rounded bg-[#0a1420] border-[#303a47] text-[#ffb77c] focus:ring-[#ffb77c]/50" />
+          </div>
+          <div className="text-[#a6a7a6] text-[11px] font-bold uppercase tracking-wider">Product Info</div>
+          <div className="text-[#a6a7a6] text-[11px] font-bold uppercase tracking-wider">Brand</div>
+          <div className="text-[#a6a7a6] text-[11px] font-bold uppercase tracking-wider">Base Price</div>
+          <div className="text-[#a6a7a6] text-[11px] font-bold uppercase tracking-wider">Variants & Stock</div>
+          <div className="text-[#a6a7a6] text-[11px] font-bold uppercase tracking-wider text-right pr-4">Actions</div>
+        </div>
 
+        {/* List */}
+        <div className="flex-1 overflow-y-auto">
+          {productsLists.length === 0 ? (
+            <div className="p-8 text-center text-[#a6a7a6]">No products found</div>
+          ) : (
+            productsLists.map((product) => {
+              const isExpanded = expandedRows.includes(product.productId);
 
-      {/* ── Delete Confirmation Modal ── */}
+              return (
+                <div key={product.productId} className="flex flex-col border-b border-[#212b37] last:border-b-0">
+                  {/* Main Row */}
+                  <div className={`grid grid-cols-[auto_2fr_1fr_1fr_1.5fr_auto] gap-4 p-5 items-center hover:bg-[#16202c]/50 transition-colors ${isExpanded ? 'bg-[#16202c]/30' : ''}`}>
+                    <div className="flex items-center">
+                      <input type="checkbox" className="w-4 h-4 rounded bg-[#0a1420] border-[#303a47] text-[#ffb77c] focus:ring-[#ffb77c]/50" />
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded bg-[#0a1420] border border-[#303a47] flex items-center justify-center shrink-0 overflow-hidden">
+                        {/* Placeholder image icon */}
+                        <svg className="w-5 h-5 text-[#303a47]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-white font-bold text-sm truncate">{product.productTitle}</span>
+                        <span className="text-[#a6a7a6] text-xs truncate">Category {'>'} {product.subCategoryName}</span>
+                      </div>
+                    </div>
+
+                    {/* Brand */}
+                    <div>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded bg-[#212b37] border border-[#303a47] text-[#d9e3f4] text-[11px] font-semibold uppercase tracking-wider">
+                        {product.brandName}
+                      </span>
+                    </div>
+
+                    {/* Base Price */}
+                    <div className={`${inter.className} text-white font-medium text-sm`}>
+                      {numericConverter(product.basePrice)}
+                    </div>
+
+                    {/* Variants & Stock */}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1 text-[#d9e3f4] text-[11px] font-semibold">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        {product.productTypeVariant?.length || 0} Attributes
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-[#a6a7a6] font-medium">1 Total SKUs</span>
+                        <span className="bg-[#1a2e1d] text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                          [ 10 Units ]
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-3 pr-2">
+                      <button className="text-[#a6a7a6] hover:text-white transition-colors"><Eye className="w-4 h-4" /></button>
+                      <Link href={`/admin/dashboard/products/${product.productId}`} className="text-[#a6a7a6] hover:text-[#ffb77c] transition-colors">
+                        <Pencil className="w-4 h-4" />
+                      </Link>
+                      <button onClick={() => setProductToDelete(product)} className="text-[#a6a7a6] hover:text-[#ffb4ab] transition-colors"><Trash2 className="w-4 h-4" /></button>
+                      <button onClick={() => toggleRow(product.productId)} className="text-[#a6a7a6] hover:text-white transition-colors w-6 h-6 flex items-center justify-center bg-[#212b37] rounded-full">
+                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Expanded Row (Variants Table) */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden border-l-2 border-[#ffb77c] ml-[28px] mr-5 mb-4 bg-[#16202c] rounded-r-lg"
+                      >
+                        <div className="p-4">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b border-[#2c3542]">
+                                <th className="text-left pb-3 text-[#a6a7a6] text-[10px] uppercase font-bold tracking-wider">Variant Spec</th>
+                                <th className="text-left pb-3 text-[#a6a7a6] text-[10px] uppercase font-bold tracking-wider">SKU Code</th>
+                                <th className="text-left pb-3 text-[#a6a7a6] text-[10px] uppercase font-bold tracking-wider">Price</th>
+                                <th className="text-left pb-3 text-[#a6a7a6] text-[10px] uppercase font-bold tracking-wider">Stock</th>
+                                <th className="text-right pb-3 pr-2 text-[#a6a7a6] text-[10px] uppercase font-bold tracking-wider">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody className={`${inter.className}`}>
+                              {/* Mock Data for variants based on design */}
+                              <tr className="border-b border-[#212b37] last:border-0 hover:bg-[#212b37]/50">
+                                <td className="py-3 text-[#d9e3f4] font-medium text-xs">Default Variant</td>
+                                <td className="py-3 text-[#a6a7a6] font-mono text-[11px]">TSK-{product.productId}-01</td>
+                                <td className="py-3 text-white font-medium text-xs">{numericConverter(product.basePrice)}</td>
+                                <td className="py-3 text-[#d9e3f4] text-xs">10 units</td>
+                                <td className="py-3 flex justify-end pr-2">
+                                  <div className="w-8 h-4 bg-emerald-500 rounded-full relative">
+                                    <div className="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5 shadow-sm"></div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Footer Actions & Pagination */}
+        <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-[#2c3542] bg-[#0a1420]">
+          {/* Empty div to push pagination to right if needed, or we can just have space-between work on the remaining elements */}
+          <div></div>
+
+          <div className={`${inter.className} text-xs text-[#a6a7a6]`}>
+            Showing {productsLists.length} of {pagination.total} products
+          </div>
+
+          <div className="flex gap-1 items-center mt-4 sm:mt-0">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="w-8 h-8 rounded flex items-center justify-center border border-[#303a47] text-[#a6a7a6] hover:bg-[#212b37] hover:text-white disabled:opacity-30 transition-colors"
+            >
+              {'<'}
+            </button>
+            {Array.from({ length: pagination.last_page }, (_, i) => i + 1).map((pNum) => (
+              <button
+                key={pNum}
+                onClick={() => setPage(pNum)}
+                className={`w-8 h-8 rounded flex items-center justify-center border transition-colors ${page === pNum
+                  ? 'bg-[#ffb77c] border-[#ffb77c] text-[#4d2600] font-bold'
+                  : 'border-transparent text-[#a6a7a6] hover:bg-[#212b37] hover:text-white'
+                  }`}
+              >
+                {pNum}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage((p) => Math.min(pagination.last_page, p + 1))}
+              disabled={page === pagination.last_page}
+              className="w-8 h-8 rounded flex items-center justify-center border border-[#303a47] text-[#a6a7a6] hover:bg-[#212b37] hover:text-white disabled:opacity-30 transition-colors"
+            >
+              {'>'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Delete Modal ── */}
       {productToDelete !== null && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
           <div
-            className="bg-[#111A2D] border border-[#2A3441] rounded-2xl shadow-2xl overflow-hidden w-full max-w-sm transform transition-all"
-            style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }}
+            className="bg-[#121c28] border border-[#2c3542] rounded-2xl shadow-2xl overflow-hidden w-full max-w-sm"
           >
             <div className="p-6">
-              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-500/10 text-red-400 mx-auto mb-4 border border-red-500/20">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-[#ffb4ab]/10 text-[#ffb4ab] mx-auto mb-4 border border-[#ffb4ab]/20">
+                <AlertCircle className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-black text-white text-center tracking-wide">Delete Product</h3>
-              <p className="text-secondary text-sm text-center mt-2 leading-relaxed">
+              <h3 className="text-lg font-bold text-white text-center">Delete Product</h3>
+              <p className="text-[#a6a7a6] text-sm text-center mt-2 leading-relaxed">
                 Are you sure you want to delete <span className="text-white font-bold">{productToDelete.productTitle}</span>? This action cannot be undone.
               </p>
             </div>
-            <div className="flex border-t border-[#2A3441]">
+            <div className="flex border-t border-[#2c3542]">
               <button
                 onClick={() => setProductToDelete(null)}
-                className="flex-1 py-3 text-sm font-bold text-secondary hover:text-white hover:bg-white/5 transition-colors focus:outline-none"
-                style={{ borderRight: '1px solid #2A3441' }}
+                className="flex-1 py-3 text-sm font-bold text-[#a6a7a6] hover:text-white hover:bg-white/5 transition-colors border-r border-[#2c3542]"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 py-3 text-sm font-bold text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors focus:outline-none"
+                className="flex-1 py-3 text-sm font-bold text-[#ffb4ab] hover:bg-[#ffb4ab]/10 transition-colors"
               >
                 Delete
               </button>
@@ -269,44 +364,33 @@ export default function Page() {
         </div>
       )}
 
-      {/* ── Toast Notification ── */}
+      {/* ── Toast ── */}
       <AnimatePresence>
         {statusMessage && (
           <motion.div
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className={`fixed bottom-8 right-8 z-50 flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border ${statusType === 'success' ? 'bg-[#1a2e1d] border-green-500/30' : 'bg-[#2e1a1a] border-red-500/30'
+            className={`fixed bottom-8 right-8 z-50 flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border ${statusType === 'success' ? 'bg-[#1a2e1d] border-emerald-500/30' : 'bg-[#2e1a1a] border-[#ffb4ab]/30'
               }`}
           >
             {statusType === 'success' ? (
-              <svg className="w-6 h-6 text-green-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
             ) : (
-              <svg className="w-6 h-6 text-red-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
+              <AlertCircle className="w-6 h-6 text-[#ffb4ab] shrink-0" />
             )}
-            <div className="flex flex-col max-w-[300px]">
-              <span className={`text-sm font-bold ${statusType === 'success' ? 'text-green-400' : 'text-red-400'} uppercase tracking-wider`}>
+            <div className="flex flex-col">
+              <span className={`text-sm font-bold ${statusType === 'success' ? 'text-emerald-400' : 'text-[#ffb4ab]'} uppercase tracking-wider`}>
                 {statusType === 'success' ? 'Success' : 'Error'}
               </span>
-              <p className="text-white text-sm font-medium mt-0.5 leading-snug">{statusMessage}</p>
+              <p className="text-white text-sm font-medium mt-0.5">{statusMessage}</p>
             </div>
-            <button
-              onClick={() => setStatusMessage(null)}
-              className="ml-4 text-secondary hover:text-white transition-colors shrink-0"
-              title="Close notification"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+            <button onClick={() => setStatusMessage(null)} className="ml-4 text-[#a6a7a6] hover:text-white transition-colors">
+              <X className="w-5 h-5" />
             </button>
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
   );
 }

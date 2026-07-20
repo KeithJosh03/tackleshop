@@ -1,10 +1,11 @@
 import axios from "axios";
 import { uploadImages, UploadImageProps } from "./uploadImage";
 
+import { NextResponse } from 'next/server';
+
 import { BrandProps } from "@/types/dataprops";
 import { Category } from "@/types/categoryType";
 import { SubCategory } from "@/types/subCategoryTypes";
-
 
 
 interface VariantDetails {
@@ -21,7 +22,7 @@ interface VariantOption {
 interface VariantOptionToSend {
   variantOptionValue: string;
   price_adjustment: string;
-  imageUrl: string | null;
+  variant_image: string | null;
 }
 
 interface VariantDetailsToSend {
@@ -39,7 +40,7 @@ interface ProductImageToSend {
   isMain: boolean;
 }
 
-
+// 🚨 UPDATED: Added global inventory parameter fields to interface tracking
 interface ProductDetails {
   productTitle: string;
   basePrice: string;
@@ -51,13 +52,10 @@ interface ProductDetails {
   specifications: string | null;
   variants: VariantDetails[];
   medias: ProductImageInput[];
+  masterSku?: string;      // 👈 Added for No-Variant support
+  initialStock?: string;   // 👈 Added for No-Variant support
+  variantMatrixRows?: any[]; // To receive the dynamically generated rows from frontend
 }
-
-interface ProductImageToSend {
-  url: string;
-  isMain: boolean;
-}
-
 
 export async function createProduct(product: ProductDetails) {
   const {
@@ -70,21 +68,14 @@ export async function createProduct(product: ProductDetails) {
     specifications,
     features,
     medias,
-    variants
+    variants,
+    masterSku,
+    initialStock,
+    variantMatrixRows
   } = product;
 
-  const productToSend: {
-    category_id: string;
-    sub_category_id: string;
-    brand_id: string | null;
-    product_title: string;
-    base_price: string;
-    description: string;
-    specifications: string;
-    features: string;
-    medias: ProductImageToSend[];
-    variants: VariantDetailsToSend[]
-  } = {
+  // 🚨 UPDATED: Data model blueprint maps global fields down to JSON network stream in strictly snake_case!
+  const productToSend: any = {
     category_id: category ? category.categoryId.toString() : '',
     sub_category_id: subCategory ? subCategory.subCategoryId.toString() : '',
     brand_id: brand ? brand.brandId.toString() : '',
@@ -93,32 +84,86 @@ export async function createProduct(product: ProductDetails) {
     description: description || '',
     specifications: specifications || '',
     features: features || '',
+    sku: masterSku || null,
+    stock_quantity: initialStock ? parseInt(initialStock, 10) : null,
     medias: [],
-    variants: []
-  }
+    variants: variants || []
+  };
 
+  // Asynchronous image bucket uploads (Works perfectly for both branches!)
   if (Array.isArray(medias) && medias.length > 0) {
     const uploadedMedia = await createProductMedia(medias);
-    productToSend.medias.push(...uploadedMedia)
-    console.log(productToSend);
+    productToSend.medias.push(...uploadedMedia);
   }
 
+  // Variations Matrix configuration branch loop
   if (Array.isArray(variants) && variants.length > 0) {
-    const uploadVariant: VariantDetailsToSend[] = await createProductVariant(variants)
-    productToSend.variants.push(...uploadVariant);
+    const uploadVariant: VariantDetailsToSend[] = await createProductVariant(variants);
+    productToSend.variants = uploadVariant;
+
+    // Clean up parent parameters if variants are explicitly defined
+    productToSend.sku = null;
+    productToSend.stock_quantity = null;
+
+    // 🚨 CRITICAL NEW PAYLOAD KEY FOR THE DATABASE ROWS
+    if (variantMatrixRows && variantMatrixRows.length > 0) {
+      const matrixPayload = [];
+
+      for (const row of variantMatrixRows) {
+        let image_url: string | null = null;
+
+        if (row.imageUrl instanceof File) {
+          const uploaded = await uploadImages([{ file: row.imageUrl, originIndex: 0 }]);
+          image_url = uploaded[0]?.url ?? null;
+        }
+
+        matrixPayload.push({
+          sku_code: row.skuCode,
+          price: parseFloat(row.price).toString(),
+          stock_quantity: parseInt(row.stockQuantity, 10) || 0,
+          variant_option_ids: row.variantOptionIds,
+          ...(image_url ? { image_url } : {}),
+        });
+      }
+
+      productToSend.variant_matrix = matrixPayload;
+    }
   }
 
-  console.log(productToSend);
+  console.log('Sending payload via native fetch:', productToSend);
 
   try {
-    const response = await axios.post('/api/products/store', productToSend);
-    return response.data;
-  } catch (error: any) {
-    console.error('Error creating product:', error);
-    if (error.response && error.response.data && error.response.data.message) {
-      throw new Error(error.response.data.message);
+    const response = await fetch('/api/products/store', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json', // 🚨 CRITICAL: Tells Laravel to return JSON errors instead of HTML
+      },
+      body: JSON.stringify(productToSend),
+    });
+
+    if (!response.ok) {
+      // 💡 Read response as text first to handle any runaway HTML gracefully
+      const errorText = await response.text();
+      let errorMessage = `Server error ${response.status}`;
+
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.message || errorMessage;
+      } catch {
+        // If it's still HTML, the errorText will contain the actual Laravel crash report
+        console.error("Raw Laravel HTML Crash Report Error:", errorText);
+        errorMessage = `Laravel crashed with status ${response.status}. Check your browser DevTools Console Network tab!`;
+      }
+
+      throw new Error(errorMessage);
     }
-    throw new Error('An unexpected error occurred while creating the product.');
+
+    return await response.json();
+
+  } catch (error: any) {
+    console.error('Error creating product via fetch:', error);
+    throw new Error(error.message || 'An unexpected error occurred while creating the product.');
   }
 }
 
@@ -317,7 +362,7 @@ async function createProductVariant(
         return {
           variantOptionValue: option.variantOptionValue,
           price_adjustment: option.price_adjusting === '' ? '0' : option.price_adjusting,
-          imageUrl: uploadedImage ? uploadedImage.url : null
+          variant_image: uploadedImage ? uploadedImage.url : null
         };
       });
 

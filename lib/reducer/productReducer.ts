@@ -29,6 +29,9 @@ export interface ProductDetails {
     specifications: string | null;
     variants: VariantDetails[];
     medias: ProductImage[];
+    masterSku: string;
+    initialStock: string;
+    hasVariations: boolean;
 }
 
 export type ProductDetailActionCreate =
@@ -38,6 +41,9 @@ export type ProductDetailActionCreate =
     | { type: 'UPDATE_DESCRIPTION'; payload: string | null }
     | { type: 'UPDATE_FEATURES'; payload: string | null }
     | { type: 'UPDATE_SPECIFICATIONS'; payload: string | null }
+    | { type: 'UPDATE_MASTER_SKU'; payload: string }
+    | { type: 'UPDATE_INITIAL_STOCK'; payload: string }
+    | { type: 'TOGGLE_HAS_VARIATIONS'; payload: boolean }
     | { type: 'ADD_MEDIAS'; payload: ProductImage[] }
     | { type: 'ADD_VARIANTS'; payload: VariantDetails }
     | { type: 'SELECT_BRAND'; payload: BrandProps }
@@ -56,6 +62,8 @@ export type ProductDetailActionCreate =
     | { type: 'REMOVE_VARIANT_OPTION'; payload: { variantIndex: number; optionIndex: number } }
     | { type: 'UPDATE_VARIANT_TYPE_NAME'; payload: { variantIndex: number; variantTypeName: string } }
     | { type: 'UPDATE_VARIANT_OPTION_NAME'; payload: { variantIndex: number; optionIndex: number; variantOptionValue: string } }
+    | { type: 'ADD_VARIANT_TYPE'; payload: VariantDetails }
+    | { type: 'ADD_VARIANT_OPTION'; payload: { variantIndex: number; variantOption: VariantOption } }
 
 
 
@@ -83,6 +91,15 @@ export function ProductDetailCreateReducer(
         case "UPDATE_FEATURES": {
             return { ...state, features: action.payload };
         }
+        case "UPDATE_MASTER_SKU": {
+            return { ...state, masterSku: action.payload };
+        }
+        case "UPDATE_INITIAL_STOCK": {
+            return { ...state, initialStock: action.payload };
+        }
+        case "TOGGLE_HAS_VARIATIONS": {
+            return { ...state, hasVariations: action.payload };
+        }
         case "ADD_MEDIAS": {
             return {
                 ...state,
@@ -97,6 +114,22 @@ export function ProductDetailCreateReducer(
                 ...state,
                 variants: [...state.variants, action.payload]
             };
+        }
+        case "ADD_VARIANT_TYPE": {
+            return {
+                ...state,
+                variants: [...state.variants, action.payload]
+            };
+        }
+        case "ADD_VARIANT_OPTION": {
+            const updatedVariants = state.variants.map((v, i) => {
+                if (i !== action.payload.variantIndex) return v;
+                return {
+                    ...v,
+                    variantOptions: [...v.variantOptions, action.payload.variantOption]
+                };
+            });
+            return { ...state, variants: updatedVariants };
         }
         case "SELECT_BRAND": {
             return {

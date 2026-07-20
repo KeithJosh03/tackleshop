@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { slugify } from "@/utils/slugify";
 import { numericConverter } from "@/utils/priceUtils";
 import { ProductCollections } from "@/lib/api/categoryService";
@@ -8,9 +11,10 @@ const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000/';
 
 interface CollectionCardProps {
   product: ProductCollections;
+  index?: number;
 }
 
-export default function CollectionCard({ product }: CollectionCardProps) {
+export default function CollectionCard({ product, index = 0 }: CollectionCardProps) {
   const {
     productId,
     basePrice,
@@ -21,62 +25,46 @@ export default function CollectionCard({ product }: CollectionCardProps) {
   } = product;
 
   return (
-    <Link
-      href={`/product/${productId}/${slugify(productTitle).toLowerCase()}`}
-      className={`group relative flex flex-col overflow-hidden rounded-2xl border border-greyColor
-        bg-blackgroundColor/70 backdrop-blur-sm cursor-pointer
-        transition-all duration-300
-        hover:border-primaryColor
-        min-h-[400px]
-      `}
-      style={{ boxShadow: 'none' }}
-      onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 0 22px 3px rgba(232,147,71,0.2)')}
-      onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, delay: index * 0.06, ease: "easeOut" }}
+      className="h-full"
     >
-      {/* Image */}
-      <div className="relative w-full flex-1 overflow-hidden bg-mainBackgroundColor">
-        <Image
-          src={`${baseURL}${productThumbNail}`}
-          alt={productTitle}
-          fill
-          className="object-contain p-4 transition-transform duration-500 group-hover:scale-108"
-          sizes="(max-width: 768px) 80vw, (max-width: 1200px) 33vw, 25vw"
-        />
+      <Link
+        href={`/product/${productId}/${slugify(productTitle).toLowerCase()}`}
+        className="group relative flex flex-col overflow-hidden rounded-md border border-[#323537]
+          bg-[#1d2022] cursor-pointer transition-all duration-300 hover:border-[#ffc49a] min-h-[360px] h-full block"
+      >
+        {/* Image area */}
+        <div className="relative w-full flex-1 overflow-hidden bg-[#0b0f10]" style={{ minHeight: '240px' }}>
+          <Image
+            src={productThumbNail ? `${baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL}${productThumbNail.startsWith('/') ? '' : '/'}${productThumbNail}` : '/logo.png'}
+            alt={productTitle || 'Product Image'}
+            fill
+            className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 80vw, (max-width: 1024px) 33vw, 20vw"
+          />
 
-        {/* Price badge */}
-        <div className="absolute top-3 left-3 bg-primaryColor text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
-          {numericConverter(String(basePrice))}
+          {/* Badge */}
+          {index < 2 && (
+            <div className="absolute top-4 left-4 bg-[#ffc49a] text-[#4f2500] text-[0.65rem] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider z-10">NEW</div>
+          )}
         </div>
-      </div>
 
-      {/* Slide-up info overlay */}
-      <div className={`
-        absolute bottom-0 left-0 right-0
-        bg-gradient-to-t from-blackgroundColor/95 via-blackgroundColor/80 to-transparent
-        px-4 py-4
-        translate-y-full group-hover:translate-y-0
-        transition-transform duration-350 ease-out
-        flex flex-col gap-y-0.5
-      `}>
-        <span className="text-primaryColor text-[0.7rem] font-semibold uppercase tracking-widest">
-          {brandName}
-        </span>
-        <h3 className="text-tertiaryColor font-bold text-sm leading-snug line-clamp-2">
-          {productTitle}
-        </h3>
-        <span className="text-gray-400 text-[0.72rem] uppercase tracking-wide mt-0.5">
-          {subCategoryName}
-        </span>
-      </div>
-
-      {/* Always-visible bottom label (non-hover state) */}
-      <div className="px-4 py-3 flex flex-col group-hover:opacity-0 transition-opacity duration-200">
-        <h3 className="font-bold text-primaryColor leading-snug line-clamp-2 text-base"
-        >
-          {productTitle.toUpperCase()}
-        </h3>
-        <p className="text-gray-500 text-[0.75rem] uppercase mt-0.5">{subCategoryName}</p>
-      </div>
-    </Link>
+        {/* Content area */}
+        <div className="px-5 py-4 flex flex-col gap-1 flex-1 justify-end">
+          <span className="text-[#ffc49a] text-[0.65rem] font-bold uppercase tracking-[0.1em]">
+            {subCategoryName}
+          </span>
+          <h3 className="text-[#e0e3e5] font-bold text-sm leading-snug line-clamp-2 uppercase">
+            {productTitle}
+          </h3>
+          <div className="mt-1 text-[#ffc49a] font-extrabold text-xl tracking-tight">
+            {numericConverter(String(basePrice))}
+          </div>
+        </div>
+      </Link>
+    </motion.div>
   );
 }

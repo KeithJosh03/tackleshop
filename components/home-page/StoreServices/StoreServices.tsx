@@ -8,7 +8,7 @@ import CardServices from "./CardServices";
 /* ─── Service data ──────────────────────────────────────────────────────── */
 const services = [
     {
-        id: "reel-cleaning",
+        id: "reel-repair",
         icon: (
             <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10" stroke="#E89347" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 {/* Reel body */}
@@ -26,18 +26,47 @@ const services = [
                 <path d="M22 32 Q27 26 32 32 Q37 38 42 32" />
             </svg>
         ),
-        title: "Reel Cleaning",
+        title: "Reel Repair",
         subtitle: "Service",
         description:
-            "Expert disassembly, deep-clean, re-lubrication and reassembly for all reel types. We track demand trends so you always know when to book before the season rush.",
+            "Expert deep-clean, re-lubrication and precision reassembly for all reel types. We restore your reels to factory-fresh performance.",
         highlight: "Keep your reels running like new",
         badge: "Most Requested",
         badgeColor: "rgba(232,147,71,0.18)",
         badgeBorder: "rgba(232,147,71,0.35)",
         badgeText: "#E89347",
+        cta: { label: "Learn More", href: "#" },
     },
     {
-        id: "rod-repair",
+        id: "custom-rods",
+        icon: (
+            <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10" stroke="#E89347" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {/* Custom rod */}
+                <line x1="8" y1="56" x2="56" y2="8" strokeWidth="3" />
+                {/* Decorative wraps */}
+                <path d="M18 46 Q20 43 22 46" strokeWidth="2.5" />
+                <path d="M24 40 Q26 37 28 40" strokeWidth="2.5" />
+                <path d="M30 34 Q32 31 34 34" strokeWidth="2.5" />
+                {/* Star sparkle customization */}
+                <path d="M48 12 L49.5 15 L53 16 L50 18.5 L50.5 22 L48 20 L45.5 22 L46 18.5 L43 16 L46.5 15 Z" fill="#E89347" stroke="none" />
+                {/* Pencil/design tool */}
+                <path d="M4 60 L10 54 L14 58 L8 64 Z" />
+                <path d="M10 54 L56 8" />
+            </svg>
+        ),
+        title: "Custom Rods",
+        subtitle: "Service",
+        description:
+            "Tailor-make your dream rod — choose blank, guides, handle, and custom thread wraps. Built to your exact specifications for your fishing style.",
+        highlight: "Your rod, your identity",
+        badge: "Premium Build",
+        badgeColor: "rgba(139,92,246,0.12)",
+        badgeBorder: "rgba(139,92,246,0.3)",
+        badgeText: "#a78bfa",
+        cta: { label: "Build Yours", href: "#" },
+    },
+    {
+        id: "gear-tuneup",
         icon: (
             <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10" stroke="#E89347" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 {/* Rod blank diagonal */}
@@ -55,42 +84,16 @@ const services = [
                 <line x1="50" y1="50" x2="54" y2="54" />
             </svg>
         ),
-        title: "Rod Repair",
+        title: "Gear Tune-Up",
         subtitle: "Service",
         description:
-            "From broken tips to damaged guides and cracked blanks — we restore your rods to full fishing spec. We monitor repair volume to stay stocked with the right materials.",
-        highlight: "Every rod repaired with precision",
+            "Personal inspection and tune-up service to ensure all your gear is in peak condition. Prevent issues before they cost you a catch.",
+        highlight: "Stay ready, never miss a cast",
         badge: "Fast Turnaround",
         badgeColor: "rgba(99,210,144,0.12)",
         badgeBorder: "rgba(99,210,144,0.3)",
         badgeText: "#63d290",
-    },
-    {
-        id: "rod-customization",
-        icon: (
-            <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10" stroke="#E89347" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                {/* Custom rod */}
-                <line x1="8" y1="56" x2="56" y2="8" strokeWidth="3" />
-                {/* Decorative wraps */}
-                <path d="M18 46 Q20 43 22 46" strokeWidth="2.5" />
-                <path d="M24 40 Q26 37 28 40" strokeWidth="2.5" />
-                <path d="M30 34 Q32 31 34 34" strokeWidth="2.5" />
-                {/* Star sparkle customization */}
-                <path d="M48 12 L49.5 15 L53 16 L50 18.5 L50.5 22 L48 20 L45.5 22 L46 18.5 L43 16 L46.5 15 Z" fill="#E89347" stroke="none" />
-                {/* Pencil/design tool */}
-                <path d="M4 60 L10 54 L14 58 L8 64 Z" />
-                <path d="M10 54 L56 8" />
-            </svg>
-        ),
-        title: "Rod Customization",
-        subtitle: "Service",
-        description:
-            "Design your dream rod — choose blank, guides, handle and custom thread wraps. Our demand graphs help us understand what anglers love most and continuously improve.",
-        highlight: "Your rod, your identity",
-        badge: "Premium Build",
-        badgeColor: "rgba(139,92,246,0.12)",
-        badgeBorder: "rgba(139,92,246,0.3)",
-        badgeText: "#a78bfa",
+        cta: { label: "View Pricing", href: "#" },
     },
 ];
 

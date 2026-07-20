@@ -3,7 +3,7 @@
 import { inter } from "@/types/fonts";
 import { useEffect, useRef, useState } from "react";
 import ReviewCard, { StarRating } from "./ReviewCard";
-import { getReviews, type Review } from "@/lib/api/reviewService";
+import { type Review } from "@/lib/api/reviewService";
 
 export default function FacebookReviewClient({ reviews }: { reviews: Review[] }) {
     const trackRef = useRef<HTMLDivElement>(null);
@@ -11,8 +11,6 @@ export default function FacebookReviewClient({ reviews }: { reviews: Review[] })
     const positionRef = useRef(0);
     const animFrameRef = useRef<number | null>(null);
     const speed = 0.5; // px per frame
-    const [isLoading, setIsLoading] = useState(true);
-
 
     // Duplicate reviews for seamless loop
     const loopedReviews = [...reviews, ...reviews];
@@ -41,13 +39,12 @@ export default function FacebookReviewClient({ reviews }: { reviews: Review[] })
 
     return (
         <section
-            className="w-full flex flex-col items-center justify-center py-14 gap-y-10 overflow-hidden"
+            className="w-full overflow-hidden px-4 py-14 sm:px-6"
             id="facebookreviews"
         >
-            {/* ── Header ── */}
-            <div className="flex flex-col items-center gap-y-3 px-4 text-center">
-                {/* Facebook badge */}
-                <div className="flex items-center gap-x-2 px-4 py-1.5 rounded-full border border-[#1877F2]/30 bg-[#1877F2]/10 w-fit">
+            <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-y-10 rounded-3xl border border-white/10 bg-gradient-to-b from-blackgroundColor/45 to-blackgroundColor/20 p-4 sm:p-6">
+                <div className="flex flex-col items-center gap-y-3 px-4 text-center">
+                    <div className="flex w-fit items-center gap-x-2 rounded-full border border-[#1877F2]/30 bg-[#1877F2]/10 px-4 py-1.5">
                     <svg
                         className="w-4 h-4 text-[#1877F2]"
                         fill="currentColor"
@@ -63,7 +60,6 @@ export default function FacebookReviewClient({ reviews }: { reviews: Review[] })
                     </span>
                 </div>
 
-                {/* Title */}
                 <h2
                     className="text-3xl sm:text-4xl font-extrabold tracking-widest uppercase"
                     style={{
@@ -77,18 +73,14 @@ export default function FacebookReviewClient({ reviews }: { reviews: Review[] })
                     What Our Anglers Say
                 </h2>
 
-                {/* Divider */}
                 <div className="h-px w-24 bg-gradient-to-r from-transparent via-primaryColor to-transparent" />
 
-                {/* Subtitle */}
                 <p
-                    className={`${inter.className} text-sm sm:text-base text-tertiaryColor/70 max-w-md`}
+                    className={`${inter.className} max-w-lg text-sm text-tertiaryColor/70 sm:text-base`}
                 >
-                    Real reviews from our fishing community — see why anglers trust
-                    TackleShop.
+                    Real feedback from our fishing community. Discover why more anglers choose Smooth Casting for quality and value.
                 </p>
 
-                {/* Overall rating summary */}
                 <div className="flex items-center gap-x-3 mt-1">
                     <div className="flex items-center gap-x-1.5">
                         <span
@@ -125,37 +117,35 @@ export default function FacebookReviewClient({ reviews }: { reviews: Review[] })
                         </span>
                     </div>
                 </div>
-            </div>
-
-            {/* ── Scrolling Review Cards ── */}
-            <div
-                className="relative w-full overflow-hidden"
-                onMouseEnter={() => setIsPaused(true)}
-                onMouseLeave={() => setIsPaused(false)}
-                onTouchStart={() => setIsPaused(true)}
-                onTouchEnd={() => setIsPaused(false)}
-            >
-                {/* Left fade */}
-                <div className="pointer-events-none absolute left-0 top-0 h-full w-20 z-10"
-                    style={{ background: "linear-gradient(to right, var(--background, #0a0a0a), transparent)" }}
-                />
-                {/* Right fade */}
-                <div className="pointer-events-none absolute right-0 top-0 h-full w-20 z-10"
-                    style={{ background: "linear-gradient(to left, var(--background, #0a0a0a), transparent)" }}
-                />
+                </div>
 
                 <div
-                    ref={trackRef}
-                    className="flex gap-x-4 w-max will-change-transform py-2 px-4"
-                    style={{ transform: "translateX(0px)" }}
+                    className="relative w-full overflow-hidden"
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
+                    onTouchStart={() => setIsPaused(true)}
+                    onTouchEnd={() => setIsPaused(false)}
                 >
-                    {loopedReviews.map((review, index) => (
-                        <ReviewCard
-                            key={`${review.reviewId}-${index}`}
-                            review={review}
-                            index={index % reviews.length}
-                        />
-                    ))}
+                    <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-20"
+                        style={{ background: "linear-gradient(to right, var(--background, #0a0a0a), transparent)" }}
+                    />
+                    <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-20"
+                        style={{ background: "linear-gradient(to left, var(--background, #0a0a0a), transparent)" }}
+                    />
+
+                    <div
+                        ref={trackRef}
+                        className="flex w-max gap-x-4 px-4 py-2 will-change-transform"
+                        style={{ transform: "translateX(0px)" }}
+                    >
+                        {loopedReviews.map((review, index) => (
+                            <ReviewCard
+                                key={`${review.reviewId}-${index}`}
+                                review={review}
+                                index={index % reviews.length}
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
         </section>

@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -15,7 +19,9 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     },
     "plugins": [
       {
@@ -24,11 +30,15 @@
     ]
   },
   "include": [
-  "next-env.d.ts",
-  "**/*.ts",
-  "**/*.tsx",
-  ".next/types/**/*.ts",
-  "global.d.ts"
-, "app/admin/dashboard/DashboardSubCategorytsx"  ],
-  "exclude": ["node_modules"]
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "global.d.ts",
+    "app/admin/dashboard/DashboardSubCategorytsx",
+    "components/home-page/BrandsLogo/BrandsCardsClient"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

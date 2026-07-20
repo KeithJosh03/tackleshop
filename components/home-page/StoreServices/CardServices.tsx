@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { worksans, inter } from "@/types/fonts";
+import Link from "next/link";
 
 /* ─── Card animation variant ────────────────────────────────────────────── */
 export const cardVariant = {
@@ -21,6 +22,7 @@ export interface Service {
     badgeColor: string;
     badgeBorder: string;
     badgeText: string;
+    cta?: { label: string; href: string };
 }
 
 /* ─── CardServices Component ─────────────────────────────────────────────── */
@@ -116,6 +118,24 @@ export default function CardServices({ svc }: { svc: Service }) {
                         {svc.highlight}
                     </p>
                 </div>
+
+                {/* CTA Link */}
+                {svc.cta && (
+                    <Link
+                        href={svc.cta.href}
+                        className={`${worksans.className} inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-primaryColor hover:text-[#FFB86C] transition-colors duration-300 mt-1 group/cta`}
+                    >
+                        {svc.cta.label}
+                        <svg
+                            className="w-4 h-4 transition-transform duration-300 group-hover/cta:translate-x-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                        </svg>
+                    </Link>
+                )}
             </div>
         </motion.div>
     );

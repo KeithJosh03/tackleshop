@@ -4,7 +4,7 @@ import FloatingMessageButton from "./FloatingMessageButton";
 import SearchTextAdmin from "./SearchTextAdmin";
 import DropDownText from "./DropDownText";
 
-import CollapsibleTextarea from "./CollapsibleTextarea";
+import CollapsibleTextarea from "../adminUI/CollapsibleTextarea";
 import InputDate from "./InputDate";
 import InputText from "./InputText";
 import IconButton from "./IconButton";
@@ -27,3 +27,4 @@ export {
     ImageIconUpload,
     InputPrice
 }
+export { default as ToggleSwitch } from './ToggleSwitch';

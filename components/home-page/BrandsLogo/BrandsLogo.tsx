@@ -1,10 +1,10 @@
 import { BrandLogos } from "@/lib/api/brandService";
-import BrandLogoClient from "./BrandsClient";
+import BrandsCardClient from "./BrandsCardClient";
 
-export default async function Brands() {
+export default async function BrandsLogo() {
   const brandlogos = await BrandLogos();
   return (
-    <BrandLogoClient
+    <BrandsCardClient
       brandlogos={brandlogos}
     />
   )

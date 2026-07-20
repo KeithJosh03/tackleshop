@@ -10,6 +10,7 @@ import {
 export interface CategoryProps {
   categoryId: number;
   categoryName: string;
+  subcategoriesCount?: number;
 }
 
 interface HeaderCategoryResponse {
@@ -192,7 +193,7 @@ interface CategoryCollectionResponse {
 
 export async function fetchCategoryCollection(): Promise<CategoryCollectionProps[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/categories/categorycollection`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/categories/categorycollection/`,
     { cache: 'no-store' }
   );
 

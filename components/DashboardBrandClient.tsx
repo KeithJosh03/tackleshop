@@ -1,8 +1,10 @@
 'use client';
+import Image from 'next/image';
 import React, { useState, useEffect, useReducer } from 'react';
+
+import { Pencil, Trash2, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { BrandProps } from '@/types/dataprops';
 import { worksans } from '@/types/fonts';
-import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import DashBoardButtonLayoutOption from './DashBoardButtonLayoutOption';
@@ -211,34 +213,41 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
   }
 
   return (
-    <div className={`${worksans.className} bg-blackgroundColor border border-greyColor rounded-xl shadow-sm p-6 w-full flex flex-col space-y-4`}>
-      <div className="flex flex-col mb-2">
-        <h2 className="text-primaryColor text-xl font-bold tracking-tight">BRANDS</h2>
-        <p className="text-secondary text-xs mt-1 font-medium text-opacity-80">View, add, and manage brands.</p>
-      </div>
-      <div className="flex items-center gap-x-3 text-base">
-        <SearchTextAdmin
-          placeholderText='Search Brand'
-          value={searchTerm}
-          onChange={(e) => { setSearchTerm(e.target.value) }}
-        />
-        <IconButton
-          icon='/icons/addicon.svg'
-          altText='Add Icon'
+    <div className={`${worksans.className} bg-[#0E1313] backdrop-blur-[20px] border border-greyColor rounded-2xl shadow-sm p-6 w-full h-full flex flex-col space-y-4`}>
+      <div className="flex flex-row items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-primaryColor text-2xl font-bold">#</span>
+          <h2 className="text-white text-xl font-bold tracking-tight">Brands</h2>
+        </div>
+        <button
           onClick={() => {
             setIsCreating(true)
             setSelectedBrand(null)
           }}
-          iconSize={8}
+          className="bg-primaryColor/20 hover:bg-primaryColor/30 text-primaryColor border border-primaryColor/50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
+        >
+          <span>+</span> Add New Brand
+        </button>
+      </div>
+      <div className="flex items-center text-base w-full">
+        <SearchTextAdmin
+          placeholderText='Search Brands...'
+          value={searchTerm}
+          onChange={(e) => { setSearchTerm(e.target.value) }}
         />
       </div>
 
       {/* brandlist Render */}
       {filteredBrands.length > 0 && (
-        <ul className="list-none bg-secondary/5 border rounded-lg border-greyColor text-sm mt-2 max-h-60 overflow-y-auto divide-y divide-greyColor/50 shadow-inner">
-          {filteredBrands.map((brand) => (
-            <DropDownText
-              onClick={() => {
+        <div className="flex flex-col mt-4 flex-1 overflow-hidden">
+          <div className="grid grid-cols-[1fr_3fr_2fr] px-4 py-2 border-b border-greyColor/30 text-xs font-semibold text-secondary uppercase tracking-wider">
+            <div>ID</div>
+            <div>Brand Name</div>
+            <div className="text-right">Actions</div>
+          </div>
+          <ul className="list-none flex-1 overflow-y-auto divide-y divide-greyColor/20 custom-scrollbar">
+            {filteredBrands.map((brand) => (
+              <li key={brand.brandId} className="grid grid-cols-[1fr_3fr_2fr] px-4 py-4 items-center hover:bg-white/5 transition-colors group cursor-pointer" onClick={() => {
                 dispatchUpdateBrand({
                   type: 'SET_BRAND_UPDATE',
                   payload: {
@@ -249,13 +258,36 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                 handleSelectBrand(brand)
                 setIsCreating(false)
                 setSearchTerm('')
-              }}
-              key={brand.brandId}
-              indexKey={brand.brandId}
-              listName={brand.brandName}
-            />
-          ))}
-        </ul>
+              }}>
+                <div className="text-secondary text-sm">#{brand.brandId}</div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-white font-bold text-sm">{brand.brandName.toUpperCase()}</span>
+                  <span className="bg-[#835d32]/20 text-[#E89347] text-[10px] px-2 py-0.5 rounded-full w-fit font-semibold uppercase border border-[#E89347]/20">
+
+
+                    Linked Products: 0
+                  </span>
+                </div>
+                <div className="flex items-center justify-end gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
+                  <button className="text-secondary hover:text-red-400 p-1"
+                    // onClick={(e) => { e.stopPropagation(); handleEditCategory(brand.brandId); }}e
+                    title="Edit Brand"
+                  >
+                    <Pencil className="w-4 h-4 opacity-70" />
+                  </button>
+                  {/* Only allow deletion if no subcategories, or handle warning. Here we just allow it. */}
+                  <button className="text-secondary hover:text-red-400 p-1"
+                    // onClick={(e) => { e.stopPropagation(); handleDeleteBrand(brand.brandId); }}
+                    disabled={true}
+                    title="Delete Brand"
+                  >
+                    <Trash2 className="w-4 h-4 opacity-70" />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {/* Brand Choosen */}
@@ -456,13 +488,9 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
               }`}
           >
             {statusType === 'success' ? (
-              <svg className="w-6 h-6 text-green-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <CheckCircle2 className="w-6 h-6 text-green-400 shrink-0" />
             ) : (
-              <svg className="w-6 h-6 text-red-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
+              <AlertCircle className="w-6 h-6 text-red-400 shrink-0" />
             )}
             <div className="flex flex-col max-w-[300px]">
               <span className={`text-sm font-bold ${statusType === 'success' ? 'text-green-400' : 'text-red-400'} uppercase tracking-wider`}>
@@ -475,9 +503,7 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
               className="ml-4 text-secondary hover:text-white transition-colors shrink-0"
               title="Close notification"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-5 h-5" />
             </button>
           </motion.div>
         )}

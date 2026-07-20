@@ -3,16 +3,18 @@ const nextConfig = {
   reactStrictMode: true,
 
   async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:8000/api/:path*', 
-      },
-    ];
+    return {
+      fallback: [
+        {
+          source: '/api/:path*',
+          destination: 'http://localhost:8000/api/:path*',
+        },
+      ],
+    };
   },
 
   images: {
-    domains: ['localhost'], 
+    domains: ['localhost', 'lh3.googleusercontent.com', 'platform-lookaside.fbsbx.com', 'graph.facebook.com'],
   },
 };
 

@@ -12,11 +12,12 @@ import { CategorizeProduct } from "@/types/dataprops";
 /* ─── Skeleton card ────────────────────────────────────────────────────── */
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl border border-greyColor bg-blackgroundColor/60 overflow-hidden animate-pulse min-h-[340px] flex flex-col">
-      <div className="flex-1 bg-greyColor/20" style={{ minHeight: '220px' }} />
-      <div className="px-4 py-3 flex flex-col gap-2">
-        <div className="h-3 w-3/4 rounded bg-greyColor/30" />
-        <div className="h-2 w-1/2 rounded bg-greyColor/20" />
+    <div className="rounded-md border border-[#323537] bg-[#1d2022] overflow-hidden animate-pulse min-h-[360px] flex flex-col">
+      <div className="w-full flex-1 bg-[#0b0f10]" style={{ minHeight: '240px' }} />
+      <div className="px-5 py-4 flex flex-col gap-2 flex-1 justify-end">
+        <div className="h-2 w-1/3 rounded bg-[#323537]" />
+        <div className="h-3 w-3/4 rounded bg-[#363a3b]" />
+        <div className="h-4 w-1/2 rounded bg-[#363a3b] mt-1" />
       </div>
     </div>
   );
@@ -28,12 +29,12 @@ function PaginationBtn({ onClick, disabled, children }: { onClick: () => void; d
     <button
       onClick={onClick}
       disabled={disabled}
-      className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold uppercase tracking-wider transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
-      style={{
-        background: disabled ? 'rgba(131,93,50,0.15)' : 'linear-gradient(135deg,#E89347 0%,#b8692e 100%)',
-        color: '#fff',
-        boxShadow: disabled ? 'none' : '0 0 14px 1px rgba(232,147,71,0.3)',
-      }}
+      className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-200 border
+        ${disabled
+          ? 'border-[#323537] text-[#544338] cursor-not-allowed opacity-50'
+          : 'border-[#a28d7e] text-[#e0e3e5] hover:border-[#ffc49a] hover:text-[#ffc49a]'
+        }
+      `}
     >
       {children}
     </button>
@@ -79,36 +80,35 @@ export default function Category() {
     <div className="min-h-screen px-6 pb-16 pt-4 md:px-10 flex flex-col gap-8">
 
       {/* ── Hero Header ── */}
-      <div className="relative rounded-2xl overflow-hidden border border-greyColor px-8 py-8 flex flex-col gap-2"
-        style={{ background: 'linear-gradient(110deg,rgba(17,26,45,0.98) 0%,rgba(19,29,41,0.9) 100%)' }}>
-        {/* Ambient glow */}
-        <div className="absolute -top-12 -right-12 w-52 h-52 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle,rgba(232,147,71,0.15) 0%,transparent 70%)' }} />
-        <p className="text-xs font-bold text-secondary uppercase tracking-widest">Browse / Category</p>
-        <h1
-          className="text-3xl sm:text-4xl font-extrabold tracking-widest uppercase leading-tight"
-          style={{
-            background: 'linear-gradient(90deg, #E89347 0%, #fafaf9 55%, #835d32 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}
-        >
+      <div className="flex flex-col gap-1 items-center justify-center pt-8 pb-4">
+        <p className="text-xs font-bold text-[#a28d7e] uppercase tracking-widest">
+          BROWSE <span className="mx-1">›</span> CATEGORY
+        </p>
+        <h1 className="text-[40px] sm:text-[72px] font-[900] text-[#e0e3e5] uppercase leading-none tracking-tight">
           {displayName}
         </h1>
-        <div className="h-px w-24 bg-gradient-to-r from-transparent via-primaryColor to-transparent" />
-        {!initialLoading && (
-          <p className="text-sm text-secondary font-semibold mt-1">
-            {products.length} product{products.length !== 1 ? 's' : ''} · Page {currentPage} of {lastPage}
-          </p>
-        )}
+      </div>
+
+      {/* ── Sort & Info Bar ── */}
+      <div className="flex flex-col sm:flex-row justify-between items-center py-4 border-b border-[#272a2c]">
+        <p className="text-sm text-[#a28d7e] font-semibold">
+          {!initialLoading ? `${products.length} products - Page ${currentPage} of ${lastPage}` : 'Loading...'}
+        </p>
+        <div className="flex items-center gap-2 text-sm text-[#e0e3e5] font-bold mt-4 sm:mt-0">
+          <span className="text-[#a28d7e] uppercase text-xs tracking-wider">Sort by:</span>
+          <select className="bg-transparent border-none outline-none cursor-pointer uppercase tracking-wider text-[#e0e3e5]">
+            <option className="bg-[#101415]">Newest Arrivals</option>
+            <option className="bg-[#101415]">Price: Low to High</option>
+            <option className="bg-[#101415]">Price: High to Low</option>
+          </select>
+        </div>
       </div>
 
       {/* ── Content ── */}
       {initialLoading ? (
         /* Skeleton grid */
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : products.length > 0 ? (
         <>
@@ -119,7 +119,7 @@ export default function Category() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+              className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6"
             >
               {products.map((product, i) => (
                 <CategoryCards key={product.productId} index={i} product={product} />
@@ -145,12 +145,12 @@ export default function Category() {
                   key={i}
                   onClick={() => fetchProducts(i + 1)}
                   disabled={loading}
-                  className="w-8 h-8 rounded-full text-xs font-bold transition-all duration-200 disabled:opacity-50"
-                  style={{
-                    background: currentPage === i + 1 ? 'linear-gradient(135deg,#E89347 0%,#b8692e 100%)' : 'rgba(131,93,50,0.15)',
-                    color: currentPage === i + 1 ? '#fff' : '#a17a52',
-                    boxShadow: currentPage === i + 1 ? '0 0 10px 1px rgba(232,147,71,0.4)' : 'none',
-                  }}
+                  className={`w-8 h-8 flex items-center justify-center text-xs font-bold transition-all duration-200 border
+                    ${currentPage === i + 1
+                      ? 'bg-[#ffc49a] text-[#4f2500] border-[#ffc49a]'
+                      : 'border-[#323537] text-[#a28d7e] hover:border-[#a28d7e]'
+                    }
+                  `}
                 >
                   {i + 1}
                 </button>
@@ -170,20 +170,18 @@ export default function Category() {
         </>
       ) : (
         /* Empty state */
-        <div className="flex-1 flex flex-col items-center justify-center gap-6 py-24">
-          <div className="w-20 h-20 rounded-full flex items-center justify-center border border-greyColor"
-            style={{ background: 'rgba(232,147,71,0.08)' }}>
-            <svg className="w-9 h-9 text-primaryColor" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <div className="flex-1 flex flex-col items-center justify-center gap-6 py-24 border-t border-[#272a2c]">
+          <div className="w-20 h-20 rounded-full flex items-center justify-center border border-[#323537] bg-[#1d2022]">
+            <svg className="w-9 h-9 text-[#ffc49a]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
           <div className="text-center">
-            <h3 className="text-xl font-black text-primaryColor">No Products Found</h3>
-            <p className="text-sm text-secondary mt-1">There are no items in <span className="text-primaryColor font-semibold">{displayName}</span> yet.</p>
+            <h3 className="text-xl font-black text-[#e0e3e5]">No Products Found</h3>
+            <p className="text-sm text-[#a28d7e] mt-1">There are no items in <span className="text-[#ffc49a] font-semibold">{displayName}</span> yet.</p>
           </div>
           <Link href="/"
-            className="px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider text-white transition-all duration-200"
-            style={{ background: 'linear-gradient(135deg,#E89347 0%,#b8692e 100%)', boxShadow: '0 0 16px 2px rgba(232,147,71,0.3)' }}
+            className="px-6 py-2.5 bg-[#ffc49a] text-[#4f2500] font-bold text-sm uppercase tracking-wider transition-all duration-200 hover:bg-[#ff9d4d]"
           >
             Back to Home
           </Link>

@@ -12,7 +12,7 @@ const DropDownText: React.FC<DropDownListProps> = ({
   return (
     <li
       key={indexKey}
-      className="p-2 cursor-pointer hover:bg-primaryColor hover:text-tertiaryColor text-primaryColor"
+      className="px-4 py-2.5 cursor-pointer text-sm text-[#a6a7a6] hover:bg-[#16202c] hover:text-[#d9e3f4] transition-colors border-b border-[#212b37] last:border-b-0"
       onClick={onClick}
     >
       {listName}

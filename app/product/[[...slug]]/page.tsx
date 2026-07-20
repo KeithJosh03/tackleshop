@@ -19,21 +19,28 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
     const { slug } = await params;
 
-    // slug[0] = productId, slug[1] = productName (ignored, cosmetic)
     const productId = slug?.[0] ? Number(slug[0]) : null;
 
     if (!productId) {
-        return <div>Product not found</div>;
+        return (
+            <div className="flex items-center justify-center min-h-[50vh] text-ma-on-surface-variant text-lg font-medium">
+                Product not found
+            </div>
+        );
     }
 
-    // slug[2] = "variant" keyword, slug[3] = variantOptionId
     const initialVariantId =
         slug?.[2] === "variant" && slug?.[3] ? Number(slug[3]) : null;
 
     const productDetails = await ProductDetails(productId);
 
+
     if (!productDetails) {
-        return <div>Product not found</div>;
+        return (
+            <div className="flex items-center justify-center min-h-[50vh] text-ma-on-surface-variant text-lg font-medium">
+                Product not found
+            </div>
+        );
     }
 
     return (

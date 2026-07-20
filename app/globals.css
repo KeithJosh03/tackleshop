@@ -8,6 +8,20 @@
   --color-mainBackgroundColor: #131D29;
   --color-blackgroundColor: #111A2D;
   --color-greyColor: oklch(37.3% 0.034 259.733);
+
+  /* Midnight Angler */
+  --color-ma-surface: #101415;
+  --color-ma-surface-bright: #363a3b;
+  --color-ma-surface-container: #1d2022;
+  --color-ma-on-surface: #e0e3e5;
+  --color-ma-outline: #a28d7e;
+  --color-ma-primary: #ffc49a;
+  --color-ma-on-primary: #4f2500;
+  --color-ma-secondary: #c0c6db;
+  --color-ma-on-secondary: #293041;
+  --color-ma-tertiary: #c5d1e8;
+  --color-ma-background: #101415;
+  --color-ma-on-background: #e0e3e5;
 }
 
 @layer components {
@@ -55,7 +69,7 @@
 }
 
 body {
-  background-color: #131D29;
+  background-color: #0A0E0F;
 }
 
 
@@ -164,24 +178,67 @@ body {
 }
 
 @keyframes float-slow {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(3deg); }
-}
-@keyframes float-medium {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-14px) rotate(-2deg); }
-}
-@keyframes float-fast {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(3deg);
+  }
 }
 
-.animate-float-slow   { animation: float-slow 8s ease-in-out infinite; }
-.animate-float-medium { animation: float-medium 6s ease-in-out infinite; }
-.animate-float-fast   { animation: float-fast 4s ease-in-out infinite; }
+@keyframes float-medium {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-14px) rotate(-2deg);
+  }
+}
+
+@keyframes float-fast {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float-medium 6s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: float-fast 4s ease-in-out infinite;
+}
 
 @keyframes hero-bounce {
-  0%, 100% { transform: translateY(0); opacity: 1; }
-  50% { transform: translateY(8px); opacity: 0.5; }
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translateY(8px);
+    opacity: 0.5;
+  }
 }
-.animate-hero-bounce { animation: hero-bounce 2s ease-in-out infinite; }
+
+.animate-hero-bounce {
+  animation: hero-bounce 2s ease-in-out infinite;
+}

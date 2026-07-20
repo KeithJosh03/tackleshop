@@ -1,4 +1,4 @@
-import { logo, arrowdown, hero } from '@/public';
+import { logo, arrowdown, shopbg } from '@/public';
 import { StaticImageData } from 'next/image';
 
 interface AssetsInterface {
@@ -8,6 +8,6 @@ interface AssetsInterface {
 export const imagesAsset: AssetsInterface = {
   logo,
   arrowdown,
-  hero
+  shopbg
 };
 

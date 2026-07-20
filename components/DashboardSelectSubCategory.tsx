@@ -126,17 +126,16 @@ const DashboardSelectSubCategory: React.FC<SubCategorySelectionProps> = (
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="flex-1 flex flex-col">
-      <h1 className="text-primaryColor text-xl">SELECT SUBCATEGORY</h1>
+    <div className="flex-1 flex flex-col relative w-full">
       <SearchText
         onClear={clearSearch}
         choosen={selectedSubCategory}
-        placeholderText="Search Subcategory"
+        placeholderText="Search Subcategory..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       {filteredSubCategories.length > 0 && (
-        <ul className="list-none bg-secondary border rounded border-primaryColor text-base max-h-40 overflow-y-auto">
+        <ul className="absolute top-full left-0 right-0 mt-1 z-50 list-none bg-[#16202c] border rounded-lg border-[#212b37] shadow-lg max-h-40 overflow-y-auto custom-scrollbar">
           {filteredSubCategories.map((subCategory) => (
             <DropDownText
               onClick={() => handleSelectSubCategory(subCategory)}

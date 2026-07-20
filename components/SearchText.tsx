@@ -32,15 +32,14 @@ const SearchText: React.FC<SearchTextProps> = ({
         placeholder={placeholderText}
         value={value}
         onChange={onChange}
-        className={`border p-2 pr-8 placeholder:text-base rounded-md w-full outline-none border-primaryColor ${choosen && value !== '' ? 'text-primaryColor bg-secondary' : 'text-secondary'
-          }`}
+        className={`w-full bg-transparent px-4 py-2.5 text-sm text-[#d9e3f4] focus:outline-none placeholder:text-[#a6a7a6]/50 transition-colors ${choosen && value !== '' ? 'bg-[#212b37]/50' : ''}`}
       />
 
       {choosen && (
         <button
           type="button"
           onClick={onClear}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-primaryColor hover:text-primaryColor"
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full bg-[#2c3542] text-[#a6a7a6] hover:bg-[#a18d7f]/40 hover:text-[#d9e3f4] transition-colors"
         >
           ×
         </button>
