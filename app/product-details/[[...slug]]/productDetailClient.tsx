@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { numericConverter } from '@/utils/priceUtils';
@@ -10,21 +10,20 @@ import { Info, Settings, FileText } from 'lucide-react';
 
 import ProductDetailsDropDown from '@/components/ProductDetailsDropDown';
 
-import {
-    ProductDetailsShow,
-    VariantOptionsShow,
-} from '@/lib/api/productService';
+import { ProductDetailsViewProps, ProductSku } from '@/types/productTypes';
+import { ProductVariantTypes, ProductVariantOptions } from '@/types/productVariantsTypes';
+
 
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
 
 /* ─────────────────────────── Types ─────────────────────────── */
 
 interface ProductDetailClientProps {
-    productDetailProps: ProductDetailsShow;
+    productDetailProps: ProductDetailsViewProps;
     initialVariantId: number | null;
 }
 
-type VariantSelections = Record<string, VariantOptionsShow>;
+type VariantSelections = Record<string, ProductVariantOptions>;
 
 /* ─────────────────────────── Component ─────────────────────── */
 
@@ -32,7 +31,9 @@ export default function ProductDetailClient({
     productDetailProps,
     initialVariantId,
 }: ProductDetailClientProps) {
-    const [productDetails] = useState<ProductDetailsShow>(productDetailProps);
+
+
+    const [productDetails] = useState<ProductDetailsViewProps>(productDetailProps);
 
     // Images
     const [productImages, setProductImages] = useState<UIProductImage[]>([]);
@@ -45,6 +46,18 @@ export default function ProductDetailClient({
         Array.isArray(productDetails?.productVariants) &&
         productDetails.productVariants.length > 0;
 
+    // Derived SKU match based on current selections
+    const currentSku = useMemo(() => {
+        if (!hasVariants || !productDetails?.productSkus || productDetails.productSkus.length === 0) return null;
+
+        const selectedOptionIds = Object.values(variantSelections).map(opt => opt.variantOptionId);
+
+        return productDetails.productSkus.find(sku => {
+            if (sku.variantOptionIds.length !== selectedOptionIds.length) return false;
+            return selectedOptionIds.every(id => sku.variantOptionIds.includes(id));
+        }) || null;
+    }, [variantSelections, productDetails?.productSkus, hasVariants]);
+
     useEffect(() => {
         if (!productDetails) return;
 
@@ -53,6 +66,7 @@ export default function ProductDetailClient({
 
         const defaultImage =
             images.find((img) => img.source === 'product' && img.isMain) ??
+            images.find((img) => img.source === 'sku' && img.isMain) ??
             images.find((img) => img.source === 'product') ??
             images.find((img) => img.source === 'variant') ??
             images[0];
@@ -82,8 +96,19 @@ export default function ProductDetailClient({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Set initial image when SKU matches initially
+    useEffect(() => {
+        if (currentSku && productImages.length > 0) {
+            const uiImage = productImages.find(
+                (img) => img.source === 'sku' && img.id.startsWith(`sku-${currentSku.skuId}-`)
+            );
+            if (uiImage) setSelectedImageId(uiImage.id);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentSku?.skuId, productImages.length]);
+
     const pushVariantUrl = useCallback(
-        (option: VariantOptionsShow) => {
+        (option: ProductVariantOptions) => {
             if (!productDetails) return;
             const titleSlug = slugify(productDetails.productTitle);
             const valueSlug = slugify(option.variantOptionValue);
@@ -95,30 +120,44 @@ export default function ProductDetailClient({
 
     const handleSelectVariantOption = (
         variantTypeName: string,
-        option: VariantOptionsShow
+        option: ProductVariantOptions
     ) => {
-        setVariantSelections((prev) => ({
-            ...prev,
+        const newSelections = {
+            ...variantSelections,
             [variantTypeName]: option,
-        }));
+        };
+        setVariantSelections(newSelections);
 
-        const uiImage = productImages.find(
-            (img) => img.source === 'variant' && img.id === `variant-${option.variantOptionId}`
-        );
-        if (uiImage) setSelectedImageId(uiImage.id);
+        const selectedOptionIds = Object.values(newSelections).map(opt => opt.variantOptionId);
+
+        const nextSku = productDetails?.productSkus?.find(sku => {
+            if (sku.variantOptionIds.length !== selectedOptionIds.length) return false;
+            return selectedOptionIds.every(id => sku.variantOptionIds.includes(id));
+        });
+
+        if (nextSku) {
+            const uiImage = productImages.find(
+                (img) => img.source === 'sku' && img.id.startsWith(`sku-${nextSku.skuId}-`)
+            );
+            if (uiImage) setSelectedImageId(uiImage.id);
+        } else {
+            const uiImage = productImages.find(
+                (img) => img.source === 'variant' && img.id === `variant-${option.variantOptionId}`
+            );
+            if (uiImage) setSelectedImageId(uiImage.id);
+        }
 
         pushVariantUrl(option);
     };
 
     const displayPrice = (): string => {
         if (!productDetails) return '0.00';
-        const base = parseFloat(productDetails.basePrice) || 0;
 
-        const totalAdj = Object.values(variantSelections).reduce((sum, opt) => {
-            return sum + (parseFloat(opt.variantOptionPrice) || 0);
-        }, 0);
+        if (hasVariants && currentSku) {
+            return currentSku.price;
+        }
 
-        return (base + totalAdj).toFixed(2);
+        return parseFloat(productDetails.basePrice).toFixed(2);
     };
 
     const currentImage = productImages.find((img) => img.id === selectedImageId);
@@ -234,14 +273,29 @@ export default function ProductDetailClient({
                         {productDetails?.productTitle}
                     </motion.h1>
 
-                    {/* Price */}
+                    {/* Price & Stock */}
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
-                        className="text-4xl md:text-5xl font-extrabold text-ma-primary mt-2"
+                        className="flex flex-col gap-2 mt-2"
                     >
-                        {numericConverter(displayPrice())}
+                        <div className="text-4xl md:text-5xl font-extrabold text-ma-primary">
+                            {numericConverter(displayPrice())}
+                        </div>
+
+                        {/* Display Stock Status */}
+                        {productDetails?.hasVariants ? (
+                            currentSku ? (
+                                <div className={`text-sm font-semibold tracking-wide ${currentSku.inStock ? 'text-green-400' : 'text-red-400'}`}>
+                                    {currentSku.inStock ? `${currentSku.stockQuantity} in stock` : 'Out of Stock'}
+                                </div>
+                            ) : null
+                        ) : (
+                            <div className={`text-sm font-semibold tracking-wide ${productDetails?.inStock ? 'text-green-400' : 'text-red-400'}`}>
+                                {productDetails?.inStock ? `${productDetails?.stockQuantity} in stock` : 'Out of Stock'}
+                            </div>
+                        )}
                     </motion.div>
                 </div>
 

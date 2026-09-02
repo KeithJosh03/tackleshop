@@ -1,5 +1,5 @@
 import { BrandProps } from '@/types/brandType';
-import { Category } from '@/types/categoryType';
+import { CategoryProps } from '@/types/categoryType';
 import { SubCategory } from '@/types/subCategoryTypes';
 
 export interface VariantDetails {
@@ -22,7 +22,7 @@ export interface ProductDetails {
     productTitle: string;
     basePrice: string;
     brand: BrandProps | null;
-    category: Category | null;
+    category: CategoryProps | null;
     subCategory: SubCategory | null;
     description: string | null;
     features: string | null;
@@ -48,7 +48,7 @@ export type ProductDetailActionCreate =
     | { type: 'ADD_VARIANTS'; payload: VariantDetails }
     | { type: 'SELECT_BRAND'; payload: BrandProps }
     | { type: 'REMOVE_BRAND'; }
-    | { type: 'UPDATE_CATEGORY'; payload: Category }
+    | { type: 'UPDATE_CATEGORY'; payload: CategoryProps }
     | { type: 'REMOVE_CATEGORY'; }
     | { type: 'SELECT_SUBCATEGORY'; payload: SubCategory }
     | { type: 'SELECT_SUBCATEGORY_DELETE'; }
@@ -167,7 +167,7 @@ export function ProductDetailCreateReducer(
         case "UPDATE_MAIN_IMAGE": {
             const updatedMedias = state.medias.map((media, index) => ({
                 ...media,
-                isMain: index === action.payload ? true : media.isMain,
+                isMain: index === action.payload ? true : false,
             }));
             return {
                 ...state,

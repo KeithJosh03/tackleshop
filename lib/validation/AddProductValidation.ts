@@ -1,137 +1,167 @@
-import { ProductDetails } from '@/lib/reducer/productReducer';
+export interface ProductValidationResult {
+    isValid: boolean;
+    errors: Record<string, string>;
+}
 
 export const AddProductValidation = (
-    productDetailState: any // Using any or your ProductDetails variant matrix extension
-): { isValid: boolean; errors: Record<string, string> } => {
+    productDetailState: any
+): ProductValidationResult => {
     const {
         productTitle,
-        basePrice,
+        description,
         brand,
         category,
         subCategory,
-        description,
+        basePrice,
         masterSku,
         initialStock,
-        variants,
-        variant_matrix, // 🚨 CRITICAL: Extract your generated matrix table rows
-        medias
-    } = productDetailState;
+        variants = [],
+        variant_matrix = [],
+        medias = []
+    } = productDetailState || {};
 
-    const newErrors: Record<string, string> = {};
+    const errors: Record<string, string> = {};
 
-    // 1. Bulletproof Price Parsing Utility
-    const parsePrice = (price: any) => {
-        if (price === undefined || price === null || price === '') return 0; // Default to 0 instead of NaN
+    // Utility: Parse price strictly to numeric decimal
+    const parsePrice = (price: any): number => {
+        if (price === undefined || price === null || price === '') return 0;
         if (typeof price === 'number') return price;
         const parsed = parseFloat(String(price).replace(/[^0-9.-]+/g, ''));
         return isNaN(parsed) ? 0 : parsed;
     };
 
-    // 2. Core Baseline Fields Validation
-    if (!productTitle || !productTitle.trim()) {
-        newErrors.productTitle = 'Product title is required.';
-    }
-    if (!brand) {
-        newErrors.brand = 'Please select a brand.';
-    }
-    if (!category) {
-        newErrors.category = 'Please select a category.';
-    }
-    if (!subCategory) {
-        newErrors.subCategory = 'Please select a sub-category.';
-    }
-    if (!description || !description.trim()) {
-        newErrors.description = 'Description is required.';
+    // Utility: Parse integer for stock
+    const parseInteger = (val: any): number => {
+        if (val === undefined || val === null || val === '') return NaN;
+        if (typeof val === 'number') return Math.floor(val);
+        const parsed = parseInt(String(val).replace(/[^0-9.-]+/g, ''), 10);
+        return parsed;
+    };
+
+    // 1. CORE BASELINE VALIDATION (Applies to all products)
+    if (!productTitle || typeof productTitle !== 'string' || !productTitle.trim()) {
+        errors.productTitle = 'Product title is required and must contain text.';
     }
 
-    // 3. Dynamic Workflow Branch Validation
+    if (!description || typeof description !== 'string' || !description.trim()) {
+        errors.description = 'Description is required and must contain text.';
+    }
+
+    if (!brand || typeof brand !== 'object') {
+        errors.brand = 'Brand selection is required.';
+    }
+
+    if (!category || typeof category !== 'object') {
+        errors.category = 'Category selection is required.';
+    }
+
+    if (!subCategory || typeof subCategory !== 'object') {
+        errors.subCategory = 'Sub-category selection is required.';
+    }
+
+    // Specifications and features are nullable and require no strict type-check here.
+
     const parsedBasePrice = parsePrice(basePrice);
-    const hasVariants = variants && variants.length > 0;
 
-    if (!hasVariants) {
-        // A) BRANCH 1: SIMPLE PRODUCT
+    // 2. & 3. CONDITIONAL BRANCHING
+    if (variants.length === 0) {
+        // CONDITIONAL BRANCH A: SIMPLE PRODUCT
         if (parsedBasePrice <= 0) {
-            newErrors.basePrice = 'Base price must be greater than ₱0 for products without variations.';
+            errors.basePrice = 'Base price must be greater than ₱0.00 for simple products.';
         }
 
-        if (!masterSku || !masterSku.trim()) {
-            newErrors.masterSku = 'Master SKU code is required for simple products.';
+        if (!masterSku || typeof masterSku !== 'string' || !masterSku.trim()) {
+            errors.masterSku = 'Master SKU is required for simple products and cannot be blank.';
         }
 
-        const parsedInitialStock = parseInt(String(initialStock || '').replace(/[^0-9.-]+/g, ''), 10);
-        if (isNaN(parsedInitialStock) || parsedInitialStock < 0) {
-            newErrors.initialStock = 'Initial stock must be a valid number equal to or greater than 0.';
+        const parsedStock = parseInteger(initialStock);
+        if (isNaN(parsedStock) || parsedStock < 0) {
+            errors.initialStock = 'Initial stock must be an integer equal to or greater than 0.';
         }
     } else {
-        // B) BRANCH 2: COMPLEX PRODUCT MATRIX (Variations Active)
-        if (parsedBasePrice < 0) {
-            newErrors.basePrice = 'Enter a valid base price.';
-        }
+        // CONDITIONAL BRANCH B: VARIANT MATRIX PRODUCT
 
-        // Validate the structure definitions
+        // Attribute Hierarchy Structure Validation
         variants.forEach((v: any, vIdx: number) => {
-            if (!v.variantTypeName || !v.variantTypeName.trim()) {
-                newErrors[`variantType_${vIdx}`] = 'Attribute group name cannot be blank.';
+            if (!v.variantTypeName || typeof v.variantTypeName !== 'string' || !v.variantTypeName.trim()) {
+                errors[`variantType_${vIdx}`] = 'Variant type name cannot be blank.';
             }
-            if (!v.variantOptions || v.variantOptions.length === 0) {
-                newErrors[`variantOptions_${vIdx}`] = `At least one option pill is required.`;
+            if (!v.variantOptions || !Array.isArray(v.variantOptions) || v.variantOptions.length === 0) {
+                errors[`variantOptions_${vIdx}`] = 'At least one option pill value is required for this variant type.';
             }
         });
 
-        // 🚨 FIX: Target the actual Matrix rows panel (Revros LT 1000 S, etc.)
-        if (!variant_matrix || variant_matrix.length === 0) {
-            newErrors.matrix = 'Variant matrix grid combinations have not been generated.';
+        // Real-Time Table Matrix Validation
+        if (!Array.isArray(variant_matrix) || variant_matrix.length === 0) {
+            errors.matrix = 'Variant matrix cannot be empty when variations are active.';
         } else {
-            let matrixHasValidPrice = false;
+            let hasPositiveMatrixPrice = false;
 
             variant_matrix.forEach((row: any, rIdx: number) => {
-                // Read from your explicit row pricing fields (checkout_price or price)
-                const rowPrice = parsePrice(row.checkout_price || row.price);
-                const rowStock = parseInt(String(row.stock_quantity || row.variant_stock_qty || ''), 10);
+                // a) Variant Option Value/Name is present (checking generic object existence implies this row object exists)
+                if (!row || typeof row !== 'object') {
+                    errors[`matrixRow_${rIdx}`] = 'Invalid variant matrix row combination.';
+                } else {
+                    // b) sku_code is Not Nullable and non-blank
+                    if (!row.sku_code || typeof row.sku_code !== 'string' || !row.sku_code.trim()) {
+                        errors[`matrixSku_${rIdx}`] = 'SKU code is required and cannot be blank for this combination.';
+                    }
 
-                if (rowPrice < 0) {
-                    newErrors[`matrixPrice_${rIdx}`] = 'Price cannot be negative.';
-                }
-                if (isNaN(rowStock) || rowStock < 0) {
-                    newErrors[`matrixStock_${rIdx}`] = 'Stock must be 0 or greater.';
-                }
-                if (!row.sku_code && !row.sku) {
-                    newErrors[`matrixSku_${rIdx}`] = 'Unique row SKU is required.';
-                }
+                    // c) stock_quantity is Not Nullable and an integer >= 0
+                    const rowStock = parseInteger(row.stock_quantity);
+                    if (isNaN(rowStock) || rowStock < 0) {
+                        errors[`matrixStock_${rIdx}`] = 'Stock quantity must be an integer equal to or greater than 0.';
+                    }
 
-                // If any variation row has a value, it's valid
-                if (rowPrice > 0) {
-                    matrixHasValidPrice = true;
+                    const rowPrice = parsePrice(row.checkout_price);
+                    if (rowPrice > 0) {
+                        hasPositiveMatrixPrice = true;
+                    } else if (rowPrice < 0) {
+                        errors[`matrixPrice_${rIdx}`] = 'Checkout price cannot be negative.';
+                    }
                 }
             });
 
-            // If global base price is 0, make sure variation values aren't all 0
-            if (parsedBasePrice === 0 && !matrixHasValidPrice) {
-                newErrors.basePrice = 'When base price is ₱0, at least one matrix variant combination row must have a price greater than ₱0.';
+            // Complex Multi-Level Pricing Logic Constraints
+            if (parsedBasePrice === 0) {
+                // Rule 1: If basePrice is 0, at least one row must have checkout price > 0.
+                // Rule 3: Fail validation completely if both are 0 (preventing free checkouts).
+                if (!hasPositiveMatrixPrice) {
+                    errors.basePrice = 'Base price is ₱0.00; at least one variant matrix row must have a checkout price greater than ₱0.00.';
+                    errors.matrixPricing = 'Cannot have both base price and all matrix checkout prices as ₱0.00 (free checkout is not permitted).';
+                }
             }
+            // Rule 2: If basePrice > 0, individual matrix rows are permitted to have a checkout price offset value of 0. (Implicitly valid)
         }
     }
 
-    // 4. Media Cover Guardrails
-    const isMediasEmpty = !medias || medias.length === 0;
-    if (isMediasEmpty) {
-        let hasVariantImage = false;
-        if (variant_matrix && variant_matrix.length > 0) {
-            hasVariantImage = variant_matrix.some((row: any) => !!row.image_url || !!row.imageUrl);
-        }
+    // 4. ADVANCED MEDIA COEXISTENCE GUARDRAIL
+    const hasGlobalMedia = Array.isArray(medias) && medias.length > 0;
 
-        if (!hasVariantImage) {
-            newErrors.media = 'Upload at least one global product image, or assign a photo to a variant row option.';
-        }
-    } else {
-        const hasThumb = medias.some((m: any) => m.isMain === true);
-        if (!hasThumb) {
-            newErrors.media = 'Please designate exactly one image as the main cover thumbnail.';
+    let hasVariantMedia = false;
+    if (Array.isArray(variant_matrix) && variant_matrix.length > 0) {
+        hasVariantMedia = variant_matrix.some((row: any) =>
+            !!row.imageUrl
+        );
+    }
+
+    // Rule 3: Fail validation if BOTH global medias and individual variant images are empty/null.
+    if (!hasGlobalMedia && !hasVariantMedia) {
+        errors.media = 'Either a global product media gallery image or variant option images must be provided.';
+    }
+
+    // Rule 1 & Rule 2 are implicitly satisfied if Rule 3 passes.
+
+    // Rule 4: If global media gallery items are used, exactly one item must be designated as the primary display (isMain: true).
+    if (hasGlobalMedia) {
+        const mainImagesCount = medias.filter((m: any) => m.isMain === true).length;
+        if (mainImagesCount !== 1) {
+            errors.media = 'Exactly one media item must be designated as the primary display (isMain: true).';
         }
     }
 
     return {
-        isValid: Object.keys(newErrors).length === 0,
-        errors: newErrors
+        isValid: Object.keys(errors).length === 0,
+        errors
     };
 };

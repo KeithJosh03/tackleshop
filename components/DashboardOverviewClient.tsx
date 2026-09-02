@@ -103,24 +103,23 @@ export default function DashboardOverviewClient() {
         {kpiCards.map((card) => (
           <div
             key={card.label}
-            className={`bg-[#121c28] border rounded-xl p-5 flex flex-col hover:border-[#a18d7f]/40 transition-colors duration-300 relative ${
-              card.active ? 'border-[#ffb77c]/50' : 'border-[#2c3542]'
-            }`}
+            className={`bg-[#121c28] border rounded-xl p-5 flex flex-col hover:border-[#a18d7f]/40 transition-colors duration-300 relative ${card.active ? 'border-[#ffb77c]/50' : 'border-[#2c3542]'
+              }`}
           >
             {card.active && (
               <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] bg-[#ffb77c] rounded-r-md"></div>
             )}
-            
+
             <div className="flex items-start justify-between mb-4">
               <p className={`${inter.className} text-[#a6a7a6] text-[11px] font-semibold uppercase tracking-wider`}>{card.label}</p>
               <div className={`${card.changeType === 'error' ? 'text-[#ffb4ab]' : 'text-[#d9c2b3]'}`}>
                 {card.icon}
               </div>
             </div>
-            
+
             <div className="flex flex-col">
               <p className="text-[#d9e3f4] text-2xl font-extrabold tracking-tight leading-none mb-2">{card.value}</p>
-              
+
               <div className="mt-auto">
                 {card.changeType === 'up' && (
                   <span className={`${inter.className} text-[11px] font-bold text-emerald-400 flex items-center gap-x-1`}>
@@ -213,9 +212,8 @@ export default function DashboardOverviewClient() {
                 return (
                   <div key={data.day} className="flex-1 flex flex-col items-center justify-end h-full">
                     <div
-                      className={`w-full max-w-[40px] rounded-t-sm transition-all duration-500 ease-out ${
-                        data.isMax ? 'bg-[#a18d7f]' : 'bg-[#303a47]'
-                      }`}
+                      className={`w-full max-w-[40px] rounded-t-sm transition-all duration-500 ease-out ${data.isMax ? 'bg-[#a18d7f]' : 'bg-[#303a47]'
+                        }`}
                       style={{ height: `${barHeight}%` }}
                     />
                   </div>

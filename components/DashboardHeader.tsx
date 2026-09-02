@@ -7,8 +7,8 @@ import { inter } from '@/types/fonts';
 export default function DashboardHeader() {
   const pathname = usePathname();
 
-  // Basic breadcrumbs based on pathname
-  const pathParts = pathname.split('/').filter(Boolean);
+  // Basic breadcrumbs based on pathname, removing 'admin'
+  const pathParts = pathname.split('/').filter(Boolean).filter(part => part.toLowerCase() !== 'admin');
 
   return (
     <header className='w-full bg-[#0A0E0F] border-b border-greyColor/20 py-4 px-8 flex items-center justify-between sticky top-0 z-40'>
@@ -18,11 +18,11 @@ export default function DashboardHeader() {
           const isLast = index === pathParts.length - 1;
           const name = part.charAt(0).toUpperCase() + part.slice(1);
           return (
-            <React.Fragment key={part}>
+            <React.Fragment key={`${part}-${index}`}>
               <span className={isLast ? 'text-primaryColor font-semibold' : 'text-[#d9e3f4]/70'}>
                 {name}
               </span>
-              {!isLast && <span className="text-[#d9e3f4]/40 mx-1">{'>'}</span>}
+              {!isLast && <span className="text-[#d9e3f4]/40 mx-1">{'/'}</span>}
             </React.Fragment>
           );
         })}

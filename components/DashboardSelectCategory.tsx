@@ -1,24 +1,31 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { showCategories, CategoryPropsResponse } from '@/lib/api/categoryService';
-import { CategoryProps } from '@/types/dataprops';
 
+// API
+import { showCategories, CategoryPropsResponse } from '@/lib/api/categoryService';
+
+// Components
 import DropDownText from '@/components/ui/DropDownText';
 import SearchText from './SearchText';
 
-import { Category } from '@/types/categoryType';
-
+// Reducers
 import { ProductDetailActionCreate } from "@/lib/reducer/productReducer";
-import { ProductDetailActionEdit } from "@/app/admin/dashboard/products/[productId]/ProductClientEdit";
 
 
-type ReducerType = 'CREATE' | 'EDIT'
+import { CategoryProps } from '@/types/categoryType';
+
+
+import { ProductDetailActionEdit } from '@/lib/reducer/editProductReducer';
+
+type ReducerType = 'CREATE' | 'EDIT' | 'FILTER'
 
 interface CategoryPropsComponent {
   dispatchProductDetailCreate?: React.Dispatch<ProductDetailActionCreate>;
   ProductDetailEditReducer?: React.Dispatch<ProductDetailActionEdit>;
   ReducerType: ReducerType;
-  currentCategory: Category | null;
+  currentCategory: CategoryProps | null;
+  onSelectCategory?: (category: CategoryProps | null) => void;
+  customPlaceholder?: string;
 }
 
 export default function DashboardSelectCategory(
@@ -26,12 +33,15 @@ export default function DashboardSelectCategory(
     ProductDetailEditReducer,
     dispatchProductDetailCreate,
     ReducerType,
-    currentCategory
+    currentCategory,
+    onSelectCategory,
+    customPlaceholder
   }: CategoryPropsComponent) {
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryProps | null>();
   const [filteredCategories, setFilteredCategories] = useState<CategoryProps[]>([]);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -86,6 +96,10 @@ export default function DashboardSelectCategory(
         payload: category
       })
     }
+
+    if (ReducerType === 'FILTER' && onSelectCategory) {
+      onSelectCategory(category);
+    }
   };
 
 
@@ -106,6 +120,9 @@ export default function DashboardSelectCategory(
         type: 'REMOVE_SUBCATEGORY'
       })
     }
+    if (ReducerType === 'FILTER' && onSelectCategory) {
+      onSelectCategory(null);
+    }
     setFilteredCategories([])
     setSearchTerm('')
   }
@@ -115,13 +132,15 @@ export default function DashboardSelectCategory(
     <div className="flex-1 flex flex-col relative w-full">
       <SearchText
         choosen={selectedCategory}
-        placeholderText="Search Category..."
+        placeholderText={customPlaceholder || "Search Category..."}
         onClear={clearInputs}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setTimeout(() => setIsFocused(false), 200)}
       />
-      {filteredCategories.length > 0 && (
-        <ul className="absolute top-full left-0 right-0 mt-1 z-50 list-none bg-[#16202c] border rounded-lg border-[#212b37] shadow-lg max-h-40 overflow-y-auto custom-scrollbar">
+      {isFocused && filteredCategories.length > 0 && (
+        <ul className="absolute top-full left-0 right-0 mt-2 z-[60] list-none bg-[#1e2a38] border rounded-xl border-[#3d4859] shadow-2xl shadow-black/60 max-h-56 overflow-y-auto custom-scrollbar ring-1 ring-white/5">
           {filteredCategories.map((category) => (
             <DropDownText
               onClick={() => handleCategorySelect(category)}

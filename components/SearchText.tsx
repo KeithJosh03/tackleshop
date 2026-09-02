@@ -7,16 +7,21 @@ import { SubCategory } from '@/types/subCategoryTypes';
 
 import { BrandProps } from '@/types/brandType';
 
-import { ProductListDashboard } from '@/lib/api/productService';
+// import { ProductListDashboard } from '@/lib/api/productService';
 
 interface SearchTextProps {
   placeholderText: string;
   value: string;
-  choosen: BrandProps | CategoryProps | SubCategory | ProductListDashboard | undefined | null;
+  choosen:
+  BrandProps | CategoryProps |
+  SubCategory | undefined |
+  null;
+  // ProductListDashboard
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
-
 
 const SearchText: React.FC<SearchTextProps> = ({
   placeholderText,
@@ -24,6 +29,8 @@ const SearchText: React.FC<SearchTextProps> = ({
   onChange,
   choosen,
   onClear,
+  onFocus,
+  onBlur,
 }) => {
   return (
     <div className="relative w-full">
@@ -32,6 +39,8 @@ const SearchText: React.FC<SearchTextProps> = ({
         placeholder={placeholderText}
         value={value}
         onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
         className={`w-full bg-transparent px-4 py-2.5 text-sm text-[#d9e3f4] focus:outline-none placeholder:text-[#a6a7a6]/50 transition-colors ${choosen && value !== '' ? 'bg-[#212b37]/50' : ''}`}
       />
 

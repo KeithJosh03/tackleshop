@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { worksans, inter } from '@/types/fonts';
 import { logo } from '@/public';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 
 const mainMenuItems = [
   { href: '/admin/dashboard', label: 'Overview', icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z' },
@@ -23,6 +24,7 @@ const managementItems = [
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   const renderLink = (item: any) => {
     const isActive =
@@ -53,7 +55,7 @@ export default function DashboardSidebar() {
     <aside className="w-64 bg-[#121617] border-r border-greyColor/20 h-screen sticky top-0 flex flex-col z-50">
       {/* Logo */}
       <div className="px-3 py-4 border-b border-greyColor/20">
-        <Link href="/admin/dashboard" className="block">
+        <Link href="/" className="block">
           <div className="relative w-full aspect-[632/395]">
             <Image
               src={logo}
@@ -88,20 +90,27 @@ export default function DashboardSidebar() {
 
       {/* Bottom Actions */}
       <div className="p-4 mt-auto shrink-0 border-t border-greyColor/20 flex flex-col gap-y-4">
-        <button className="w-full flex items-center justify-center gap-x-2 bg-[#d6854b] hover:bg-[#d6854b]/90 text-[#0a1014] font-bold py-2.5 px-4 rounded-lg transition-colors">
+        {/* <button className="w-full flex items-center justify-center gap-x-2 bg-[#d6854b] hover:bg-[#d6854b]/90 text-[#0a1014] font-bold py-2.5 px-4 rounded-lg transition-colors">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
           New Order
-        </button>
-
+        </button> */}
         <div className="flex items-center gap-x-3 px-2 py-2">
-          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center shrink-0 bg-gray-800">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=AlexFisher&style=circle" alt="User" className="w-full h-full object-cover" />
+          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center shrink-0 bg-gray-800 border border-white/10">
+            {session?.user?.image ? (
+              <img src={session.user.image} alt={session.user.name || "User"} className="w-full h-full object-cover" />
+            ) : (
+              <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${session?.user?.name || 'User'}&style=circle`} alt="User" className="w-full h-full object-cover" />
+            )}
           </div>
           <div className="flex flex-col flex-1 min-w-0">
-            <span className={`${inter.className} text-sm font-semibold text-white truncate`}>Alex Fisher</span>
-            <span className={`${inter.className} text-xs text-[#d9e3f4]/50 truncate`}>Inventory Lead</span>
+            <span className={`${inter.className} text-sm font-semibold text-white truncate`}>
+              {session?.user?.name || 'Loading...'}
+            </span>
+            <span className={`${inter.className} text-xs text-[#d9e3f4]/50 truncate capitalize`}>
+              {session?.user?.role?.role_name || (typeof session?.user?.role === 'string' ? session.user.role : 'Admin')}
+            </span>
           </div>
           <button className="text-[#d9e3f4]/50 hover:text-white transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

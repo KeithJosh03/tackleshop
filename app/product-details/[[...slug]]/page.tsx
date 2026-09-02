@@ -1,5 +1,5 @@
 import ProductDetailClient from "./productDetailClient";
-import { ProductDetails } from "@/lib/api/productService";
+import { ProductDetailsView } from "@/lib/api/productService";
 
 interface PageProps {
     params: Promise<{
@@ -7,15 +7,6 @@ interface PageProps {
     }>;
 }
 
-/**
- * Optional catch-all route: /product/[[...slug]]
- *
- * Expected URL patterns:
- *   /product                                                → no product (404 / fallback)
- *   /product/{productId}/{productName}                      → product without variant pre-selection
- *   /product/{productId}/{productName}/variant/{variantOptionId}/{variantSlug}
- *                                                           → product with variant pre-selected
- */
 export default async function Page({ params }: PageProps) {
     const { slug } = await params;
 
@@ -32,8 +23,7 @@ export default async function Page({ params }: PageProps) {
     const initialVariantId =
         slug?.[2] === "variant" && slug?.[3] ? Number(slug[3]) : null;
 
-    const productDetails = await ProductDetails(productId);
-
+    const productDetails = await ProductDetailsView(productId);
 
     if (!productDetails) {
         return (
@@ -42,7 +32,6 @@ export default async function Page({ params }: PageProps) {
             </div>
         );
     }
-
     return (
         <ProductDetailClient
             productDetailProps={productDetails}

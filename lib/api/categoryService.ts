@@ -1,24 +1,22 @@
 import axios, { AxiosError } from "axios";
+
+
 import {
   SubCategoryProps,
   CategoryProducts,
   CategorizeProduct
 } from "@/types/dataprops";
 
+import {
+  CategoryCollectionProps, CategoryCollectionResponse,
+  CategoryPropsListAdmin, HeaderCategoryResponse,
+  CategoryProps, selectedCategorySubCategoryProps,
+  selectedCategorySubCategoriesProps
+} from "@/types/categoryType";
 
-// Header
-export interface CategoryProps {
-  categoryId: number;
-  categoryName: string;
-  subcategoriesCount?: number;
-}
 
-interface HeaderCategoryResponse {
-  status: boolean;
-  categories: CategoryProps[];
-}
 
-export async function CategoryList(): Promise<CategoryProps[]> {
+export async function categoryList(): Promise<CategoryPropsListAdmin[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/categories/`,
     { cache: 'no-store' }
@@ -27,20 +25,8 @@ export async function CategoryList(): Promise<CategoryProps[]> {
   if (!res.ok) {
     throw new Error('Failed to fetch categories');
   }
-
   const data: HeaderCategoryResponse = await res.json();
   return data.categories;
-}
-
-
-export interface selectedCategorySubCategoriesProps {
-  subCategoryId: number;
-  subCategoryName: string;
-}
-
-interface selectedCategorySubCategoryProps {
-  status: boolean;
-  categorySubs: selectedCategorySubCategoriesProps[];
 }
 
 
@@ -60,8 +46,9 @@ export async function selectedCategorySubCategory(
   return data.categorySubs;
 }
 
-// ADD CATEGORY
 
+
+// ADD CATEGORY
 export interface NewCategoryPayload {
   category_name: string;
 }
@@ -72,13 +59,15 @@ export interface NewCategoryResponse {
 }
 
 export async function addCategory(
-  payload: NewCategoryPayload
+  payload: NewCategoryPayload,
+  token: string
 ): Promise<NewCategoryResponse | null> {
   try {
     const res = await fetch('/api/categories', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
     });
@@ -96,19 +85,14 @@ export async function addCategory(
   }
 }
 
-
-
-
-
-
-
-
-
 // DELETE CATEGORY
-export async function deleteCategory(categoryId: number): Promise<boolean> {
+export async function deleteCategory(categoryId: number, token: string): Promise<boolean> {
   try {
     const res = await fetch(`/api/categories/${categoryId}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     return res.status === 204;
@@ -119,6 +103,7 @@ export async function deleteCategory(categoryId: number): Promise<boolean> {
 }
 
 
+// UPDATE CATEGORY
 export interface UpdateCategoryPayload {
   category_name: string;
 }
@@ -128,17 +113,17 @@ export interface UpdatedCategoryResponse {
   categoryName: string;
 }
 
-
-// UPDATE CATEGORY
 export async function editCategory(
   categoryId: number,
-  payload: UpdateCategoryPayload
+  payload: UpdateCategoryPayload,
+  token: string
 ): Promise<UpdatedCategoryResponse | null> {
   try {
     const res = await fetch(`/api/categories/${categoryId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
     });
@@ -156,41 +141,6 @@ export async function editCategory(
   }
 }
 
-
-
-
-
-
-interface CategorySubResponse {
-  status: boolean;
-  categorySub: SubCategoryProps[];
-}
-
-export interface CategoryPropsResponse {
-  status: boolean;
-  categories: CategoryProps[];
-}
-
-export interface ProductCollections {
-  productId: number;
-  productTitle: string;
-  basePrice: string;
-  brandName: string;
-  productThumbNail: string;
-  subCategoryName: string;
-}
-
-export interface CategoryCollectionProps {
-  categoryId: number;
-  categoryName: string;
-  products: ProductCollections[]
-}
-
-interface CategoryCollectionResponse {
-  categories: CategoryCollectionProps[];
-}
-
-
 export async function fetchCategoryCollection(): Promise<CategoryCollectionProps[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/categories/categorycollection/`,
@@ -205,12 +155,16 @@ export async function fetchCategoryCollection(): Promise<CategoryCollectionProps
   return data.categories;
 }
 
+// Read
+export interface CategoryPropsResponse {
+  status: boolean;
+  categories: CategoryProps[];
+}
 
-
-
-
-
-
+interface CategorySubResponse {
+  status: boolean;
+  categorySub: SubCategoryProps[];
+}
 export const showCategories = async (): Promise<CategoryPropsResponse | any> => {
   try {
     const response = await axios.get<CategoryProps>('/api/categories');

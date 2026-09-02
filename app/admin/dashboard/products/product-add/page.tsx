@@ -4,7 +4,7 @@ import React, { useState, useReducer, KeyboardEvent, useMemo, useEffect } from '
 import { Trash2, Plus, UploadCloud, X, QrCode, ClipboardList, Info } from 'lucide-react';
 import Image from 'next/image';
 
-import { createProduct } from '@/lib/api/productService';
+import { createProduct, checkSkuUnique } from '@/lib/api/productService';
 import { ProductDetailCreateReducer, ProductDetails } from '@/lib/reducer/productReducer';
 import { AddProductValidation } from '@/lib/validation/AddProductValidation';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -16,6 +16,7 @@ import {
     ProductContentInputs,
     SectionCard
 } from '@/components';
+import { FileDropImage } from '@/components/ui';
 
 interface MatrixRowData {
     skuCode: string;
@@ -47,6 +48,8 @@ export default function ProductAddEditPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
     const [statusType, setStatusType] = useState<'success' | 'error' | null>(null);
+
+    const [isGeneratingSku, setIsGeneratingSku] = useState(false);
 
     const [pillInputs, setPillInputs] = useState<Record<number, string>>({});
 
@@ -131,6 +134,7 @@ export default function ProductAddEditPage() {
         });
 
     const handleProductAdd = async () => {
+        console.log(ProductDetailState);
         const validationState = {
             ...ProductDetailState,
             variant_matrix: hasProductVariant ? buildVariantMatrixPayload() : [],
@@ -209,7 +213,7 @@ export default function ProductAddEditPage() {
             masterSku: hasProductVariant ? '' : ProductDetailState.masterSku,
             initialStock: hasProductVariant ? '' : ProductDetailState.initialStock,
             // Inject matrix payload
-            variantMatrixRows: hasProductVariant ? combinations.map(c => variantMatrixRows[c.id]) : []
+            variantMatrixRows: hasProductVariant ? buildVariantMatrixPayload() : []
         };
 
         try {
@@ -269,6 +273,50 @@ export default function ProductAddEditPage() {
         }
     };
 
+    const handleGenerateSKU = async () => {
+        if (!ProductDetailState.productTitle || !ProductDetailState.brand) {
+            alert('Please enter a Product Title and select a Brand first to generate a SKU.');
+            return;
+        }
+
+        setIsGeneratingSku(true);
+        try {
+            const brandCode = ProductDetailState.brand.brandName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 3).toUpperCase() || 'BRD';
+
+            const titleWords = ProductDetailState.productTitle.split(' ').filter(w => w.trim() !== '');
+            let titleCode = '';
+            if (titleWords.length === 1) {
+                titleCode = titleWords[0].replace(/[^a-zA-Z0-9]/g, '').substring(0, 4).toUpperCase();
+            } else {
+                titleCode = titleWords.map(w => w[0]?.replace(/[^a-zA-Z0-9]/g, '') || '').join('').substring(0, 4).toUpperCase();
+            }
+            if (!titleCode) titleCode = 'PRD';
+
+            let isUnique = false;
+            let generatedSKU = '';
+            let attempts = 0;
+
+            while (!isUnique && attempts < 10) {
+                const randomCode = Math.floor(1000 + Math.random() * 9000);
+                generatedSKU = `${brandCode}-${titleCode}-${randomCode}`;
+                isUnique = await checkSkuUnique(generatedSKU);
+                attempts++;
+            }
+
+            if (!isUnique) {
+                alert('Failed to generate a unique SKU after 10 attempts. Please try again.');
+                return;
+            }
+
+            dispatchProductDetailCreate({ type: 'UPDATE_MASTER_SKU', payload: generatedSKU });
+        } catch (error) {
+            console.error("Error generating SKU:", error);
+            alert('An error occurred while checking SKU uniqueness.');
+        } finally {
+            setIsGeneratingSku(false);
+        }
+    };
+
     const isBaseComplete = !!ProductDetailState.productTitle.trim() && !!ProductDetailState.basePrice && !!ProductDetailState.brand && !!ProductDetailState.category;
     const isInventoryComplete = !!ProductDetailState.masterSku?.trim() && !!ProductDetailState.initialStock;
     const isVariantsComplete = ProductDetailState.variants.length > 0;
@@ -289,9 +337,9 @@ export default function ProductAddEditPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-3 relative z-20">
                     <SectionCard step={1} title="Base Product Details">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="md:col-span-2 space-y-4">
-                                <div>
+                        <div className="flex flex-col gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="md:col-span-2">
                                     <label className="block text-sm text-[#a6a7a6] mb-1.5 font-medium">Product Title <span className="text-[#ffb4ab]">*</span></label>
                                     <input
                                         type="text"
@@ -302,7 +350,46 @@ export default function ProductAddEditPage() {
                                     />
                                     {errors.productTitle && <span className="text-xs text-[#ffb4ab] mt-1">{errors.productTitle}</span>}
                                 </div>
+                                <div>
+                                    <label className="block text-sm text-[#a6a7a6] mb-1.5 font-medium">Base Price (₱) <span className="text-[#ffb4ab]">*</span></label>
+                                    <input
+                                        type="number"
+                                        value={ProductDetailState.basePrice}
+                                        onChange={(e) => dispatchProductDetailCreate({ type: 'UPDATE_BASE_PRICE', payload: e.target.value })}
+                                        className="w-full bg-[#16202c] border border-[#212b37] rounded-lg px-4 py-2.5 text-[#d9e3f4] focus:outline-none focus:border-[#ffb77c]/50 focus:ring-1 focus:ring-[#ffb77c]/50 transition-all placeholder:text-[#a6a7a6]/50"
+                                        placeholder="0.00"
+                                    />
+                                    {errors.basePrice && <span className="text-xs text-[#ffb4ab] mt-1">{errors.basePrice}</span>}
+                                </div>
+                            </div>
 
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="dark-dropdown relative z-[30]">
+                                    <label className="block text-sm text-[#a6a7a6] mb-1.5 font-medium">Brand <span className="text-[#ffb4ab]">*</span></label>
+                                    <div className="bg-[#16202c] border border-[#212b37] rounded-lg">
+                                        <DashboardSelectBrand choosenBrand={ProductDetailState.brand} reducerType='CREATE' dispatchProductDetailCreate={dispatchProductDetailCreate} />
+                                    </div>
+                                    {errors.brand && <span className="text-xs text-[#ffb4ab] mt-1">{errors.brand}</span>}
+                                </div>
+                                <div className="dark-dropdown relative z-[20]">
+                                    <label className="block text-sm text-[#a6a7a6] mb-1.5 font-medium">Category <span className="text-[#ffb4ab]">*</span></label>
+                                    <div className="bg-[#16202c] border border-[#212b37] rounded-lg">
+                                        <DashboardSelectCategory currentCategory={ProductDetailState.category} ReducerType='CREATE' dispatchProductDetailCreate={dispatchProductDetailCreate} />
+                                    </div>
+                                    {errors.category && <span className="text-xs text-[#ffb4ab] mt-1">{errors.category}</span>}
+                                </div>
+                                {ProductDetailState.category && (
+                                    <div className="dark-dropdown relative z-[10]">
+                                        <label className="block text-sm text-[#a6a7a6] mb-1.5 font-medium">Sub-Category <span className="text-[#ffb4ab]">*</span></label>
+                                        <div className="bg-[#16202c] border border-[#212b37] rounded-lg">
+                                            <DashboardSelectSubCategory currentCategory={ProductDetailState.category} currentSubCategory={ProductDetailState.subCategory} ReducerType='CREATE' dispatchProductDetailCreate={dispatchProductDetailCreate} />
+                                        </div>
+                                        {errors.subCategory && <span className="text-xs text-[#ffb4ab] mt-1">{errors.subCategory}</span>}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="relative z-0 pt-4 mt-2">
                                 <ProductContentInputs
                                     description={ProductDetailState.description}
                                     specifications={ProductDetailState.specifications}
@@ -314,48 +401,6 @@ export default function ProductAddEditPage() {
                                     onDescriptionErrorClear={() => setErrors(p => ({ ...p, description: '' }))}
                                 />
                             </div>
-
-                            <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="col-span-2">
-                                        <label className="block text-sm text-[#a6a7a6] mb-1.5 font-medium">Base Price (₱) <span className="text-[#ffb4ab]">*</span></label>
-                                        <input
-                                            type="number"
-                                            value={ProductDetailState.basePrice}
-                                            onChange={(e) => dispatchProductDetailCreate({ type: 'UPDATE_BASE_PRICE', payload: e.target.value })}
-                                            className="w-full bg-[#16202c] border border-[#212b37] rounded-lg px-4 py-2.5 text-[#d9e3f4] focus:outline-none focus:border-[#ffb77c]/50 focus:ring-1 focus:ring-[#ffb77c]/50 transition-all placeholder:text-[#a6a7a6]/50"
-                                            placeholder="0.00"
-                                        />
-                                        {errors.basePrice && <span className="text-xs text-[#ffb4ab] mt-1">{errors.basePrice}</span>}
-                                    </div>
-                                </div>
-
-                                <div className="dark-dropdown">
-                                    <label className="block text-sm text-[#a6a7a6] mb-1.5 font-medium">Brand <span className="text-[#ffb4ab]">*</span></label>
-                                    <div className="bg-[#16202c] border border-[#212b37] rounded-lg">
-                                        <DashboardSelectBrand choosenBrand={ProductDetailState.brand} reducerType='CREATE' dispatchProductDetailCreate={dispatchProductDetailCreate} />
-                                    </div>
-                                    {errors.brand && <span className="text-xs text-[#ffb4ab] mt-1">{errors.brand}</span>}
-                                </div>
-
-                                <div className="dark-dropdown">
-                                    <label className="block text-sm text-[#a6a7a6] mb-1.5 font-medium">Category <span className="text-[#ffb4ab]">*</span></label>
-                                    <div className="bg-[#16202c] border border-[#212b37] rounded-lg">
-                                        <DashboardSelectCategory currentCategory={ProductDetailState.category} ReducerType='CREATE' dispatchProductDetailCreate={dispatchProductDetailCreate} />
-                                    </div>
-                                    {errors.category && <span className="text-xs text-[#ffb4ab] mt-1">{errors.category}</span>}
-                                </div>
-
-                                {ProductDetailState.category && (
-                                    <div className="dark-dropdown">
-                                        <label className="block text-sm text-[#a6a7a6] mb-1.5 font-medium">Sub-Category <span className="text-[#ffb4ab]">*</span></label>
-                                        <div className="bg-[#16202c] border border-[#212b37] rounded-lg">
-                                            <DashboardSelectSubCategory currentCategory={ProductDetailState.category} currentSubCategory={ProductDetailState.subCategory} ReducerType='CREATE' dispatchProductDetailCreate={dispatchProductDetailCreate} />
-                                        </div>
-                                        {errors.subCategory && <span className="text-xs text-[#ffb4ab] mt-1">{errors.subCategory}</span>}
-                                    </div>
-                                )}
-                            </div>
                         </div>
                     </SectionCard>
                 </div>
@@ -365,7 +410,17 @@ export default function ProductAddEditPage() {
                         {!hasProductVariant ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div>
-                                    <label className="block text-xs font-semibold uppercase tracking-wider text-[#a6a7a6] mb-2">Master SKU Code</label>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-[#a6a7a6]">Master SKU Code</label>
+                                        <button
+                                            type="button"
+                                            onClick={handleGenerateSKU}
+                                            disabled={isGeneratingSku}
+                                            className={`text-[10px] px-2.5 py-1 rounded transition-colors font-medium border border-[#2c3542] ${isGeneratingSku ? 'bg-[#16202c] text-[#a6a7a6] cursor-not-allowed' : 'bg-[#2c3542] hover:bg-[#3d4859] text-[#d9e3f4]'}`}
+                                        >
+                                            {isGeneratingSku ? 'Generating...' : 'Generate SKU'}
+                                        </button>
+                                    </div>
                                     <div className="relative">
                                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <QrCode className="w-4 h-4 text-[#a6a7a6]" />
@@ -611,7 +666,20 @@ export default function ProductAddEditPage() {
                         </div>
 
                         <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
-                            <label className="shrink-0 w-64 h-72 border-2 border-dashed border-[#2c3542] rounded-xl bg-[#16202c] flex flex-col items-center justify-center p-6 text-center hover:border-[#a18d7f]/40 transition-colors cursor-pointer group">
+                            <FileDropImage
+                                maxImages={20}
+                                className="shrink-0 w-64 h-72 border-2 border-dashed border-[#2c3542] rounded-xl bg-[#16202c] flex flex-col items-center justify-center p-6 text-center hover:border-[#a18d7f]/40 transition-colors cursor-pointer group"
+                                onFileChange={(files: File | File[]) => {
+                                    const fileArray = Array.isArray(files) ? files : [files];
+                                    if (fileArray.length > 0) {
+                                        const newMedias = fileArray.map(file => ({ file, isMain: false }));
+                                        if (ProductDetailState.medias.length === 0 && newMedias.length > 0) {
+                                            newMedias[0].isMain = true;
+                                        }
+                                        dispatchProductDetailCreate({ type: 'ADD_MEDIAS', payload: newMedias });
+                                    }
+                                }}
+                            >
                                 <UploadCloud className="w-8 h-8 text-[#a6a7a6] mb-4 group-hover:text-[#d9e3f4] transition-colors" />
                                 <div className="text-sm font-medium text-[#d9e3f4] mb-1">
                                     Drag & drop or <span className="text-[#ffb77c] hover:underline">browse</span> files
@@ -619,22 +687,7 @@ export default function ProductAddEditPage() {
                                 <div className="text-xs text-[#a6a7a6] leading-relaxed">
                                     PNG, JPG, WEBP up to<br />10MB. Ideal ratio 1:1.
                                 </div>
-                                <input
-                                    type="file"
-                                    multiple
-                                    className="hidden"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                        if (e.target.files) {
-                                            const newMedias = Array.from(e.target.files).map(file => ({ file, isMain: false }));
-                                            if (ProductDetailState.medias.length === 0 && newMedias.length > 0) {
-                                                newMedias[0].isMain = true;
-                                            }
-                                            dispatchProductDetailCreate({ type: 'ADD_MEDIAS', payload: newMedias });
-                                        }
-                                    }}
-                                />
-                            </label>
+                            </FileDropImage>
 
                             {ProductDetailState.medias.map((media, index) => (
                                 <div key={index} className={`shrink-0 w-64 h-72 rounded-xl bg-[#16202c] border ${media.isMain ? 'border-[#ffb77c]/50 shadow-[0_0_15px_rgba(255,183,124,0.1)]' : 'border-[#212b37]'} overflow-hidden flex flex-col relative group`}>

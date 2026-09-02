@@ -32,7 +32,7 @@ export default function CollectionCard({ product, index = 0 }: CollectionCardPro
       className="h-full"
     >
       <Link
-        href={`/product/${productId}/${slugify(productTitle).toLowerCase()}`}
+        href={`/product-details/${productId}/${slugify(productTitle).toLowerCase()}`}
         className="group relative flex flex-col overflow-hidden rounded-md border border-[#323537]
           bg-[#1d2022] cursor-pointer transition-all duration-300 hover:border-[#ffc49a] min-h-[360px] h-full block"
       >

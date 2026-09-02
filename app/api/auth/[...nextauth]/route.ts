@@ -3,7 +3,14 @@ import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const handler = NextAuth({
+import { NextAuthOptions } from "next-auth";
+
+export const authOptions: NextAuthOptions = {
+    session: {
+        strategy: "jwt",
+        maxAge: 30 * 24 * 60 * 60,
+        updateAge: 24 * 60 * 60,
+    },
     providers: [
         CredentialsProvider({
             name: 'Credentials',
@@ -24,14 +31,16 @@ const handler = NextAuth({
 
                     const data = await res.json();
 
+                    // Using the new clean UserResource from Laravel
                     if (res.ok && data.user && data.token) {
                         return {
                             id: data.user.id.toString(),
                             name: data.user.name,
                             email: data.user.email,
-                            laravelUser: data.user,
-                            token: data.token
-                        } as any;
+                            image: data.user.image,
+                            role: data.user.role,
+                            accessToken: data.token
+                        };
                     }
                     return null;
                 } catch (error) {
@@ -55,13 +64,14 @@ const handler = NextAuth({
             // Initial sign in
             if (account && user) {
                 if (account.provider === 'credentials') {
-                    // For credentials (Admins), we already prepared the data in authorize()
-                    token.accessToken = (user as any).token;
-                    token.laravelUser = (user as any).laravelUser;
+                    // For credentials, data comes cleanly from authorize()
+                    token.id = parseInt(user.id);
+                    token.role = user.role;
+                    token.accessToken = user.accessToken;
                 } else {
-                    // For Social Logins (Google/Facebook), go to Laravel register endpoint
+                    // For Social Logins, we hit the Laravel register endpoint
                     const payload = {
-                        provider_name: account.provider, // 'google' or 'facebook'
+                        provider_name: account.provider,
                         provider_id: account.providerAccountId,
                         name: user.name,
                         email: user.email,
@@ -80,9 +90,10 @@ const handler = NextAuth({
 
                         if (res.ok) {
                             const data = await res.json();
+                            // NextAuth 'user' object is augmented with the clean API response
+                            token.id = data.user.id;
+                            token.role = data.user.role;
                             token.accessToken = data.token;
-                            token.laravelUser = data.user;
-                            console.log('Successfully fetched from Laravel API:', data.user);
                         } else {
                             const errorText = await res.text();
                             console.error('Laravel API Registration Error:', res.status, errorText);
@@ -95,10 +106,11 @@ const handler = NextAuth({
             return token;
         },
         async session({ session, token }) {
-            console.log('NextAuth Session Callback - Token:', token);
+            // Map the token properties strictly to the flattened session structure
             if (token) {
+                session.user.id = token.id as number;
+                session.user.role = token.role as string;
                 session.accessToken = token.accessToken as string;
-                session.user = { ...session.user, ...token.laravelUser as any };
             }
             return session;
         },
@@ -118,6 +130,8 @@ const handler = NextAuth({
             console.log('NextAuth Debug:', code, metadata);
         }
     }
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

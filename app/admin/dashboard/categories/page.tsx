@@ -3,11 +3,13 @@ import React from 'react'
 
 import { BrandLogos } from "@/lib/api/brandService";
 import { DashboardBrandClient, DashboardCategoryClient } from '@/components';
-import { CategoryList } from '@/lib/api/categoryService';
+import { categoryList } from '@/lib/api/categoryService';
 
 export default async function page() {
-    const brandslist = await BrandLogos();
-    const categorylist = await CategoryList();
+    const [brandslist, categorylist] = await Promise.all([
+        BrandLogos(),
+        categoryList()
+    ]);
 
     return (
         <div className='flex flex-col space-y-6'>

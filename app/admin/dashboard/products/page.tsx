@@ -1,11 +1,20 @@
+// Page Component
 'use client';
+
+import { BrandProps } from '@/types/brandType';
+import { CategoryProps } from '@/types/categoryType';
+import { ProductListDashboard, PaginationProps } from '@/types/productTypes';
+import DashboardSelectBrand from '@/components/DashboardSelectBrand';
+import DashboardSelectCategory from '@/components/DashboardSelectCategory';
+
+
+
 
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  ProductListDashboard,
   ProductListDashboardSearch,
-  DeleteProductDashboard,
+  DeleteProductDashboard
 } from '@/lib/api/productService';
 import { numericConverter } from '@/utils/priceUtils';
 import Link from 'next/link';
@@ -27,11 +36,19 @@ import {
 
 export default function Page() {
   const [searchProduct, setSearchProduct] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [productsLists, setProductLists] = useState<ProductListDashboard[]>([]);
   const [page, setPage] = useState(1);
+  const [selectedBrand, setSelectedBrand] = useState<BrandProps | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryProps | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [productsLists, setProductLists] = useState<ProductListDashboard[]>([]);
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
-
+  const [pagination, setPagination] = useState<PaginationProps>({
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+  });
   const [productToDelete, setProductToDelete] = useState<ProductListDashboard | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [statusType, setStatusType] = useState<'success' | 'error' | null>(null);
@@ -61,16 +78,11 @@ export default function Page() {
     }
   };
 
-  const [pagination, setPagination] = useState({
-    current_page: 1,
-    last_page: 1,
-    total: 0,
-  });
-
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchProduct(e.target.value);
     setPage(1);
   };
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -81,24 +93,28 @@ export default function Page() {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setIsLoading(true);
       try {
-        const res = await ProductListDashboardSearch(debouncedSearch, page);
+        const brandId = selectedBrand ? selectedBrand.brandId : null;
+        const categoryId = selectedCategory ? selectedCategory.categoryId : null;
+        const res = await ProductListDashboardSearch(debouncedSearch, page, brandId, categoryId);
         setProductLists(res.products);
         setPagination(res.pagination);
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchProducts();
-  }, [debouncedSearch, page]);
+  }, [debouncedSearch, page, selectedBrand, selectedCategory]);
 
   const toggleRow = (id: number) => {
     setExpandedRows(prev =>
       prev.includes(id) ? prev.filter(rowId => rowId !== id) : [...prev, id]
     );
   };
-
   return (
     <div className={`${worksans.className} flex flex-col gap-y-6 text-[#d9e3f4] h-full`}>
       {/* ── HEADER ── */}
@@ -110,7 +126,7 @@ export default function Page() {
           </p>
         </div>
         <Link
-          href="/admin/dashboard/products/add"
+          href="/admin/dashboard/products/product-add"
           className="bg-[#ffb77c] hover:bg-[#e89347] text-[#4d2600] font-bold py-2.5 px-5 rounded-lg transition-colors flex items-center gap-2 self-start sm:self-auto"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -121,6 +137,7 @@ export default function Page() {
       </div>
 
       {/* ── FILTERS ── */}
+
       <div className="bg-[#121c28] border border-[#2c3542] rounded-xl p-4 flex flex-col gap-y-4">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
@@ -134,12 +151,22 @@ export default function Page() {
             />
           </div>
           <div className="flex gap-4">
-            <select className={`${inter.className} bg-[#212b37] border border-[#303a47] rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none appearance-none pr-8 cursor-pointer`}>
-              <option>Brand: All</option>
-            </select>
-            <select className={`${inter.className} bg-[#212b37] border border-[#303a47] rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none appearance-none pr-8 cursor-pointer`}>
-              <option>Category: All</option>
-            </select>
+            <div className="w-48 relative z-[60] bg-[#212b37] border border-[#303a47] rounded-lg">
+              <DashboardSelectBrand
+                reducerType="FILTER"
+                choosenBrand={selectedBrand}
+                onSelectBrand={setSelectedBrand}
+                customPlaceholder="Brand: All"
+              />
+            </div>
+            <div className="w-48 relative z-[50] bg-[#212b37] border border-[#303a47] rounded-lg">
+              <DashboardSelectCategory
+                ReducerType="FILTER"
+                currentCategory={selectedCategory}
+                onSelectCategory={setSelectedCategory}
+                customPlaceholder="Category: All"
+              />
+            </div>
             <select className={`${inter.className} bg-[#212b37] border border-[#303a47] rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none appearance-none pr-8 cursor-pointer`}>
               <option>Status: All</option>
             </select>
@@ -148,25 +175,12 @@ export default function Page() {
             </button>
           </div>
         </div>
-        {/* Active Filters */}
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1 bg-[#ffb77c]/10 border border-[#ffb77c]/30 text-[#ffb77c] px-3 py-1 rounded-full text-xs font-semibold">
-            Category: Jigheads
-            <button className="hover:text-white ml-1"><X className="w-3 h-3" /></button>
-          </span>
-          <span className="flex items-center gap-1 bg-[#ffb77c]/10 border border-[#ffb77c]/30 text-[#ffb77c] px-3 py-1 rounded-full text-xs font-semibold">
-            Brand: TUKOB
-            <button className="hover:text-white ml-1"><X className="w-3 h-3" /></button>
-          </span>
-          <button className="text-[#a6a7a6] hover:text-white text-xs font-semibold ml-2 transition-colors">
-            Clear All
-          </button>
-        </div>
+
       </div>
 
       {/* ── PRODUCT LIST ── */}
       <div className="bg-[#121c28] border border-[#2c3542] rounded-xl flex flex-col flex-1 overflow-hidden">
-        {/* Header */}
+
         <div className="grid grid-cols-[auto_2fr_1fr_1fr_1.5fr_auto] gap-4 p-5 border-b border-[#2c3542] items-center bg-[#16202c]">
           <div className="flex items-center">
             <input type="checkbox" className="w-4 h-4 rounded bg-[#0a1420] border-[#303a47] text-[#ffb77c] focus:ring-[#ffb77c]/50" />
@@ -178,9 +192,37 @@ export default function Page() {
           <div className="text-[#a6a7a6] text-[11px] font-bold uppercase tracking-wider text-right pr-4">Actions</div>
         </div>
 
-        {/* List */}
         <div className="flex-1 overflow-y-auto">
-          {productsLists.length === 0 ? (
+          {isLoading ? (
+            <div className="flex flex-col">
+              {[...Array(5)].map((_, index) => (
+                <div key={index} className="grid grid-cols-[auto_2fr_1fr_1fr_1.5fr_auto] gap-4 p-5 items-center border-b border-[#212b37] animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col gap-2">
+                      <div className="h-4 w-40 bg-[#212b37] rounded"></div>
+                      <div className="h-3 w-24 bg-[#16202c] rounded"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="h-5 w-20 bg-[#212b37] rounded"></div>
+                  </div>
+                  <div>
+                    <div className="h-4 w-16 bg-[#212b37] rounded"></div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <div className="h-3 w-24 bg-[#212b37] rounded"></div>
+                    <div className="h-4 w-32 bg-[#16202c] rounded-full"></div>
+                  </div>
+                  <div className="flex justify-end gap-3 pr-2">
+                    <div className="h-4 w-4 bg-[#212b37] rounded"></div>
+                    <div className="h-4 w-4 bg-[#212b37] rounded"></div>
+                    <div className="h-4 w-4 bg-[#212b37] rounded"></div>
+                    <div className="h-6 w-6 bg-[#212b37] rounded-full"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : productsLists.length === 0 ? (
             <div className="p-8 text-center text-[#a6a7a6]">No products found</div>
           ) : (
             productsLists.map((product) => {
@@ -188,64 +230,80 @@ export default function Page() {
 
               return (
                 <div key={product.productId} className="flex flex-col border-b border-[#212b37] last:border-b-0">
-                  {/* Main Row */}
-                  <div className={`grid grid-cols-[auto_2fr_1fr_1fr_1.5fr_auto] gap-4 p-5 items-center hover:bg-[#16202c]/50 transition-colors ${isExpanded ? 'bg-[#16202c]/30' : ''}`}>
-                    <div className="flex items-center">
-                      <input type="checkbox" className="w-4 h-4 rounded bg-[#0a1420] border-[#303a47] text-[#ffb77c] focus:ring-[#ffb77c]/50" />
-                    </div>
 
-                    {/* Info */}
+                  <div className={`grid grid-cols-[auto_2fr_1fr_1fr_1.5fr_auto] gap-4 p-5 items-center hover:bg-[#16202c]/50 transition-colors ${isExpanded ? 'bg-[#16202c]/30' : ''}`}>
+                    {/* <div className="flex items-center">
+                      <input type="checkbox" className="w-4 h-4 rounded bg-[#0a1420] border-[#303a47] text-[#ffb77c] focus:ring-[#ffb77c]/50" />
+                    </div> */}
+
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded bg-[#0a1420] border border-[#303a47] flex items-center justify-center shrink-0 overflow-hidden">
-                        {/* Placeholder image icon */}
-                        <svg className="w-5 h-5 text-[#303a47]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                      </div>
                       <div className="flex flex-col min-w-0">
                         <span className="text-white font-bold text-sm truncate">{product.productTitle}</span>
                         <span className="text-[#a6a7a6] text-xs truncate">Category {'>'} {product.subCategoryName}</span>
                       </div>
                     </div>
 
-                    {/* Brand */}
                     <div>
                       <span className="inline-flex items-center px-2.5 py-1 rounded bg-[#212b37] border border-[#303a47] text-[#d9e3f4] text-[11px] font-semibold uppercase tracking-wider">
                         {product.brandName}
                       </span>
                     </div>
 
-                    {/* Base Price */}
                     <div className={`${inter.className} text-white font-medium text-sm`}>
                       {numericConverter(product.basePrice)}
                     </div>
 
-                    {/* Variants & Stock */}
                     <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1 text-[#d9e3f4] text-[11px] font-semibold">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                        {product.productTypeVariant?.length || 0} Attributes
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="text-[#a6a7a6] font-medium">1 Total SKUs</span>
-                        <span className="bg-[#1a2e1d] text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full text-[10px] font-bold">
-                          [ 10 Units ]
-                        </span>
-                      </div>
+                      {product.hasVariants ? (
+                        <>
+                          <div className="flex items-center gap-1 text-[#d9e3f4] text-[11px] font-semibold">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            {product.productTypeVariant?.length || 0} Attributes
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-[#a6a7a6] font-medium">{product.productSkus.length} Total SKUs</span>
+                            <span className="bg-[#1a2e1d] text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                              [ {product.productSkus.reduce((acc, sku) => acc + sku.stockQuantity, 0)} Units ]
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-1 text-[#d9e3f4] text-[11px] font-semibold">
+                            <span className="text-[#a6a7a6] font-normal">SKU:</span> <span className="font-mono text-[#a6a7a6]">{product.sku || 'N/A'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs mt-0.5">
+                            <span className="text-[#a6a7a6] font-medium">Standard Item</span>
+                            <span className="bg-[#1a2e1d] text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                              [ {product.stockQuantity || 0} Units ]
+                            </span>
+                          </div>
+                        </>
+                      )}
                     </div>
 
-                    {/* Actions */}
                     <div className="flex items-center justify-end gap-3 pr-2">
                       <button className="text-[#a6a7a6] hover:text-white transition-colors"><Eye className="w-4 h-4" /></button>
-                      <Link href={`/admin/dashboard/products/${product.productId}`} className="text-[#a6a7a6] hover:text-[#ffb77c] transition-colors">
+                      <Link
+                        href={`/admin/dashboard/products/${product.productId}`}
+                        className="text-[#a6a7a6] hover:text-[#ffb77c] transition-colors">
                         <Pencil className="w-4 h-4" />
                       </Link>
-                      <button onClick={() => setProductToDelete(product)} className="text-[#a6a7a6] hover:text-[#ffb4ab] transition-colors"><Trash2 className="w-4 h-4" /></button>
-                      <button onClick={() => toggleRow(product.productId)} className="text-[#a6a7a6] hover:text-white transition-colors w-6 h-6 flex items-center justify-center bg-[#212b37] rounded-full">
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      <button
+                        onClick={() => console.log("product details delete", product)}
+                        className="text-[#a6a7a6] hover:text-[#ffb4ab] transition-colors">
+                        <Trash2 className="w-4 h-4" />
                       </button>
+                      {product.hasVariants ? (
+                        <button onClick={() => toggleRow(product.productId)} className="text-[#a6a7a6] hover:text-white transition-colors w-6 h-6 flex items-center justify-center bg-[#212b37] rounded-full">
+                          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        </button>
+                      ) : (
+                        <div className="w-6 h-6"></div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Expanded Row (Variants Table) */}
                   <AnimatePresence>
                     {isExpanded && (
                       <motion.div
@@ -267,18 +325,35 @@ export default function Page() {
                               </tr>
                             </thead>
                             <tbody className={`${inter.className}`}>
-                              {/* Mock Data for variants based on design */}
-                              <tr className="border-b border-[#212b37] last:border-0 hover:bg-[#212b37]/50">
-                                <td className="py-3 text-[#d9e3f4] font-medium text-xs">Default Variant</td>
-                                <td className="py-3 text-[#a6a7a6] font-mono text-[11px]">TSK-{product.productId}-01</td>
-                                <td className="py-3 text-white font-medium text-xs">{numericConverter(product.basePrice)}</td>
-                                <td className="py-3 text-[#d9e3f4] text-xs">10 units</td>
-                                <td className="py-3 flex justify-end pr-2">
-                                  <div className="w-8 h-4 bg-emerald-500 rounded-full relative">
-                                    <div className="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5 shadow-sm"></div>
-                                  </div>
-                                </td>
-                              </tr>
+                              {!product.hasVariants ? (
+                                <tr className="border-b border-[#212b37] last:border-0 hover:bg-[#212b37]/50">
+                                  <td className="py-3 text-[#d9e3f4] font-medium text-xs">Default Variant</td>
+                                  <td className="py-3 text-[#a6a7a6] font-mono text-[11px]">{product.sku || 'No SKU'}</td>
+                                  <td className="py-3 text-white font-medium text-xs">{numericConverter(product.basePrice)}</td>
+                                  <td className="py-3 text-[#d9e3f4] text-xs">{product.stockQuantity || 0} units</td>
+                                  <td className="py-3 flex justify-end pr-2">
+                                    <div className="w-8 h-4 bg-emerald-500 rounded-full relative">
+                                      <div className="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5 shadow-sm"></div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ) : (
+                                product.productSkus.map((sku) => (
+                                  <tr key={sku.skuId} className="border-b border-[#212b37] last:border-0 hover:bg-[#212b37]/50">
+                                    <td className="py-3 text-[#d9e3f4] font-medium text-xs">
+                                      {sku.variantOptions.map(opt => opt.optionName).join(' / ')}
+                                    </td>
+                                    <td className="py-3 text-[#a6a7a6] font-mono text-[11px]">{sku.skuCode}</td>
+                                    <td className="py-3 text-white font-medium text-xs">{numericConverter(sku.price)}</td>
+                                    <td className="py-3 text-[#d9e3f4] text-xs">{sku.stockQuantity} units</td>
+                                    <td className="py-3 flex justify-end pr-2">
+                                      <div className={`w-8 h-4 rounded-full relative ${sku.isActive ? 'bg-emerald-500' : 'bg-[#ffb4ab]'}`}>
+                                        <div className={`w-3 h-3 bg-white rounded-full absolute top-0.5 shadow-sm ${sku.isActive ? 'right-0.5' : 'left-0.5'}`}></div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))
+                              )}
                             </tbody>
                           </table>
                         </div>
@@ -291,9 +366,7 @@ export default function Page() {
           )}
         </div>
 
-        {/* Footer Actions & Pagination */}
         <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-[#2c3542] bg-[#0a1420]">
-          {/* Empty div to push pagination to right if needed, or we can just have space-between work on the remaining elements */}
           <div></div>
 
           <div className={`${inter.className} text-xs text-[#a6a7a6]`}>
@@ -329,6 +402,7 @@ export default function Page() {
             </button>
           </div>
         </div>
+
       </div>
 
       {/* ── Delete Modal ── */}

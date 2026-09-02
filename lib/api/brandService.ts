@@ -1,31 +1,31 @@
 import axios from 'axios';
 
+import { BrandProps } from '@/types/brandType';
+
 export interface BrandData {
   brandName: string;
   imageUrl: string;
 }
 
-export async function createBrand(data: BrandData) {
+export async function createBrand(data: BrandData, token: string) {
   const response = await axios.post('/api/brands', {
     brand_name: data.brandName,
     image_url: data.imageUrl,
+  }, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
   });
   return response.data;
 }
 
-// HEADER
-export interface BrandHeaderProps {
-  brandId: number;
-  brandName: string;
-  imageUrl?: string | null;
-}
 
 interface HeaderBrandResponse {
   status: boolean;
-  brands: BrandHeaderProps[];
+  brands: BrandProps[];
 }
 
-export async function showBrandListName(): Promise<BrandHeaderProps[]> {
+export async function showBrandListName(): Promise<BrandProps[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/brands/brandNameList/`,
     { cache: 'no-store' }
@@ -40,19 +40,12 @@ export async function showBrandListName(): Promise<BrandHeaderProps[]> {
 }
 
 
-// BrandLogos
-export interface BrandLogosProps {
-  brandId: number;
-  brandName: string;
-  imageUrl?: string | null;
-}
-
 interface BrandLogosResponse {
   status: boolean;
-  brandLogo: BrandLogosProps[];
+  brandLogo: BrandProps[];
 }
 
-export async function BrandLogos(): Promise<BrandLogosProps[]> {
+export async function BrandLogos(): Promise<BrandProps[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/brands/brandlogo/`,
     { cache: 'no-store' }
@@ -73,12 +66,17 @@ export interface UpdateBrandData {
   imageUrl?: string;
 }
 
-export async function updateBrand(data: UpdateBrandData) {
+export async function updateBrand(data: UpdateBrandData, token: string) {
   const response = await axios.put(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/brands/${data.brandId}`,
     {
       ...(data.brandName && { brand_name: data.brandName }),
       ...(data.imageUrl && { image_url: data.imageUrl }),
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     }
   );
   return response.data;

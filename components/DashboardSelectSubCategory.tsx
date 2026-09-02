@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react'
 import { showSubCategory } from '@/lib/api/categoryService'
-import { Category } from '@/types/categoryType';
+import { CategoryProps } from '@/types/categoryType';
 
 
 import { SubCategory } from '@/types/subCategoryTypes';
@@ -14,7 +14,7 @@ import { ProductDetailActionCreate } from '@/lib/reducer/productReducer'
 import { ProductDetailActionEdit } from "@/app/admin/dashboard/products/[productId]/ProductClientEdit";
 
 interface SubCategorySelectionProps {
-  currentCategory?: Category | null;
+  currentCategory?: CategoryProps | null;
   currentSubCategory?: SubCategory | null;
   ReducerType: 'EDIT' | 'CREATE';
   ProductDetailEditReducer?: React.Dispatch<ProductDetailActionEdit>;
@@ -135,7 +135,7 @@ const DashboardSelectSubCategory: React.FC<SubCategorySelectionProps> = (
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       {filteredSubCategories.length > 0 && (
-        <ul className="absolute top-full left-0 right-0 mt-1 z-50 list-none bg-[#16202c] border rounded-lg border-[#212b37] shadow-lg max-h-40 overflow-y-auto custom-scrollbar">
+        <ul className="absolute top-full left-0 right-0 mt-2 z-[60] list-none bg-[#1e2a38] border rounded-xl border-[#3d4859] shadow-2xl shadow-black/60 max-h-56 overflow-y-auto custom-scrollbar ring-1 ring-white/5">
           {filteredSubCategories.map((subCategory) => (
             <DropDownText
               onClick={() => handleSelectSubCategory(subCategory)}

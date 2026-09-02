@@ -10,6 +10,7 @@ import InputText from "./InputText";
 import IconButton from "./IconButton";
 
 import ImageIconUpload from "./ImageIconUpload";
+import FileDropImage from "./FileDropImage";
 import InputPrice from "./InputPrice";
 
 export {
@@ -25,6 +26,7 @@ export {
     InputText,
     IconButton,
     ImageIconUpload,
+    FileDropImage,
     InputPrice
 }
 export { default as ToggleSwitch } from './ToggleSwitch';

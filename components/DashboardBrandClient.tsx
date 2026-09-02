@@ -1,19 +1,21 @@
 'use client';
 import Image from 'next/image';
 import React, { useState, useEffect, useReducer } from 'react';
+import { useSession } from 'next-auth/react';
 
 import { Pencil, Trash2, CheckCircle2, AlertCircle, X } from 'lucide-react';
-import { BrandProps } from '@/types/dataprops';
 import { worksans } from '@/types/fonts';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import DashBoardButtonLayoutOption from './DashBoardButtonLayoutOption';
 
+import { BrandProps } from '@/types/brandType';
+
 import {
   SearchTextAdmin,
   InputText,
   IconButton,
-  ImageIconUpload,
+  FileDropImage,
   DropDownText
 } from '@/components/ui';
 
@@ -23,7 +25,6 @@ import {
 } from '@/hooks/useDashboardBrandReducer';
 
 import { uploadImages } from '@/lib/api/uploadImage';
-import { BrandHeaderProps } from '@/lib/api/brandService';
 import { getChangedFieldsBrands } from '@/hooks/brandFieldsChange';
 
 import {
@@ -33,13 +34,15 @@ import {
 
 
 type Props = {
-  brandslist: BrandHeaderProps[];
+  brandslist: BrandProps[];
 };
 
 export const DashboardBrandClient = ({ brandslist }: Props) => {
   const [brandState, dispatchCreateBrand] = useDashboardBrandCreateReducer()
   const [brandStateUpdate, dispatchUpdateBrand] = useDashboardBrandUpdateReducer();
   const [brands, setBrands] = useState<BrandProps[]>(brandslist);
+  const { data: session } = useSession();
+  const token = session?.accessToken || '';
 
   const [selectedBrand, setSelectedBrand] = useState<BrandProps | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -97,7 +100,7 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
       const newBrand = await createBrand({
         brandName: brandState.brandName,
         imageUrl: uploadedImageUrl[0].url
-      });
+      }, token);
       setBrands(prev => [...prev, newBrand]);
       cancelAddBrand();
       setIsCreating(false);
@@ -171,7 +174,7 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
       }
 
       // 4️⃣ update brand
-      const updatedBrand = await updateBrand(payload);
+      const updatedBrand = await updateBrand(payload, token);
 
       // 5️⃣ update local state
       if (updatedBrand?.brandId) {
@@ -265,7 +268,7 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                   <span className="bg-[#835d32]/20 text-[#E89347] text-[10px] px-2 py-0.5 rounded-full w-fit font-semibold uppercase border border-[#E89347]/20">
 
 
-                    Linked Products: 0
+                    Linked Products: {brand.linkedProducts ?? 0}
                   </span>
                 </div>
                 <div className="flex items-center justify-end gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
@@ -308,44 +311,60 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
           <div className="flex flex-col items-center justify-center gap-y-4">
             <div className='w-full items-center flex flex-col'>
               {!editMode ? (
-                <div className='relative h-45 w-50 p-2 border brandsBackGround border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center'>
+                <div className="w-full max-w-[200px] h-[180px] relative rounded-xl overflow-hidden border border-primaryColor/20 bg-primaryColor/5 flex flex-col items-center justify-center">
                   <Image
                     src={`${baseURL}${selectedBrand.imageUrl}`}
                     alt={selectedBrand.brandName}
                     fill
-                    className="object-contain"
+                    className="object-contain p-2"
                   />
                 </div>
               ) : (
                 <>
                   <div className="w-full flex flex-col items-center">
-                    <div className='relative h-45 w-50 p-2 border brandsBackGround border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center'>
+                    <FileDropImage
+                      maxImages={1}
+                      onFileChange={(file: File) =>
+                        dispatchUpdateBrand({
+                          type: 'BRAND_IMAGE_UPDATE',
+                          payload: file
+                        })
+                      }
+                      className="w-full max-w-[200px] h-[180px] border-2 border-dashed border-primaryColor/50 hover:border-primaryColor bg-primaryColor/5 hover:bg-primaryColor/10 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden relative group"
+                    >
                       {brandStateUpdate.imageUrl instanceof File ? (
-                        <Image
-                          src={URL.createObjectURL(brandStateUpdate.imageUrl)}
-                          alt="updateBrandImage"
-                          fill
-                          className="object-contain"
-                        />
+                        <>
+                          <Image
+                            src={URL.createObjectURL(brandStateUpdate.imageUrl)}
+                            alt="updateBrandImage"
+                            fill
+                            className="object-contain p-2"
+                          />
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                            <span className="text-white text-xs font-semibold px-2 py-1 border border-white/30 rounded bg-black/40 shadow-sm">Replace Image</span>
+                          </div>
+                        </>
+                      ) : selectedBrand.imageUrl ? (
+                        <>
+                          <Image
+                            src={`${baseURL}${selectedBrand.imageUrl}`}
+                            alt="currentBrandImage"
+                            fill
+                            className="object-contain p-2"
+                          />
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2 items-center justify-center backdrop-blur-sm">
+                            <Image src='/icons/imageupload.svg' alt="Upload" width={24} height={24} className="opacity-80" />
+                            <span className="text-white text-xs font-semibold px-3 py-1 border border-white/30 rounded-full bg-black/40 shadow-sm text-center">Drag & Drop<br />or Click to Replace</span>
+                          </div>
+                        </>
                       ) : (
-                        <Image
-                          src={`${baseURL}${selectedBrand.imageUrl}`}
-                          alt="currentBrandImage"
-                          fill
-                          className="object-contain"
-                        />
+                        <div className="flex flex-col items-center text-primaryColor/70 group-hover:text-primaryColor pointer-events-none p-4 text-center">
+                          <Image src='/icons/imageupload.svg' alt="Upload" width={40} height={40} className="mb-3 opacity-80" />
+                          <span className="font-semibold text-sm">Drag & Drop Image</span>
+                          <span className="text-xs mt-1 opacity-70">or click to browse</span>
+                        </div>
                       )}
-                      <ImageIconUpload
-                        uploadImage='/icons/imageupload.svg'
-                        maxImages={1}
-                        onFileChange={(file: File) =>
-                          dispatchUpdateBrand({
-                            type: 'BRAND_IMAGE_UPDATE',
-                            payload: file
-                          })
-                        }
-                      />
-                    </div>
+                    </FileDropImage>
                   </div>
                 </>
               )}
@@ -431,30 +450,37 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
               }}
             />
             <div className="w-full flex flex-col items-center">
-              <div className='relative h-45 w-50 p-2 border brandsBackGround border-secondary hover:border-primaryColor rounded group flex flex-col items-center text-center justify-center justify-items-center'>
-                {!brandState.imageUrl && (
-                  <ImageIconUpload
-                    uploadImage='/icons/imageupload.svg'
-                    maxImages={1}
-                    onFileChange={(file: File) => {
-                      dispatchCreateBrand({
-                        type: 'BRAND_IMAGE_CREATE',
-                        payload: file
-                      })
-                    }}
-                  />
-                )}
+              <FileDropImage
+                maxImages={1}
+                onFileChange={(file: File) => {
+                  dispatchCreateBrand({
+                    type: 'BRAND_IMAGE_CREATE',
+                    payload: file
+                  })
+                }}
+                className="w-full h-48 border-2 border-dashed border-primaryColor/50 hover:border-primaryColor bg-primaryColor/5 hover:bg-primaryColor/10 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden relative group"
+              >
                 {brandState.imageUrl ? (
-                  <Image
-                    src={URL.createObjectURL(brandState.imageUrl)}
-                    alt="newbrandimage"
-                    fill
-                    className="object-contain"
-                  />
+                  <>
+                    <Image
+                      src={URL.createObjectURL(brandState.imageUrl)}
+                      alt="newbrandimage"
+                      fill
+                      className="object-contain p-2"
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2 items-center justify-center backdrop-blur-sm">
+                      <Image src='/icons/imageupload.svg' alt="Upload" width={24} height={24} className="opacity-80" />
+                      <span className="text-white text-xs font-semibold px-3 py-1 border border-white/30 rounded-full bg-black/40 shadow-sm text-center">Replace Image</span>
+                    </div>
+                  </>
                 ) : (
-                  <h1 className='text-secondary group-hover:text-primaryColor'>No Selected Image</h1>
+                  <div className="flex flex-col items-center text-primaryColor/70 group-hover:text-primaryColor pointer-events-none p-4 text-center">
+                    <Image src='/icons/imageupload.svg' alt="Upload" width={48} height={48} className="mb-4 opacity-80" />
+                    <span className="font-semibold text-base tracking-wide">Drag & Drop Image Here</span>
+                    <span className="text-xs mt-1.5 opacity-70">or click to browse from your computer</span>
+                  </div>
                 )}
-              </div>
+              </FileDropImage>
             </div>
             <DashBoardButtonLayoutOption>
               <IconButton

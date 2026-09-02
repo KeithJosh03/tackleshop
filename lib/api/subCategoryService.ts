@@ -62,12 +62,16 @@ export async function fetchSubCategoriesByCategory(
  * Returns the created subcategory on success, or null on failure.
  */
 export async function addSubCategory(
-  payload: NewSubCategoryPayload
+  payload: NewSubCategoryPayload,
+  token: string
 ): Promise<NewSubCategoryResponse | null> {
   try {
     const res = await fetch('/api/subcategory/', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(payload),
     });
 
@@ -91,12 +95,16 @@ export async function addSubCategory(
  */
 export async function editSubCategory(
   subCategoryId: number,
-  payload: EditSubCategoryPayload
+  payload: EditSubCategoryPayload,
+  token: string
 ): Promise<SubCategoryProps | null> {
   try {
     const res = await fetch(`/api/subcategory/${subCategoryId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(payload),
     });
 
@@ -119,11 +127,15 @@ export async function editSubCategory(
  * Deletes a subcategory by ID
  */
 export async function deleteSubCategory(
-  subCategoryId: number
+  subCategoryId: number,
+  token: string
 ): Promise<boolean> {
   try {
     const res = await fetch(`/api/subcategory/${subCategoryId}`, {
       method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     return res.status === 204;

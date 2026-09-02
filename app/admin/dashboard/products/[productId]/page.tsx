@@ -1,5 +1,5 @@
-import { ProductDetailsEdit } from "@/lib/api/productService";
-import EditProductClient from "./ProductClientEdit";
+// import { ProductDetailsEdit } from "@/lib/api/productService";
+// import  EditProductClient  from "./ProductClientEdit";
 
 interface PageProps {
   params: Promise<{
@@ -10,16 +10,17 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const { productId } = await params;
 
-  const productDetailsEdit = await ProductDetailsEdit(Number(productId));
+  // const productDetailsEdit = await editProductDetailsFetch(Number(productId));
 
 
-  if (!productDetailsEdit) {
-    return <div>Product not found</div>;
-  }
+  // if (!productDetailsEdit) {
+  //   return <div>Product not found</div>;
+  // }
 
   return (
-    <EditProductClient
-      productDetailEditProps={productDetailsEdit}
-    />
+    // <EditProductClient
+    //   productDetailEditProps={productDetailsEdit}
+    // />
+    <h1>Hello</h1>
   );
 }

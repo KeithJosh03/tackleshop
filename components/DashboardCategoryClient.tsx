@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { worksans } from '@/types/fonts';
 import {
   Check,
@@ -13,7 +14,9 @@ import {
   AlertCircle
 } from 'lucide-react';
 
-import { CategoryProps, addCategory, editCategory, deleteCategory } from '@/lib/api/categoryService';
+import { CategoryProps } from '@/types/categoryType';
+
+import { addCategory, editCategory, deleteCategory } from '@/lib/api/categoryService';
 import { SubCategoryProps, fetchSubCategoriesByCategory, addSubCategory, editSubCategory, deleteSubCategory } from '@/lib/api/subCategoryService';
 import { SearchTextAdmin, IconButton, InputText } from '@/components/ui';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -23,6 +26,8 @@ type Props = {
 };
 
 export const DashboardCategoryClient = ({ categorylist }: Props) => {
+  const { data: session } = useSession();
+  const token = session?.accessToken || '';
   const [categories, setCategories] = useState<CategoryProps[]>(categorylist);
   const [selectedCategory, setSelectedCategory] = useState<CategoryProps | null>(null);
   const [subcategories, setSubcategories] = useState<SubCategoryProps[]>([]);
@@ -80,7 +85,7 @@ export const DashboardCategoryClient = ({ categorylist }: Props) => {
     if (!newCategoryName.trim()) return;
     setLoading(true);
     try {
-      const newCat = await addCategory({ category_name: newCategoryName });
+      const newCat = await addCategory({ category_name: newCategoryName }, token);
       if (newCat) {
         setCategories([...categories, { ...newCat, subcategoriesCount: 0 }]);
         setIsCreatingCategory(false);
@@ -100,7 +105,7 @@ export const DashboardCategoryClient = ({ categorylist }: Props) => {
     if (!editCategoryName.trim()) return;
     setLoading(true);
     try {
-      const updated = await editCategory(categoryId, { category_name: editCategoryName });
+      const updated = await editCategory(categoryId, { category_name: editCategoryName }, token);
       if (updated) {
         setCategories(categories.map(c => c.categoryId === categoryId ? { ...c, categoryName: updated.categoryName } : c));
         if (selectedCategory?.categoryId === categoryId) {
@@ -120,7 +125,7 @@ export const DashboardCategoryClient = ({ categorylist }: Props) => {
     if (!confirm('Are you sure you want to delete this category?')) return;
     setLoading(true);
     try {
-      const success = await deleteCategory(categoryId);
+      const success = await deleteCategory(categoryId, token);
       if (success) {
         setCategories(categories.filter(c => c.categoryId !== categoryId));
         if (selectedCategory?.categoryId === categoryId) {
@@ -144,7 +149,7 @@ export const DashboardCategoryClient = ({ categorylist }: Props) => {
       const newSub = await addSubCategory({
         category_id: selectedCategory.categoryId,
         sub_category_name: newSubCategoryName
-      });
+      }, token);
       if (newSub) {
         setSubcategories([...subcategories, newSub]);
         setCategories(categories.map(c =>
@@ -167,7 +172,7 @@ export const DashboardCategoryClient = ({ categorylist }: Props) => {
     if (!editSubCategoryName.trim()) return;
     setLoading(true);
     try {
-      const updated = await editSubCategory(subCategoryId, { sub_category_name: editSubCategoryName });
+      const updated = await editSubCategory(subCategoryId, { sub_category_name: editSubCategoryName }, token);
       if (updated) {
         setSubcategories(subcategories.map(s => s.subCategoryId === subCategoryId ? updated : s));
         setEditingSubCategoryId(null);
@@ -184,7 +189,7 @@ export const DashboardCategoryClient = ({ categorylist }: Props) => {
     if (!confirm('Are you sure you want to delete this subcategory?')) return;
     setLoading(true);
     try {
-      const success = await deleteSubCategory(subCategoryId);
+      const success = await deleteSubCategory(subCategoryId, token);
       if (success) {
         setSubcategories(subcategories.filter(s => s.subCategoryId !== subCategoryId));
         if (selectedCategory) {

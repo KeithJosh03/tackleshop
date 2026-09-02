@@ -13,14 +13,16 @@ import {
   SearchBar,
 } from '@/components/ui';
 
-import { BrandHeaderProps } from '@/lib/api/brandService';
-import { CategoryProps } from '@/lib/api/categoryService';
+// Types
+import { BrandProps } from '@/types/brandType';
+import { CategoryProps } from '@/types/categoryType';
 
 import { imagesAsset } from '@/types/image';
 import { montserrat } from '@/types/fonts';
+import { data } from 'framer-motion/client';
 
 type Props = {
-  brands: BrandHeaderProps[];
+  brands: BrandProps[];
   categories: CategoryProps[];
 };
 
@@ -57,6 +59,8 @@ export default function HeaderClient({ brands, categories }: Props) {
       document.body.style.overflow = '';
     }
   }, [menuOpen]);
+
+  console.log(session)
 
   /* ── Navigation Items ── */
   const navItems = [

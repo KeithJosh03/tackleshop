@@ -10,21 +10,7 @@ export default function DashboardLayoutComponent({ children }: { children: React
     const { data: session, status } = useSession();
     const router = useRouter();
 
-    useEffect(() => {
-        if (status === 'loading') return;
-
-        const roleName = session?.user?.role?.role_name?.toLowerCase() || (typeof session?.user?.role === 'string' ? session?.user?.role?.toLowerCase() : '');
-        const isAdmin = roleName === 'admin';
-
-        if (!session || !isAdmin) {
-            router.push('/');
-        }
-    }, [session, status, router]);
-
-    const roleName = session?.user?.role?.role_name?.toLowerCase() || (typeof session?.user?.role === 'string' ? session?.user?.role?.toLowerCase() : '');
-    const isAdmin = roleName === 'admin';
-
-    if (status === 'loading' || !session || !isAdmin) {
+    if (status === 'loading') {
         return (
             <div className="min-h-screen flex items-center justify-center bg-ma-background">
                 <div className="w-8 h-8 rounded-full border-2 border-ma-primary border-t-transparent animate-spin" />
