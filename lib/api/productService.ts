@@ -322,3 +322,19 @@ export const editProductDetailsFetch = async (productId: number): Promise<Produc
         throw error;
     }
 };
+
+export const searchProductsTitleSearchBar = async (search: string): Promise<ProductListDashboard[]> => {
+    try {
+        const queryParams = new URLSearchParams();
+        if (search) queryParams.append('productTitle', search);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/productsearch?${queryParams.toString()}`);
+        if (!res.ok) {
+            throw new Error(`Failed to fetch products: ${res.statusText}`);
+        }
+        const data = await res.json();
+        return data.products as ProductListDashboard[];
+    } catch (error) {
+        console.error("Error in searchProductsTitleSearchBar:", error);
+        throw error;
+    }
+};

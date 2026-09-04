@@ -9,6 +9,7 @@ import { slugify } from '@/utils/slugUtils';
 import { Info, Settings, FileText } from 'lucide-react';
 
 import ProductDetailsDropDown from '@/components/ProductDetailsDropDown';
+import CustomPrimaryButton from '@/components/CustomPrimaryButton';
 
 import { ProductDetailsViewProps, ProductSku } from '@/types/productTypes';
 import { ProductVariantTypes, ProductVariantOptions } from '@/types/productVariantsTypes';
@@ -333,16 +334,12 @@ export default function ProductDetailClient({
                                         );
 
                                         return (
-                                            <button
+                                            <CustomPrimaryButton
                                                 key={option.variantOptionId}
+                                                isSelected={isSelected}
                                                 onClick={() =>
                                                     handleSelectVariantOption(variant.variantTypeName, option)
                                                 }
-                                                className={`relative flex items-center gap-3 px-5 py-3 rounded-lg text-sm font-bold transition-all duration-300 overflow-hidden group border
-                                                ${isSelected
-                                                        ? 'bg-ma-primary text-ma-on-primary border-ma-primary shadow-[0_4px_14px_rgba(255,196,154,0.3)] scale-[1.02]'
-                                                        : 'bg-transparent text-ma-on-surface border-white/15 hover:border-ma-primary/60 hover:bg-white/5'
-                                                    }`}
                                             >
                                                 {/* Image preview badge for options with images */}
                                                 {hasImage && (
@@ -359,7 +356,7 @@ export default function ProductDetailClient({
                                                     </span>
                                                 )}
                                                 <span className="relative z-10 tracking-wide">{option.variantOptionValue}</span>
-                                            </button>
+                                            </CustomPrimaryButton>
                                         );
                                     })}
                                 </div>

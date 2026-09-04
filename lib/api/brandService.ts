@@ -81,3 +81,21 @@ export async function updateBrand(data: UpdateBrandData, token: string) {
   );
   return response.data;
 }
+
+
+interface DeleteBrandResponse {
+  status: boolean;
+}
+
+
+export async function deleteBrand(brandId: number, token: string): Promise<DeleteBrandResponse> {
+  const response = await axios.delete(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/brands/${brandId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+  return response.data;
+}

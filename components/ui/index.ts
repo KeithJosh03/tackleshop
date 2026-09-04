@@ -30,3 +30,4 @@ export {
     InputPrice
 }
 export { default as ToggleSwitch } from './ToggleSwitch';
+export { default as CustomPrimaryButton } from '../CustomPrimaryButton';

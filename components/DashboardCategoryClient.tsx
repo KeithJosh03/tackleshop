@@ -18,7 +18,7 @@ import { CategoryProps } from '@/types/categoryType';
 
 import { addCategory, editCategory, deleteCategory } from '@/lib/api/categoryService';
 import { SubCategoryProps, fetchSubCategoriesByCategory, addSubCategory, editSubCategory, deleteSubCategory } from '@/lib/api/subCategoryService';
-import { SearchTextAdmin, IconButton, InputText } from '@/components/ui';
+import { SearchTextAdmin, IconButton, InputText, CustomPrimaryButton } from '@/components/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 
 type Props = {
@@ -211,29 +211,29 @@ export const DashboardCategoryClient = ({ categorylist }: Props) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start h-full">
       {/* Categories Column */}
-      <div className={`${worksans.className} bg-[#0E1313] backdrop-blur-[20px] border border-greyColor rounded-2xl shadow-sm p-6 flex flex-col space-y-4 h-[700px]`}>
+      <div className={`${worksans.className} bg-ma-surface-container/50 border-2 border-greyColor/20 rounded-2xl shadow-sm p-6 flex flex-col space-y-4 h-[700px]`}>
         <div className="flex flex-row items-center justify-between mb-2">
           <div className="flex items-center gap-1">
             <span className="text-primaryColor text-2xl font-bold">#</span>
             <h2 className="text-white text-xl font-bold tracking-tight">Categories</h2>
           </div>
-          <button
+          <CustomPrimaryButton
+            isSelected
             onClick={() => {
               setIsCreatingCategory(true);
               setNewCategoryName('');
             }}
-            className="bg-primaryColor/20 hover:bg-primaryColor/30 text-primaryColor border border-primaryColor/50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
+            className="py-2 px-4"
           >
             <span>+</span> Add New Category
-          </button>
+          </CustomPrimaryButton>
         </div>
 
-        <div className="flex flex-col mt-4 flex-1 overflow-hidden">
-          <div className="flex justify-between px-4 py-2 border-b border-greyColor/30 text-xs font-semibold text-secondary uppercase tracking-wider">
+        <div className="flex flex-col mt-2 flex-1 overflow-hidden">
+          <div className="flex justify-between px-4 py-2 border-b text-[#a6a7a6] border-greyColor/30 text-xs font-semibold uppercase tracking-wider">
             <div>Category Name</div>
             <div className="text-right">Actions</div>
           </div>
-
           {isCreatingCategory && (
             <div className="px-4 py-4 border-b border-greyColor/20 bg-white/5 flex gap-2 items-center">
               <InputText
@@ -275,7 +275,7 @@ export const DashboardCategoryClient = ({ categorylist }: Props) => {
                   ) : (
                     <>
                       <span className={`font-bold text-sm ${selectedCategory?.categoryId === cat.categoryId ? 'text-primaryColor' : 'text-white'}`}>{cat.categoryName.toUpperCase()}</span>
-                      <div className="flex items-center gap-1 text-secondary text-[10px] font-semibold uppercase">
+                      <div className="flex items-center gap-1 text-[#a6a7a6] text-[10px] font-semibold uppercase">
                         <LinkIcon className="w-3 h-3 opacity-70" />
                         <span>Subcategories Attached: {cat.subcategoriesCount || 0}</span>
                       </div>
@@ -301,13 +301,14 @@ export const DashboardCategoryClient = ({ categorylist }: Props) => {
       </div>
 
       {/* Subcategories Column */}
-      <div className={`${worksans.className} bg-[#0E1313] backdrop-blur-[20px] border border-greyColor rounded-2xl shadow-sm p-6 flex flex-col space-y-4 h-[700px]`}>
+      <div className={`${worksans.className}  bg-ma-surface-container/50 border-2 border-greyColor/20 rounded-2xl shadow-sm p-6 flex flex-col space-y-4 h-[700px]`}>
         <div className="flex flex-row items-center justify-between mb-2">
           <div className="flex items-center gap-1">
             <span className="text-primaryColor text-2xl font-bold">#</span>
             <h2 className="text-white text-xl font-bold tracking-tight">SubCategories</h2>
           </div>
-          <button
+          <CustomPrimaryButton
+            isSelected={!!selectedCategory}
             onClick={() => {
               if (!selectedCategory) {
                 showToast('Please select a category first', 'error');
@@ -317,10 +318,10 @@ export const DashboardCategoryClient = ({ categorylist }: Props) => {
               setNewSubCategoryName('');
             }}
             disabled={!selectedCategory}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 ${selectedCategory ? 'bg-primaryColor/20 hover:bg-primaryColor/30 text-primaryColor border border-primaryColor/50' : 'bg-greyColor/20 text-greyColor cursor-not-allowed border border-transparent'}`}
+            className={`py-2 px-4 ${!selectedCategory ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <span>+</span> Add Subcategory
-          </button>
+          </CustomPrimaryButton>
         </div>
         <div className="flex items-center gap-2 text-sm text-secondary border-b border-greyColor/30 pb-4">
           <Filter className="w-4 h-4" />
@@ -333,7 +334,7 @@ export const DashboardCategoryClient = ({ categorylist }: Props) => {
         </div>
 
         <div className="flex flex-col mt-2 flex-1 overflow-hidden">
-          <div className="grid grid-cols-[2fr_2fr_1fr] px-4 py-2 border-b border-greyColor/30 text-xs font-semibold text-secondary uppercase tracking-wider">
+          <div className="grid grid-cols-[2fr_2fr_1fr] px-4 py-2 border-b text-[#a6a7a6] border-greyColor/30 text-xs font-semibold uppercase tracking-wider">
             <div>Subcategory Name</div>
             <div>Parent Category</div>
             <div className="text-right">Actions</div>

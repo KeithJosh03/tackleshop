@@ -18,12 +18,12 @@ export default function DashboardLayoutComponent({ children }: { children: React
         );
     }
     return (
-        <div className={`${worksans.className} flex h-screen overflow-hidden bg-[#0A0E0F]`}>
+        <div className={`${worksans.className} flex h-screen overflow-hidden bg-ma-background`}>
             {/* Sidebar */}
             <DashboardSidebar />
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col h-screen overflow-hidden">
+            <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#0A0E0F]">
                 {/* Top Header */}
                 <DashboardHeader />
 

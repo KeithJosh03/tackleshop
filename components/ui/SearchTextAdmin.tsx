@@ -1,21 +1,29 @@
-import React from 'react';
+import React, { InputHTMLAttributes } from 'react';
 
-interface SearchTextAdminProps {
-  placeholderText: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+export interface SearchTextAdminProps extends InputHTMLAttributes<HTMLInputElement> {
+  placeholderText?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
 }
 
-const SearchTextAdmin: React.FC<SearchTextAdminProps> = ({ placeholderText, value, onChange }) => {
+const SearchTextAdmin: React.FC<SearchTextAdminProps> = ({
+  placeholderText,
+  value,
+  onChange,
+  className = '',
+  ...props
+}) => {
   return (
     <input
       type="text"
       placeholder={placeholderText}
       value={value}
       onChange={onChange}
-      className="border p-2 placeholder:text-base rounded-md w-full outline-none border-primaryColor text-secondary"
+      className={`w-full bg-[#0a1420] border border-[#303a47] focus:border-primaryColor/60 focus:ring-1 focus:ring-primaryColor/30 rounded-lg px-4 py-2.5 text-sm font-medium text-white placeholder:text-[#a6a7a6]/50 outline-none transition-all duration-200 shadow-sm ${className}`}
+      {...props}
     />
   );
-}
+};
 
 export default SearchTextAdmin;

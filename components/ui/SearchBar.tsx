@@ -41,6 +41,7 @@ export default function SearchBar() {
         .finally(() => setIsLoading(false));
     }, 400);
 
+    console.log(results);
     return () => clearTimeout(delayDebounce);
   }, [search]);
 
@@ -67,7 +68,7 @@ export default function SearchBar() {
             animate={{ width: "100%", opacity: 1 }}
             exit={{ width: 40, opacity: 0, transition: { duration: 0.1 } }}
             transition={{ type: "spring", damping: 22, stiffness: 250 }}
-            className="flex items-center w-full bg-blackgroundColor/95 backdrop-blur-md border border-primaryColor/60 rounded-xl h-11 px-3 shadow-[0_0_15px_rgba(232,147,71,0.2)] z-40 overflow-hidden"
+            className="flex items-center w-full bg-ma-surface-container/50 border-2 border-greyColor/20 backdrop-blur-md rounded-xl h-11 px-3 shadow-[0_0_15px_rgba(232,147,71,0.2)] z-40 overflow-hidden"
           >
             <Search className="w-5 h-5 text-primaryColor shrink-0 hidden sm:block mr-2" strokeWidth={2.5} />
 
@@ -106,7 +107,7 @@ export default function SearchBar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-[3.25rem] left-0 w-full bg-blackgroundColor/95 backdrop-blur-xl border border-greyColor/40 shadow-2xl rounded-2xl overflow-hidden py-2 z-50 pointer-events-auto"
+            className="absolute top-[3.25rem] left-0 w-full bg-ma-surface-container/50 border-2 border-greyColor/20 backdrop-blur-xl rounded-2xl overflow-hidden py-2 z-50 pointer-events-auto"
           >
             {isLoading && results.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-primaryColor/60 font-semibold flex flex-col items-center justify-center gap-3">

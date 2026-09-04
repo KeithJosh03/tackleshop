@@ -3,7 +3,7 @@ import Image from 'next/image';
 import React, { useState, useEffect, useReducer } from 'react';
 import { useSession } from 'next-auth/react';
 
-import { Pencil, Trash2, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { Pencil, Trash2, CheckCircle2, AlertCircle, X, Plus, UploadCloud, Check } from 'lucide-react';
 import { worksans } from '@/types/fonts';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -16,7 +16,8 @@ import {
   InputText,
   IconButton,
   FileDropImage,
-  DropDownText
+  DropDownText,
+  CustomPrimaryButton
 } from '@/components/ui';
 
 import {
@@ -29,7 +30,8 @@ import { getChangedFieldsBrands } from '@/hooks/brandFieldsChange';
 
 import {
   createBrand,
-  updateBrand
+  updateBrand,
+  deleteBrand
 } from '@/lib/api/brandService';
 
 
@@ -216,21 +218,22 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
   }
 
   return (
-    <div className={`${worksans.className} bg-[#0E1313] backdrop-blur-[20px] border border-greyColor rounded-2xl shadow-sm p-6 w-full h-full flex flex-col space-y-4`}>
+    <div className={`${worksans.className} bg-ma-surface-container/50 border-2 border-greyColor/20 rounded-xl rounded-2xl shadow-sm p-6 w-full h-full flex flex-col space-y-4`}>
       <div className="flex flex-row items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="text-primaryColor text-2xl font-bold">#</span>
           <h2 className="text-white text-xl font-bold tracking-tight">Brands</h2>
         </div>
-        <button
+        <CustomPrimaryButton
+          isSelected
           onClick={() => {
             setIsCreating(true)
             setSelectedBrand(null)
           }}
-          className="bg-primaryColor/20 hover:bg-primaryColor/30 text-primaryColor border border-primaryColor/50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
+          className="py-2 px-4"
         >
           <span>+</span> Add New Brand
-        </button>
+        </CustomPrimaryButton>
       </div>
       <div className="flex items-center text-base w-full">
         <SearchTextAdmin
@@ -242,8 +245,8 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
 
       {/* brandlist Render */}
       {filteredBrands.length > 0 && (
-        <div className="flex flex-col mt-4 flex-1 overflow-hidden">
-          <div className="grid grid-cols-[1fr_3fr_2fr] px-4 py-2 border-b border-greyColor/30 text-xs font-semibold text-secondary uppercase tracking-wider">
+        <div className="flex flex-col mt-1 flex-1 overflow-hidden">
+          <div className="grid grid-cols-[1fr_3fr_2fr] px-4 py-2 border-b border-greyColor/30 text-xs text-[#a6a7a6] font-semibold uppercase tracking-wider">
             <div>ID</div>
             <div>Brand Name</div>
             <div className="text-right">Actions</div>
@@ -265,9 +268,7 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                 <div className="text-secondary text-sm">#{brand.brandId}</div>
                 <div className="flex flex-col gap-1">
                   <span className="text-white font-bold text-sm">{brand.brandName.toUpperCase()}</span>
-                  <span className="bg-[#835d32]/20 text-[#E89347] text-[10px] px-2 py-0.5 rounded-full w-fit font-semibold uppercase border border-[#E89347]/20">
-
-
+                  <span className="bg-[#212b37] text-[#a6a7a6] text-[10px] px-2 py-0.5 rounded w-fit font-semibold uppercase border border-[#303a47]">
                     Linked Products: {brand.linkedProducts ?? 0}
                   </span>
                 </div>
@@ -282,6 +283,7 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                   <button className="text-secondary hover:text-red-400 p-1"
                     // onClick={(e) => { e.stopPropagation(); handleDeleteBrand(brand.brandId); }}
                     disabled={true}
+                    onClick={() => deleteBrand(brand.brandId, token)}
                     title="Delete Brand"
                   >
                     <Trash2 className="w-4 h-4 opacity-70" />
@@ -293,35 +295,69 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
         </div>
       )}
 
-      {/* Brand Choosen */}
-      {selectedBrand && (
-        <div className="mt-6 text-primaryColor bg-secondary/5 border border-primaryColor/20 p-5 rounded-lg shadow-sm">
-          <div className='flex flex-row justify-between items-center mb-4 pb-2 border-b border-greyColor/30'>
-            <h3 className="text-sm font-semibold text-secondary">BRAND SELECTED: <span className='text-primaryColor font-bold'>{selectedBrand.brandName.toUpperCase()}</span></h3>
-            <IconButton
-              icon='/icons/closeicon.svg'
-              altText='Close Icon'
-              onClick={() => {
-                setSelectedBrand(null)
-                seteditMode(false)
-              }}
-              iconSize={8}
-            />
-          </div>
-          <div className="flex flex-col items-center justify-center gap-y-4">
-            <div className='w-full items-center flex flex-col'>
+      {/* ── SELECTED / EDIT BRAND CARD ── */}
+      <AnimatePresence>
+        {selectedBrand && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            className="mt-4 bg-[#121c28] border-2 border-primaryColor/30 rounded-xl p-5 shadow-2xl flex flex-col space-y-4"
+          >
+            <div className="flex flex-row justify-between items-center pb-3 border-b border-greyColor/20">
+              <div className="flex items-center gap-2">
+                <span className="text-primaryColor font-bold text-xs uppercase tracking-wider">Brand Details</span>
+                <span className="text-white font-extrabold text-sm uppercase">[{selectedBrand.brandName}]</span>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedBrand(null);
+                  seteditMode(false);
+                }}
+                className="text-[#a6a7a6] hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5"
+                title="Close panel"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center gap-4">
               {!editMode ? (
-                <div className="w-full max-w-[200px] h-[180px] relative rounded-xl overflow-hidden border border-primaryColor/20 bg-primaryColor/5 flex flex-col items-center justify-center">
-                  <Image
-                    src={`${baseURL}${selectedBrand.imageUrl}`}
-                    alt={selectedBrand.brandName}
-                    fill
-                    className="object-contain p-2"
-                  />
+                <div className="w-full flex flex-col items-center gap-3">
+                  <div className="w-full max-w-[220px] h-[160px] relative rounded-xl overflow-hidden border border-greyColor/30 bg-[#0a1420] flex items-center justify-center p-3 shadow-inner">
+                    <Image
+                      src={`${baseURL}${selectedBrand.imageUrl}`}
+                      alt={selectedBrand.brandName}
+                      fill
+                      className="object-contain p-2"
+                    />
+                  </div>
+                  <button
+                    onClick={() => seteditMode(true)}
+                    className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primaryColor hover:text-primaryColor/80 px-4 py-2 rounded-lg bg-primaryColor/10 border border-primaryColor/20 hover:bg-primaryColor/20 transition-all cursor-pointer"
+                  >
+                    <Pencil className="w-4 h-4" /> Edit Brand
+                  </button>
                 </div>
               ) : (
-                <>
-                  <div className="w-full flex flex-col items-center">
+                <div className="w-full flex flex-col gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-[#a6a7a6] uppercase tracking-wider">Brand Name</label>
+                    <InputText
+                      placeholder="Enter Brand Name..."
+                      value={brandStateUpdate.brandName}
+                      onChange={(e) => {
+                        dispatchUpdateBrand({
+                          type: 'BRAND_NAME_UPDATE',
+                          payload: e.target.value
+                        });
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-[#a6a7a6] uppercase tracking-wider">Brand Logo</label>
                     <FileDropImage
                       maxImages={1}
                       onFileChange={(file: File) =>
@@ -330,7 +366,7 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                           payload: file
                         })
                       }
-                      className="w-full max-w-[200px] h-[180px] border-2 border-dashed border-primaryColor/50 hover:border-primaryColor bg-primaryColor/5 hover:bg-primaryColor/10 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden relative group"
+                      className="w-full h-40 border-2 border-dashed border-primaryColor/40 hover:border-primaryColor bg-[#0a1420] rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden relative group"
                     >
                       {brandStateUpdate.imageUrl instanceof File ? (
                         <>
@@ -338,10 +374,10 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                             src={URL.createObjectURL(brandStateUpdate.imageUrl)}
                             alt="updateBrandImage"
                             fill
-                            className="object-contain p-2"
+                            className="object-contain p-3"
                           />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                            <span className="text-white text-xs font-semibold px-2 py-1 border border-white/30 rounded bg-black/40 shadow-sm">Replace Image</span>
+                          <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                            <span className="text-white text-xs font-bold px-3 py-1.5 border border-white/30 rounded-lg bg-black/50 shadow-sm">Replace Logo</span>
                           </div>
                         </>
                       ) : selectedBrand.imageUrl ? (
@@ -350,158 +386,146 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                             src={`${baseURL}${selectedBrand.imageUrl}`}
                             alt="currentBrandImage"
                             fill
-                            className="object-contain p-2"
+                            className="object-contain p-3"
                           />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2 items-center justify-center backdrop-blur-sm">
-                            <Image src='/icons/imageupload.svg' alt="Upload" width={24} height={24} className="opacity-80" />
-                            <span className="text-white text-xs font-semibold px-3 py-1 border border-white/30 rounded-full bg-black/40 shadow-sm text-center">Drag & Drop<br />or Click to Replace</span>
+                          <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1.5 items-center justify-center backdrop-blur-sm">
+                            <UploadCloud className="w-6 h-6 text-primaryColor opacity-90" />
+                            <span className="text-white text-xs font-bold px-3 py-1 border border-white/30 rounded-lg bg-black/50 text-center">Click or Drag to Replace</span>
                           </div>
                         </>
                       ) : (
-                        <div className="flex flex-col items-center text-primaryColor/70 group-hover:text-primaryColor pointer-events-none p-4 text-center">
-                          <Image src='/icons/imageupload.svg' alt="Upload" width={40} height={40} className="mb-3 opacity-80" />
-                          <span className="font-semibold text-sm">Drag & Drop Image</span>
-                          <span className="text-xs mt-1 opacity-70">or click to browse</span>
+                        <div className="flex flex-col items-center text-primaryColor/70 group-hover:text-primaryColor p-4 text-center">
+                          <UploadCloud className="w-8 h-8 mb-2 opacity-80" />
+                          <span className="font-bold text-sm">Drag & Drop Image</span>
+                          <span className="text-xs mt-1 text-[#a6a7a6]">or click to browse</span>
                         </div>
                       )}
                     </FileDropImage>
                   </div>
-                </>
-              )}
-            </div>
-            <DashBoardButtonLayoutOption>
-              {!editMode && (
-                <>
-                  <IconButton
-                    icon='/icons/editicon.svg'
-                    altText='Edit Icon'
-                    onClick={() => seteditMode(true)}
-                    iconSize={8}
-                  />
-                </>
-              )}
-              {editMode && (
-                <>
-                  <SearchTextAdmin
-                    placeholderText="Edit Brand Name"
-                    value={brandStateUpdate.brandName}
-                    onChange={(e) => {
-                      dispatchUpdateBrand({
-                        type: 'BRAND_NAME_UPDATE',
-                        payload: e.target.value
-                      })
-                    }}
-                  />
 
-                  <IconButton
-                    icon='/icons/checkicon.svg'
-                    altText='Add Icon'
-                    onClick={handleUpdateBrand}
-                    iconSize={8}
-                  />
-
-                  <IconButton
-                    icon='/icons/closeicon.svg'
-                    altText='Close Icon'
-                    onClick={() => {
-                      seteditMode(false)
-                      dispatchUpdateBrand({
-                        type: 'CANCEL_BRAND_UPDATE',
-                        payload: {
-                          brandName: '',
-                          imageUrl: ''
-                        }
-                      })
-                    }}
-                    iconSize={8}
-                  />
-                </>
-              )}
-
-            </DashBoardButtonLayoutOption>
-          </div>
-        </div>
-      )}
-
-
-      {/* CREATE BRAND */}
-      {isCreating && (
-        <div className="mt-6 p-5 text-primaryColor bg-secondary/5 border border-primaryColor/20 rounded-lg shadow-sm">
-          <div className='flex flex-row justify-between items-center mb-4 pb-2 border-b border-greyColor/30'>
-            <h3 className="text-sm font-bold tracking-wide">ADD NEW BRAND</h3>
-            <IconButton
-              icon='/icons/closeicon.svg'
-              altText='Close Icon'
-              onClick={() => {
-                cancelAddBrand()
-              }}
-              iconSize={8}
-            />
-          </div>
-          <div className="space-y-4">
-            <InputText
-              placeholder="BRAND NAME"
-              value={brandState.brandName ? brandState.brandName : ''}
-              onChange={(e) => {
-                dispatchCreateBrand({
-                  type: 'BRAND_NAME_CREATE',
-                  payload: e.target.value
-                })
-              }}
-            />
-            <div className="w-full flex flex-col items-center">
-              <FileDropImage
-                maxImages={1}
-                onFileChange={(file: File) => {
-                  dispatchCreateBrand({
-                    type: 'BRAND_IMAGE_CREATE',
-                    payload: file
-                  })
-                }}
-                className="w-full h-48 border-2 border-dashed border-primaryColor/50 hover:border-primaryColor bg-primaryColor/5 hover:bg-primaryColor/10 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden relative group"
-              >
-                {brandState.imageUrl ? (
-                  <>
-                    <Image
-                      src={URL.createObjectURL(brandState.imageUrl)}
-                      alt="newbrandimage"
-                      fill
-                      className="object-contain p-2"
-                    />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2 items-center justify-center backdrop-blur-sm">
-                      <Image src='/icons/imageupload.svg' alt="Upload" width={24} height={24} className="opacity-80" />
-                      <span className="text-white text-xs font-semibold px-3 py-1 border border-white/30 rounded-full bg-black/40 shadow-sm text-center">Replace Image</span>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center text-primaryColor/70 group-hover:text-primaryColor pointer-events-none p-4 text-center">
-                    <Image src='/icons/imageupload.svg' alt="Upload" width={48} height={48} className="mb-4 opacity-80" />
-                    <span className="font-semibold text-base tracking-wide">Drag & Drop Image Here</span>
-                    <span className="text-xs mt-1.5 opacity-70">or click to browse from your computer</span>
+                  <div className="flex items-center justify-end gap-3 pt-2 border-t border-greyColor/20">
+                    <button
+                      onClick={() => {
+                        seteditMode(false);
+                        dispatchUpdateBrand({
+                          type: 'CANCEL_BRAND_UPDATE',
+                          payload: { brandName: '', imageUrl: '' }
+                        });
+                      }}
+                      className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-[#a6a7a6] hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <CustomPrimaryButton
+                      isSelected
+                      onClick={handleUpdateBrand}
+                      className="py-2 px-5 text-xs font-bold"
+                    >
+                      <Check className="w-4 h-4" /> Save Changes
+                    </CustomPrimaryButton>
                   </div>
-                )}
-              </FileDropImage>
+                </div>
+              )}
             </div>
-            <DashBoardButtonLayoutOption>
-              <IconButton
-                icon='/icons/addicon.svg'
-                altText='Add Icon'
-                onClick={handleAddBrand}
-                iconSize={8}
-              />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-              <IconButton
-                icon='/icons/closeicon.svg'
-                altText='Delete Icon'
-                onClick={() => {
-                  cancelAddBrand()
-                }}
-                iconSize={8}
-              />
-            </DashBoardButtonLayoutOption>
-          </div>
-        </div>
-      )}
+      {/* ── CREATE BRAND CARD ── */}
+      <AnimatePresence>
+        {isCreating && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            className="mt-4 bg-[#121c28] border-2 border-primaryColor/40 rounded-xl p-5 shadow-2xl flex flex-col space-y-4"
+          >
+            <div className="flex flex-row justify-between items-center pb-3 border-b border-greyColor/20">
+              <div className="flex items-center gap-2">
+                <span className="text-primaryColor font-bold text-base">+</span>
+                <h3 className="text-white font-bold text-sm uppercase tracking-wider">Add New Brand</h3>
+              </div>
+              <button
+                onClick={cancelAddBrand}
+                className="text-[#a6a7a6] hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-[#a6a7a6] uppercase tracking-wider">Brand Name <span className="text-primaryColor">*</span></label>
+                <InputText
+                  placeholder="e.g. SHIMANO, DAIWA, BEARKING..."
+                  value={brandState.brandName ? brandState.brandName : ''}
+                  onChange={(e) => {
+                    dispatchCreateBrand({
+                      type: 'BRAND_NAME_CREATE',
+                      payload: e.target.value
+                    });
+                  }}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-[#a6a7a6] uppercase tracking-wider">Brand Logo Image</label>
+                <FileDropImage
+                  maxImages={1}
+                  onFileChange={(file: File) => {
+                    dispatchCreateBrand({
+                      type: 'BRAND_IMAGE_CREATE',
+                      payload: file
+                    });
+                  }}
+                  className="w-full h-44 border-2 border-dashed border-primaryColor/40 hover:border-primaryColor bg-[#0a1420] rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden relative group"
+                >
+                  {brandState.imageUrl ? (
+                    <>
+                      <Image
+                        src={URL.createObjectURL(brandState.imageUrl)}
+                        alt="newbrandimage"
+                        fill
+                        className="object-contain p-3"
+                      />
+                      <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1.5 items-center justify-center backdrop-blur-sm">
+                        <UploadCloud className="w-6 h-6 text-primaryColor opacity-90" />
+                        <span className="text-white text-xs font-bold px-3 py-1 border border-white/30 rounded-lg bg-black/50">Replace Logo</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center text-primaryColor/70 group-hover:text-primaryColor p-4 text-center">
+                      <UploadCloud className="w-8 h-8 mb-2 opacity-80 text-primaryColor" />
+                      <span className="font-bold text-sm text-white">Drag & Drop Logo Image Here</span>
+                      <span className="text-xs mt-1 text-[#a6a7a6]">or click to browse from computer</span>
+                    </div>
+                  )}
+                </FileDropImage>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-greyColor/20">
+                <button
+                  type="button"
+                  onClick={cancelAddBrand}
+                  className="px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-[#a6a7a6] hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <CustomPrimaryButton
+                  isSelected
+                  onClick={handleAddBrand}
+                  className="py-2.5 px-6 text-xs font-bold"
+                >
+                  <Plus className="w-4 h-4" /> Save Brand
+                </CustomPrimaryButton>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
 
       {/* ── Toast Notification ── */}
       <AnimatePresence>

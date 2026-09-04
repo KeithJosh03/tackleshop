@@ -1,6 +1,6 @@
 "use client";
 
-import { BrandLogosProps } from "@/lib/api/brandService";
+import { BrandProps } from '@/types/brandType';
 import { montserrat } from "@/types/fonts";
 import Link from "next/link";
 import slugify from "slugify";
@@ -8,12 +8,12 @@ import Image from "next/image";
 
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
 
-export default function BrandCard({ brandId, brandName, imageUrl }: BrandLogosProps) {
+export default function BrandCard({ brandId, brandName, imageUrl }: BrandProps) {
   return (
     <Link
       href={`/brand/${slugify(brandName.toLowerCase())}`}
       key={brandId}
-      className="group relative flex aspect-[3/2] w-full items-center justify-center overflow-hidden rounded-xl border border-white/[0.08] bg-ma-surface-container transition-all duration-500 hover:border-ma-primary/40 hover:shadow-[0_0_20px_-6px_rgba(232,147,71,0.12)]"
+      className="group relative flex aspect-[3/2] w-full items-center justify-center overflow-hidden rounded-xl bg-ma-surface-container/50 border-2 border-greyColor/20 transition-all duration-500 hover:border-ma-primary/40 hover:shadow-[0_0_20px_-6px_rgba(232,147,71,0.12)]"
       aria-label={brandName}
     >
       {/* Subtle gradient shine on hover */}

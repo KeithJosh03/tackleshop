@@ -10,7 +10,7 @@ export default function HomePage() {
         <>
             <Header />
             <main
-                className="relative z-10 mb-24 flex flex-col items-center bg-ma-background"
+                className="relative z-10 mb-24 flex flex-col items-center"
             >
                 <Hero />
                 <Brands />

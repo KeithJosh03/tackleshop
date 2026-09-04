@@ -13,12 +13,13 @@ const mainMenuItems = [
   { href: '/admin/dashboard/categories', label: 'Categories', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
   { href: '/admin/dashboard/products/product-add', label: 'Add Product', icon: 'M12 4v16m8-8H4' },
   { href: '/admin/dashboard/products', label: 'Inventory', icon: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4' },
-  { href: '/admin/dashboard/setups', label: 'Setups', icon: 'M14.121 14.121L19 19m-7-7l-7-7m0 0l2.828-2.828M5 5l-2.828 2.828m0 0l7 7' },
-  { href: '/admin/dashboard/reviews', label: 'Reviews', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
+  { href: '/admin/dashboard/setups', label: 'Setups & Bundles', icon: 'M14.121 14.121L19 19m-7-7l-7-7m0 0l2.828-2.828M5 5l-2.828 2.828m0 0l7 7' },
 ];
 
 const managementItems = [
   { href: '/admin/dashboard/orders', label: 'Orders', icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z' },
+  { href: '/admin/dashboard/promotions', label: 'Promotions & Sales', icon: 'M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V6a2 2 0 10-2 2h2zm0 13C10.832 21 2 13.5 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 5-8.832 12.5-10 12.5z' },
+  { href: '/admin/dashboard/reviews', label: 'Reviews', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
   { href: '/admin/dashboard/analytics', label: 'Analytics', icon: 'M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z' },
 ];
 
@@ -52,7 +53,7 @@ export default function DashboardSidebar() {
   };
 
   return (
-    <aside className="w-64 bg-[#121617] border-r border-greyColor/20 h-screen sticky top-0 flex flex-col z-50">
+    <aside className="w-64 h-screen sticky top-0 flex flex-col z-50 bg-ma-surface-container/50 border-2 border-greyColor/20 ">
       {/* Logo */}
       <div className="px-3 py-4 border-b border-greyColor/20">
         <Link href="/" className="block">
@@ -69,9 +70,12 @@ export default function DashboardSidebar() {
         </Link>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 scroller-hide flex flex-col gap-y-8">
-        {/* Main Menu */}
+      <div className="flex-1 overflow-y-auto px-4 scroller-hide flex flex-col gap-y-6 pt-4">
+        {/* Core Operations */}
         <div>
+          <h3 className={`${inter.className} text-xs font-semibold text-[#d9e3f4]/40 uppercase tracking-wider mb-3 px-4`}>
+            Core Operations
+          </h3>
           <nav className="flex flex-col gap-y-1">
             {mainMenuItems.map(renderLink)}
           </nav>
@@ -88,14 +92,8 @@ export default function DashboardSidebar() {
         </div>
       </div>
 
-      {/* Bottom Actions */}
+      {/* Bottom User Info */}
       <div className="p-4 mt-auto shrink-0 border-t border-greyColor/20 flex flex-col gap-y-4">
-        {/* <button className="w-full flex items-center justify-center gap-x-2 bg-[#d6854b] hover:bg-[#d6854b]/90 text-[#0a1014] font-bold py-2.5 px-4 rounded-lg transition-colors">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          New Order
-        </button> */}
         <div className="flex items-center gap-x-3 px-2 py-2">
           <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center shrink-0 bg-gray-800 border border-white/10">
             {session?.user?.image ? (

@@ -60,7 +60,6 @@ export default function HeaderClient({ brands, categories }: Props) {
     }
   }, [menuOpen]);
 
-  console.log(session)
 
   /* ── Navigation Items ── */
   const navItems = [
@@ -82,23 +81,23 @@ export default function HeaderClient({ brands, categories }: Props) {
 
       <nav className='px-4 md:px-8 lg:px-14'>
         {/* ── ROW 1: Search | Logo | Cart + User ── */}
-        <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-12' : 'h-14'}`}>
+        <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-14 md:h-16' : 'h-18 md:h-20'}`}>
 
           {/* LEFT: Burger (mobile) / Search (desktop) */}
-          <div className="flex items-center flex-1">
+          <div className="flex items-center flex-1 h-full">
             {/* Burger (mobile only) */}
             <button
               aria-label="Open menu"
               onClick={() => setMenuOpen(true)}
-              className="md:hidden p-1.5 -ml-1 rounded-lg text-ma-primary/80 hover:text-ma-primary transition-colors"
+              className="md:hidden p-1.5 -ml-1 rounded-lg text-ma-primary/80 hover:text-ma-primary transition-colors flex items-center justify-center"
             >
               <Menu className="w-5 h-5" strokeWidth={2} />
             </button>
 
             {/* Search icon (desktop) */}
-            <div className="hidden md:block">
+            <div className="hidden md:flex items-center">
               {shouldShowSearch ? <SearchBar /> : (
-                <Link href="/" className="p-1.5 text-ma-primary/70 hover:text-ma-primary transition-colors" aria-label="Search">
+                <Link href="/" className="p-1.5 text-ma-primary/70 hover:text-ma-primary transition-colors flex items-center justify-center" aria-label="Search">
                   <Search className="w-[18px] h-[18px]" strokeWidth={1.8} />
                 </Link>
               )}
@@ -106,43 +105,45 @@ export default function HeaderClient({ brands, categories }: Props) {
           </div>
 
           {/* CENTER: Logo */}
-          <div className="flex items-center justify-center shrink-0 px-4">
-            <Link href="/" className="relative block">
+          <div className="flex items-center justify-center shrink-0 px-4 h-full">
+            <Link href="/" className="relative flex items-center justify-center">
               <div className={`relative transition-all duration-300 ease-out ${scrolled
-                ? 'w-32 h-12 md:w-36 md:h-13'
-                : 'w-36 h-14 md:w-44 md:h-16'
+                ? 'w-36 h-12 md:w-44 md:h-14'
+                : 'w-44 h-14 md:w-60 md:h-18'
                 }`}>
                 <Image
                   src={imagesAsset.logo}
                   fill={true}
-                  sizes="(min-width: 1024px) 256px, (min-width: 768px) 192px, 128px"
+                  sizes="(min-width: 1024px) 320px, (min-width: 768px) 256px, 180px"
                   alt="Smooth Casting Tackle Shop"
-                  className="object-contain drop-shadow-[0_0_8px_rgba(232,147,71,0.15)]"
+                  className="object-contain drop-shadow-[0_0_12px_rgba(232,147,71,0.2)]"
                   priority
                 />
               </div>
             </Link>
           </div>
 
+
           {/* RIGHT: Cart + Profile icons */}
-          <div className="flex items-center justify-end gap-x-2 md:gap-x-4 flex-1">
+          <div className="flex items-center justify-end gap-x-2 md:gap-x-4 flex-1 h-full">
             {/* Mobile search */}
-            <div className="md:hidden">
+            <div className="md:hidden flex items-center">
               {shouldShowSearch ? <SearchBar /> : null}
             </div>
 
             <Link
               href="#"
-              className="p-1.5 text-ma-primary/70 hover:text-ma-primary transition-colors"
+              className="p-1.5 text-ma-primary/70 hover:text-ma-primary transition-colors flex items-center justify-center"
               aria-label="Shopping cart"
             >
               <ShoppingCart className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.8} />
             </Link>
 
-            <div className="relative"
+            <div className="relative flex items-center justify-center"
               onMouseEnter={() => setProfileDropdownOpen(true)}
               onMouseLeave={() => setProfileDropdownOpen(false)}
             >
+
               {status === 'loading' ? (
                 <div className="p-1.5">
                   <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-ma-primary/20 animate-pulse" />
@@ -324,7 +325,7 @@ export default function HeaderClient({ brands, categories }: Props) {
       </nav>
 
       {/* ── Bottom border ── */}
-      <div className="h-[1px] w-full bg-gradient-to-r from-ma-primary/5 via-ma-primary/20 to-ma-primary/5" />
+      <div className="h-[1px] w-full border-b border-[#ffb77c]" />
 
       {/* ── Mobile Drawer Backdrop ── */}
       <AnimatePresence>

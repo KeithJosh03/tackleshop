@@ -103,11 +103,11 @@ export default function DashboardOverviewClient() {
         {kpiCards.map((card) => (
           <div
             key={card.label}
-            className={`bg-[#121c28] border rounded-xl p-5 flex flex-col hover:border-[#a18d7f]/40 transition-colors duration-300 relative ${card.active ? 'border-[#ffb77c]/50' : 'border-[#2c3542]'
+            className={`bg-ma-surface-container/50 border-2 border-greyColor/20 rounded-xl p-5 flex flex-col hover:border-ma-primary/40 transition-colors duration-300 relative ${card.active ? 'border-ma-primary/50' : 'border-[#2c3542]'
               }`}
           >
             {card.active && (
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] bg-[#ffb77c] rounded-r-md"></div>
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] bg-ma-primary rounded-r-md"></div>
             )}
 
             <div className="flex items-start justify-between mb-4">
@@ -157,7 +157,7 @@ export default function DashboardOverviewClient() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* ── Recent Orders (2/3 width) ── */}
-        <div className="lg:col-span-2 bg-[#121c28] border border-[#2c3542] rounded-xl flex flex-col">
+        <div className="lg:col-span-2 bg-ma-surface-container/50 border-2 border-greyColor/20 hover:border-ma-primary/40 rounded-xl flex flex-col">
           <div className="flex items-center justify-between p-5 border-b border-[#212b37]">
             <h2 className="text-[#d9e3f4] text-lg font-bold tracking-tight">Recent Orders</h2>
             <button className={`${inter.className} text-[#ffb77c] text-sm font-semibold hover:underline underline-offset-2`}>
@@ -199,7 +199,7 @@ export default function DashboardOverviewClient() {
         </div>
 
         {/* ── Revenue Growth (1/3 width) ── */}
-        <div className="bg-[#121c28] border border-[#2c3542] rounded-xl p-5 flex flex-col">
+        <div className="bg-ma-surface-container/50 border-2 border-greyColor/20 hover:border-ma-primary/40 rounded-xl p-5 flex flex-col">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-[#d9e3f4] text-lg font-bold tracking-tight">Revenue Growth</h2>
           </div>

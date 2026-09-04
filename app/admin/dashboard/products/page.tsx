@@ -6,9 +6,7 @@ import { CategoryProps } from '@/types/categoryType';
 import { ProductListDashboard, PaginationProps } from '@/types/productTypes';
 import DashboardSelectBrand from '@/components/DashboardSelectBrand';
 import DashboardSelectCategory from '@/components/DashboardSelectCategory';
-
-
-
+import CustomPrimaryButton from '@/components/CustomPrimaryButton';
 
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -20,7 +18,6 @@ import { numericConverter } from '@/utils/priceUtils';
 import Link from 'next/link';
 import { worksans, inter } from '@/types/fonts';
 
-// Icons
 import {
   Search,
   Filter,
@@ -125,14 +122,13 @@ export default function Page() {
             Manage your tackle inventory, SKUs, and stock levels.
           </p>
         </div>
-        <Link
-          href="/admin/dashboard/products/product-add"
-          className="bg-[#ffb77c] hover:bg-[#e89347] text-[#4d2600] font-bold py-2.5 px-5 rounded-lg transition-colors flex items-center gap-2 self-start sm:self-auto"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          Add New Product
+        <Link href="/admin/dashboard/products/product-add" className="self-start sm:self-auto">
+          <CustomPrimaryButton isSelected className="py-2.5 px-5">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Add New Product
+          </CustomPrimaryButton>
         </Link>
       </div>
 
@@ -230,29 +226,24 @@ export default function Page() {
 
               return (
                 <div key={product.productId} className="flex flex-col border-b border-[#212b37] last:border-b-0">
-
                   <div className={`grid grid-cols-[auto_2fr_1fr_1fr_1.5fr_auto] gap-4 p-5 items-center hover:bg-[#16202c]/50 transition-colors ${isExpanded ? 'bg-[#16202c]/30' : ''}`}>
                     {/* <div className="flex items-center">
                       <input type="checkbox" className="w-4 h-4 rounded bg-[#0a1420] border-[#303a47] text-[#ffb77c] focus:ring-[#ffb77c]/50" />
                     </div> */}
-
                     <div className="flex items-center gap-3">
                       <div className="flex flex-col min-w-0">
                         <span className="text-white font-bold text-sm truncate">{product.productTitle}</span>
                         <span className="text-[#a6a7a6] text-xs truncate">Category {'>'} {product.subCategoryName}</span>
                       </div>
                     </div>
-
                     <div>
                       <span className="inline-flex items-center px-2.5 py-1 rounded bg-[#212b37] border border-[#303a47] text-[#d9e3f4] text-[11px] font-semibold uppercase tracking-wider">
                         {product.brandName}
                       </span>
                     </div>
-
                     <div className={`${inter.className} text-white font-medium text-sm`}>
                       {numericConverter(product.basePrice)}
                     </div>
-
                     <div className="flex flex-col gap-1">
                       {product.hasVariants ? (
                         <>
@@ -281,7 +272,6 @@ export default function Page() {
                         </>
                       )}
                     </div>
-
                     <div className="flex items-center justify-end gap-3 pr-2">
                       <button className="text-[#a6a7a6] hover:text-white transition-colors"><Eye className="w-4 h-4" /></button>
                       <Link
@@ -298,12 +288,12 @@ export default function Page() {
                         <button onClick={() => toggleRow(product.productId)} className="text-[#a6a7a6] hover:text-white transition-colors w-6 h-6 flex items-center justify-center bg-[#212b37] rounded-full">
                           {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         </button>
-                      ) : (
-                        <div className="w-6 h-6"></div>
-                      )}
+                      ) :
+                        (
+                          <div className="w-6 h-6"></div>
+                        )}
                     </div>
                   </div>
-
                   <AnimatePresence>
                     {isExpanded && (
                       <motion.div
@@ -368,11 +358,9 @@ export default function Page() {
 
         <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-[#2c3542] bg-[#0a1420]">
           <div></div>
-
           <div className={`${inter.className} text-xs text-[#a6a7a6]`}>
             Showing {productsLists.length} of {pagination.total} products
           </div>
-
           <div className="flex gap-1 items-center mt-4 sm:mt-0">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -404,7 +392,6 @@ export default function Page() {
         </div>
 
       </div>
-
       {/* ── Delete Modal ── */}
       {productToDelete !== null && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">

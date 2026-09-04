@@ -1,6 +1,7 @@
 export interface CategoryProps {
     categoryName: string;
     categoryId: number;
+    subcategoriesCount?: number;
 }
 
 export interface ProductCollections {

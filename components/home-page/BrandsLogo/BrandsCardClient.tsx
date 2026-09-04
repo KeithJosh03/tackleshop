@@ -1,11 +1,11 @@
 
 import { montserrat } from "@/types/fonts";
-import { BrandLogosProps } from "@/lib/api/brandService";
+import { BrandProps } from "@/types/brandType"
 import BrandCard from "./BrandsCard";
 
 export default function BrandsCardClient(
   { brandlogos }:
-    { brandlogos: BrandLogosProps[] }
+    { brandlogos: BrandProps[] }
 ) {
   const hasBrands = Array.isArray(brandlogos) && brandlogos.length > 0;
   return (

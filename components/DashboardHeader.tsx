@@ -11,7 +11,8 @@ export default function DashboardHeader() {
   const pathParts = pathname.split('/').filter(Boolean).filter(part => part.toLowerCase() !== 'admin');
 
   return (
-    <header className='w-full bg-[#0A0E0F] border-b border-greyColor/20 py-4 px-8 flex items-center justify-between sticky top-0 z-40'>
+    <header className='w-full py-4 px-8 flex items-center justify-between sticky top-0 z-40
+    border-b border-[#ffb77c]'>
       {/* ── Left: Breadcrumbs ── */}
       <div className={`${inter.className} flex items-center gap-2 text-[13px]`}>
         {pathParts.map((part, index) => {

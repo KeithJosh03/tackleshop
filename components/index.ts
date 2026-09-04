@@ -41,6 +41,7 @@ import TextBox from './TextBox';
 import CustomButton from './ui/CustomButton';
 import ImageIconUpload from '@/components/ui/ImageIconUpload';
 import DropDownText from '@/components/ui/DropDownText';
+import CustomPrimaryButton from '@/components/CustomPrimaryButton';
 
 import { DashboardCategoryClient } from './DashboardCategoryClient';
 
@@ -80,6 +81,7 @@ export {
     TextBox,
     CustomButton,
     IconButton,
+    CustomPrimaryButton,
 
 
     // Setups,
