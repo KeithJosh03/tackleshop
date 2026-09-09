@@ -1,16 +1,13 @@
+import { worksans } from '@/types/fonts';
+
 export function SectionCard({ step, title, children }: { step: number; title: string; children: React.ReactNode }) {
     return (
-        <div className='rounded-xl border border-greyColor bg-blackgroundColor'>
-            <div className='flex items-center gap-3 px-5 py-3 border-b border-greyColor rounded-t-xl'
-                style={{ background: 'linear-gradient(90deg,rgba(17,26,45,1) 0%,rgba(19,29,41,0.6) 100%)' }}>
-                <span className='flex items-center justify-center w-7 h-7 rounded-full bg-primaryColor text-xs font-black text-white shrink-0'>
-                    {step}
-                </span>
-                <h2 className='text-primaryColor font-extrabold tracking-widest text-sm uppercase'>
-                    {title}
-                </h2>
+        <div className={`${worksans.className} bg-ma-surface-container/50 border-2 border-greyColor/20 rounded-2xl shadow-sm overflow-hidden flex flex-col`}>
+            <div className="flex items-center gap-2.5 px-6 py-4 border-b border-greyColor/30 bg-white/[0.02]">
+                <span className="text-primaryColor text-2xl font-bold">#{step}</span>
+                <h2 className="text-white text-xl font-bold tracking-tight uppercase">{title}</h2>
             </div>
-            <div className='p-5'>{children}</div>
+            <div className="p-6">{children}</div>
         </div>
     );
 }

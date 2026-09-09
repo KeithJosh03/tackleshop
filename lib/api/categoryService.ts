@@ -3,20 +3,21 @@ import axios, { AxiosError } from "axios";
 
 import {
   SubCategoryProps,
-  CategoryProducts,
-  CategorizeProduct
+  CategoryProducts
 } from "@/types/dataprops";
 
 import {
   CategoryCollectionProps, CategoryCollectionResponse,
   CategoryPropsListAdmin, HeaderCategoryResponse,
   CategoryProps, selectedCategorySubCategoryProps,
-  selectedCategorySubCategoriesProps
+  selectedCategorySubCategoriesProps, ProductCollections
 } from "@/types/categoryType";
 
+export type { CategoryCollectionProps, ProductCollections };
 
 
-export async function categoryList(): Promise<CategoryPropsListAdmin[]> {
+
+export async function CategoryListNameSearchHeader(): Promise<CategoryPropsListAdmin[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/categories/`,
     { cache: 'no-store' }
@@ -105,12 +106,19 @@ export async function deleteCategory(categoryId: number, token: string): Promise
 
 // UPDATE CATEGORY
 export interface UpdateCategoryPayload {
-  category_name: string;
+  category_name?: string;
+  is_active?: boolean;
+  sort_order?: number;
 }
 
 export interface UpdatedCategoryResponse {
   categoryId: number;
   categoryName: string;
+  subcategoriesCount?: number;
+  isActive?: boolean;
+  is_active?: boolean;
+  sortOrder?: number;
+  sort_order?: number;
 }
 
 export async function editCategory(
@@ -138,6 +146,51 @@ export async function editCategory(
   } catch (error) {
     console.error("Error updating category:", error);
     return null;
+  }
+}
+
+export async function toggleCategoryStatus(
+  categoryId: number,
+  is_active: boolean,
+  token: string
+): Promise<CategoryProps | null> {
+  try {
+    const res = await fetch(`/api/categories/${categoryId}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ is_active }),
+    });
+
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error("Error toggling category status:", error);
+    return null;
+  }
+}
+
+export async function reorderCategories(
+  orderedIds: number[],
+  token: string
+): Promise<boolean> {
+  try {
+    const orders = orderedIds.map((id, index) => ({ id, sort_order: index }));
+    const res = await fetch("/api/categories/reorder", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ orders }),
+    });
+
+    return res.ok;
+  } catch (error) {
+    console.error("Error reordering categories:", error);
+    return false;
   }
 }
 
@@ -194,7 +247,7 @@ interface CategoryProductResponse {
   hasMore: boolean;
 }
 
-export const fetchCategoryProducts = async (
+export const fetchSpecificCategoryProducts = async (
   category: string,
   page: number
 ): Promise<CategoryProductResponse | null> => {

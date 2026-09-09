@@ -12,6 +12,7 @@ const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
 export default function CategoryCards({ product, index }: { product: CategorizeProduct; index: number }) {
   const { basePrice, brandName, productThumbNail, productId, productTitle, subCategoryName } = product;
 
+  console.log(`${baseURL}${productThumbNail}`);
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}

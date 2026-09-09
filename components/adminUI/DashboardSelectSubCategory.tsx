@@ -7,11 +7,11 @@ import { CategoryProps } from '@/types/categoryType';
 import { SubCategory } from '@/types/subCategoryTypes';
 
 import DropDownText from '@/components/ui/DropDownText'
-import SearchText from './SearchText'
+import SearchText from '../SearchText'
 
 // ACTION TYPES REDUCER
 import { ProductDetailActionCreate } from '@/lib/reducer/productReducer'
-import { ProductDetailActionEdit } from "@/app/admin/dashboard/products/[productId]/ProductClientEdit";
+import { ProductDetailActionEdit } from "@/lib/reducer/editProductReducer";
 
 interface SubCategorySelectionProps {
   currentCategory?: CategoryProps | null;
@@ -122,9 +122,7 @@ const DashboardSelectSubCategory: React.FC<SubCategorySelectionProps> = (
   }
 
 
-
   if (loading) return <div>Loading...</div>;
-
   return (
     <div className="flex-1 flex flex-col relative w-full">
       <SearchText

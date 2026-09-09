@@ -1,10 +1,10 @@
 import HeaderClient from './HeaderClient';
-import { showBrandListName } from '@/lib/api/brandService';
-import { categoryList } from '@/lib/api/categoryService';
+import { BrandListNameSearchHeader } from '@/lib/api/brandService';
+import { CategoryListNameSearchHeader } from '@/lib/api/categoryService';
 
 export default async function Header() {
-  const brands = await showBrandListName();
-  const categories = await categoryList();
+  const brands = await BrandListNameSearchHeader();
+  const categories = await CategoryListNameSearchHeader();
 
   return (
     <HeaderClient

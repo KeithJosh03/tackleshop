@@ -6,7 +6,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 
 import CategoryCards from "./CategoryCards";
-import { fetchCategoryProducts } from "@/lib/api/categoryService";
+import { fetchSpecificCategoryProducts } from "@/lib/api/categoryService";
 import { CategorizeProduct } from "@/types/dataprops";
 
 /* ─── Skeleton card ────────────────────────────────────────────────────── */
@@ -57,7 +57,7 @@ export default function Category() {
     if (loading) return;
     setLoading(true);
     try {
-      const data = await fetchCategoryProducts(category.replaceAll("-", " "), page);
+      const data = await fetchSpecificCategoryProducts(category.replaceAll("-", " "), page);
       if (!data) return;
       setProducts(data.categoryproducts.products);
       setCurrentPage(data.currentPage);

@@ -6,6 +6,10 @@ export interface SubCategoryProps {
   subCategoryId: number;
   subCategoryName: string;
   categoryId: number;
+  isActive?: boolean;
+  is_active?: boolean;
+  sortOrder?: number;
+  sort_order?: number;
 }
 
 export interface NewSubCategoryPayload {
@@ -17,10 +21,17 @@ export interface NewSubCategoryResponse {
   subCategoryId: number;
   subCategoryName: string;
   categoryId: number;
+  isActive?: boolean;
+  is_active?: boolean;
+  sortOrder?: number;
+  sort_order?: number;
 }
 
 export interface EditSubCategoryPayload {
-  sub_category_name: string;
+  sub_category_name?: string;
+  category_id?: number;
+  is_active?: boolean;
+  sort_order?: number;
 }
 
 // ------------------ FETCH SUBCATEGORIES BY CATEGORY ------------------
@@ -91,7 +102,7 @@ export async function addSubCategory(
 // ------------------ EDIT SUBCATEGORY ------------------
 
 /**
- * Updates the name of a subcategory
+ * Updates the name or parent of a subcategory
  */
 export async function editSubCategory(
   subCategoryId: number,
@@ -118,6 +129,55 @@ export async function editSubCategory(
   } catch (error) {
     console.error('Error updating subcategory:', error);
     return null;
+  }
+}
+
+// ------------------ TOGGLE SUBCATEGORY STATUS ------------------
+
+export async function toggleSubCategoryStatus(
+  subCategoryId: number,
+  is_active: boolean,
+  token: string
+): Promise<SubCategoryProps | null> {
+  try {
+    const res = await fetch(`/api/subcategory/${subCategoryId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ is_active }),
+    });
+
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error('Error toggling subcategory status:', error);
+    return null;
+  }
+}
+
+// ------------------ REORDER SUBCATEGORIES ------------------
+
+export async function reorderSubCategories(
+  orderedIds: number[],
+  token: string
+): Promise<boolean> {
+  try {
+    const orders = orderedIds.map((id, index) => ({ id, sort_order: index }));
+    const res = await fetch('/api/subcategory/reorder', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ orders }),
+    });
+
+    return res.ok;
+  } catch (error) {
+    console.error('Error reordering subcategories:', error);
+    return false;
   }
 }
 

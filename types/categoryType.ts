@@ -2,7 +2,13 @@ export interface CategoryProps {
     categoryName: string;
     categoryId: number;
     subcategoriesCount?: number;
+    isActive?: boolean;
+    is_active?: boolean;
+    sortOrder?: number;
+    sort_order?: number;
 }
+
+export type Category = CategoryProps;
 
 export interface ProductCollections {
     productId: number;
@@ -22,6 +28,10 @@ export interface CategoryCollectionProps {
 export interface selectedCategorySubCategoriesProps {
     subCategoryId: number;
     subCategoryName: string;
+    isActive?: boolean;
+    is_active?: boolean;
+    sortOrder?: number;
+    sort_order?: number;
 }
 
 
@@ -35,6 +45,10 @@ export interface CategoryPropsListAdmin {
     categoryId: number;
     categoryName: string;
     subcategoriesCount?: number;
+    isActive?: boolean;
+    is_active?: boolean;
+    sortOrder?: number;
+    sort_order?: number;
 }
 
 export interface HeaderCategoryResponse {

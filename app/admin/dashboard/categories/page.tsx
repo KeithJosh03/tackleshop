@@ -3,12 +3,12 @@ import React from 'react'
 
 import { BrandLogos } from "@/lib/api/brandService";
 import { DashboardBrandClient, DashboardCategoryClient } from '@/components';
-import { categoryList } from '@/lib/api/categoryService';
+import { CategoryListNameSearchHeader } from '@/lib/api/categoryService';
 
 export default async function page() {
     const [brandslist, categorylist] = await Promise.all([
         BrandLogos(),
-        categoryList()
+        CategoryListNameSearchHeader()
     ]);
 
     return (

@@ -1,0 +1,226 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { Search, X, Layers, Check, Plus, Package } from 'lucide-react';
+import { ProductListDashboardSearch } from '@/lib/api/productService';
+import { ProductListDashboard, ProductListDashboardSku } from '@/types/productTypes';
+
+export interface SelectedBundleItem {
+    id: string; // unique internal key
+    product_id: number;
+    sku_id?: number | null;
+    product_title: string;
+    variant_name: string;
+    sku_code: string;
+    unit_price: number;
+    quantity: number;
+    is_required: boolean;
+    image_url?: string | null;
+    product: ProductListDashboard;
+    sku?: ProductListDashboardSku | null;
+    variant_label?: string;
+}
+
+export interface BundleItemSelectorProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSelectItems: (items: SelectedBundleItem[]) => void;
+}
+
+export function BundleItemSelector({ isOpen, onClose, onSelectItems }: BundleItemSelectorProps) {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [products, setProducts] = useState<ProductListDashboard[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<ProductListDashboard | null>(null);
+    const [selectedSku, setSelectedSku] = useState<ProductListDashboardSku | null>(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            fetchCatalogProducts('');
+        }
+    }, [isOpen]);
+
+    const fetchCatalogProducts = async (term: string) => {
+        setIsLoading(true);
+        try {
+            const data = await ProductListDashboardSearch(term, 1);
+            setProducts(data.products || []);
+        } catch (error) {
+            console.error('Error searching catalog:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setSearchQuery(val);
+        fetchCatalogProducts(val);
+    };
+
+    const handleAddSelected = () => {
+        if (!selectedProduct) return;
+
+        let itemToAdd: SelectedBundleItem;
+        if (selectedProduct.hasVariants && selectedSku) {
+            const variantOptionsText = selectedSku.variantOptions?.map(o => o.optionName).join(' / ') || 'Variant';
+            const unitPrice = parseFloat(selectedSku.price || selectedProduct.basePrice || '0');
+            itemToAdd = {
+                id: `${selectedProduct.productId}-${selectedSku.skuId}`,
+                product_id: selectedProduct.productId,
+                sku_id: selectedSku.skuId,
+                product_title: selectedProduct.productTitle,
+                variant_name: variantOptionsText,
+                variant_label: variantOptionsText,
+                sku_code: selectedSku.skuCode || `SKU-${selectedSku.skuId}`,
+                unit_price: unitPrice,
+                quantity: 1,
+                is_required: true,
+                image_url: null,
+                product: selectedProduct,
+                sku: selectedSku,
+            };
+        } else {
+            const unitPrice = parseFloat(selectedProduct.basePrice || '0');
+            itemToAdd = {
+                id: `${selectedProduct.productId}-simple`,
+                product_id: selectedProduct.productId,
+                sku_id: null,
+                product_title: selectedProduct.productTitle,
+                variant_name: 'Base Product',
+                sku_code: selectedProduct.sku || `PRD-${selectedProduct.productId}`,
+                unit_price: unitPrice,
+                quantity: 1,
+                is_required: true,
+                image_url: null,
+                product: selectedProduct,
+                sku: null,
+            };
+        }
+
+        onSelectItems([itemToAdd]);
+        setSelectedProduct(null);
+        setSelectedSku(null);
+        onClose();
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-[#12171e] border-2 border-greyColor/20 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
+                {/* Modal Header */}
+                <div className="flex items-center justify-between px-6 py-4 border-b border-greyColor/20 bg-white/[0.02]">
+                    <div className="flex items-center gap-2.5">
+                        <Package className="w-5 h-5 text-primaryColor" />
+                        <h2 className="text-white text-lg font-bold uppercase tracking-tight">Select Catalog Product or Variant</h2>
+                    </div>
+                    <button onClick={onClose} className="text-[#a6a7a6] hover:text-white transition-colors">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+
+                {/* Modal Body */}
+                <div className="p-6 flex flex-col gap-6 overflow-y-auto custom-scrollbar flex-1">
+                    {/* Search Bar */}
+                    <div className="relative">
+                        <Search className="w-4 h-4 text-[#a6a7a6] absolute left-3.5 top-3.5" />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                            placeholder="Search catalog products by title, category, or SKU..."
+                            className="w-full bg-[#16202c] border border-greyColor/30 rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#d9e3f4] focus:outline-none focus:border-primaryColor/60 transition-all placeholder:text-[#a6a7a6]/50"
+                        />
+                    </div>
+
+                    {/* Products Grid / List */}
+                    <div className="space-y-3">
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-[#a6a7a6]">1. Choose Product</label>
+                        {isLoading ? (
+                            <div className="py-8 text-center text-xs text-[#a6a7a6]">Searching catalog...</div>
+                        ) : products.length === 0 ? (
+                            <div className="py-8 text-center text-xs text-[#a6a7a6]">No products found matching &quot;{searchQuery}&quot;.</div>
+                        ) : (
+                            <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+                                {products.map((prod) => {
+                                    const isSelected = selectedProduct?.productId === prod.productId;
+                                    return (
+                                        <div
+                                            key={prod.productId}
+                                            onClick={() => {
+                                                setSelectedProduct(prod);
+                                                setSelectedSku(null);
+                                            }}
+                                            className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${isSelected ? 'bg-primaryColor/10 border-primaryColor text-white' : 'bg-[#16202c]/60 border-greyColor/20 text-[#d9e3f4] hover:bg-[#16202c]'}`}
+                                        >
+                                            <div className="flex flex-col">
+                                                <span className="font-semibold text-xs">{prod.productTitle}</span>
+                                                <span className="text-[10px] text-[#a6a7a6]">{prod.brandName || 'Brand'} • Base ${prod.basePrice}</span>
+                                            </div>
+                                            {prod.hasVariants ? (
+                                                <span className="px-2 py-0.5 rounded bg-primaryColor/20 text-primaryColor text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                                                    <Layers className="w-3 h-3" /> {prod.productSkus?.length || 0} Variants
+                                                </span>
+                                            ) : (
+                                                <span className="text-xs font-mono text-[#a6a7a6]">SKU: {prod.sku || 'N/A'}</span>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Variant Selection List if Product Has Variants */}
+                    {selectedProduct && selectedProduct.hasVariants && (
+                        <div className="space-y-3 pt-4 border-t border-greyColor/20">
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-[#a6a7a6]">2. Choose SKU Variant Option</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto custom-scrollbar">
+                                {selectedProduct.productSkus?.map((sku) => {
+                                    const isSkuSelected = selectedSku?.skuId === sku.skuId;
+                                    const variantOptionsText = sku.variantOptions?.map(o => o.optionName).join(' / ') || `SKU #${sku.skuId}`;
+                                    return (
+                                        <div
+                                            key={sku.skuId}
+                                            onClick={() => setSelectedSku(sku)}
+                                            className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${isSkuSelected ? 'bg-primaryColor/20 border-primaryColor text-white' : 'bg-[#16202c]/80 border-greyColor/20 text-[#d9e3f4] hover:bg-[#16202c]'}`}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-bold text-xs text-primaryColor">{variantOptionsText}</span>
+                                                {isSkuSelected && <Check className="w-4 h-4 text-primaryColor" />}
+                                            </div>
+                                            <div className="flex items-center justify-between mt-2 text-[11px] text-[#a6a7a6]">
+                                                <span className="font-mono">Code: {sku.skuCode}</span>
+                                                <span className="font-semibold text-white">${sku.price}</span>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Modal Footer */}
+                <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-greyColor/20 bg-white/[0.02]">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="px-4 py-2 rounded-xl border border-greyColor/30 text-xs font-semibold text-[#d9e3f4] hover:bg-[#16202c] transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        disabled={!selectedProduct || (selectedProduct.hasVariants && !selectedSku)}
+                        onClick={handleAddSelected}
+                        className="px-5 py-2 rounded-xl bg-primaryColor hover:bg-primaryColor/90 text-black text-xs font-bold transition-all flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                        <Plus className="w-4 h-4 stroke-[3]" /> Add to Bundle
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}

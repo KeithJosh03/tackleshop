@@ -1,7 +1,7 @@
 'use client';
 import { worksans, inter } from '@/types/fonts';
-import DashboardHeader from '@/components/DashboardHeader';
-import DashboardSidebar from '@/components/DashboardSidebar';
+import DashboardHeader from '@/components/adminUI/DashboardHeader';
+import DashboardSidebar from '@/components/adminUI/DashboardSidebar';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';

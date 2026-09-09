@@ -3,7 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { worksans, inter } from '@/types/fonts';
+import { inter } from '@/types/fonts';
+import { SessionProps } from '@/types/sessionType';
 import { logo } from '@/public';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
@@ -13,7 +14,7 @@ const mainMenuItems = [
   { href: '/admin/dashboard/categories', label: 'Categories', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
   { href: '/admin/dashboard/products/product-add', label: 'Add Product', icon: 'M12 4v16m8-8H4' },
   { href: '/admin/dashboard/products', label: 'Inventory', icon: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4' },
-  { href: '/admin/dashboard/setups', label: 'Setups & Bundles', icon: 'M14.121 14.121L19 19m-7-7l-7-7m0 0l2.828-2.828M5 5l-2.828 2.828m0 0l7 7' },
+  { href: '/admin/dashboard/setups/build-setup', label: 'Setups & Bundles', icon: 'M14.121 14.121L19 19m-7-7l-7-7m0 0l2.828-2.828M5 5l-2.828 2.828m0 0l7 7' },
 ];
 
 const managementItems = [
@@ -107,7 +108,7 @@ export default function DashboardSidebar() {
               {session?.user?.name || 'Loading...'}
             </span>
             <span className={`${inter.className} text-xs text-[#d9e3f4]/50 truncate capitalize`}>
-              {session?.user?.role?.role_name || (typeof session?.user?.role === 'string' ? session.user.role : 'Admin')}
+              {session?.user?.role || (typeof session?.user?.role === 'string' ? session.user.role : 'Admin')}
             </span>
           </div>
           <button className="text-[#d9e3f4]/50 hover:text-white transition-colors">

@@ -71,7 +71,6 @@ export default function SearchBar() {
             className="flex items-center w-full bg-ma-surface-container/50 border-2 border-greyColor/20 backdrop-blur-md rounded-xl h-11 px-3 shadow-[0_0_15px_rgba(232,147,71,0.2)] z-40 overflow-hidden"
           >
             <Search className="w-5 h-5 text-primaryColor shrink-0 hidden sm:block mr-2" strokeWidth={2.5} />
-
             <input
               ref={inputRef}
               value={search}
@@ -80,7 +79,6 @@ export default function SearchBar() {
               placeholder="Search products..."
               className="w-full bg-transparent py-1 text-sm font-semibold focus:outline-none placeholder-primaryColor/50 text-tertiaryColor"
             />
-
             {isLoading ? (
               <Loader2 className="w-5 h-5 text-primaryColor/70 animate-spin shrink-0 ml-2" />
             ) : (
@@ -123,7 +121,7 @@ export default function SearchBar() {
                 {results.map(({ productTitle, productId }) => (
                   <li key={productId}>
                     <Link
-                      href={`/product/${productId}/${slugify(productTitle).toLowerCase()}`}
+                      href={`/product-details/${productId}/${slugify(productTitle).toLowerCase()}`}
                       onClick={() => {
                         setIsOpen(false);
                         setSearch("");

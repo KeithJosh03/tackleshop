@@ -4,8 +4,8 @@
 import { BrandProps } from '@/types/brandType';
 import { CategoryProps } from '@/types/categoryType';
 import { ProductListDashboard, PaginationProps } from '@/types/productTypes';
-import DashboardSelectBrand from '@/components/DashboardSelectBrand';
-import DashboardSelectCategory from '@/components/DashboardSelectCategory';
+import DashboardSelectBrand from '@/components/adminUI/DashboardSelectBrand';
+import DashboardSelectCategory from '@/components/adminUI/DashboardSelectCategory';
 import CustomPrimaryButton from '@/components/CustomPrimaryButton';
 
 import { useEffect, useState } from 'react';
@@ -275,7 +275,7 @@ export default function Page() {
                     <div className="flex items-center justify-end gap-3 pr-2">
                       <button className="text-[#a6a7a6] hover:text-white transition-colors"><Eye className="w-4 h-4" /></button>
                       <Link
-                        href={`/admin/dashboard/products/${product.productId}`}
+                        href={`/admin/dashboard/products/product-edit/${product.productId}`}
                         className="text-[#a6a7a6] hover:text-[#ffb77c] transition-colors">
                         <Pencil className="w-4 h-4" />
                       </Link>

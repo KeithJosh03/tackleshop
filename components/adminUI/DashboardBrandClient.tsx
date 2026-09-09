@@ -7,7 +7,7 @@ import { Pencil, Trash2, CheckCircle2, AlertCircle, X, Plus, UploadCloud, Check 
 import { worksans } from '@/types/fonts';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import DashBoardButtonLayoutOption from './DashBoardButtonLayoutOption';
+import DashBoardButtonLayoutOption from '../DashBoardButtonLayoutOption';
 
 import { BrandProps } from '@/types/brandType';
 
@@ -115,17 +115,8 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
     }
   };
 
-
-
-
-
-
-
-
-
   const handleUpdateBrand = async () => {
     setLoading(true);
-
 
     // basic validation
     if (!brandStateUpdate.brandName?.trim() || !selectedBrand?.brandId) {
@@ -220,7 +211,7 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
   return (
     <div className={`${worksans.className} bg-ma-surface-container/50 border-2 border-greyColor/20 rounded-xl rounded-2xl shadow-sm p-6 w-full h-full flex flex-col space-y-4`}>
       <div className="flex flex-row items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center">
           <span className="text-primaryColor text-2xl font-bold">#</span>
           <h2 className="text-white text-xl font-bold tracking-tight">Brands</h2>
         </div>
@@ -229,19 +220,23 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
           onClick={() => {
             setIsCreating(true)
             setSelectedBrand(null)
+            setSearchTerm('');
           }}
           className="py-2 px-4"
         >
           <span>+</span> Add New Brand
         </CustomPrimaryButton>
       </div>
-      <div className="flex items-center text-base w-full">
-        <SearchTextAdmin
-          placeholderText='Search Brands...'
-          value={searchTerm}
-          onChange={(e) => { setSearchTerm(e.target.value) }}
-        />
-      </div>
+
+      {(!isCreating) && (
+        <div className="flex items-center text-base w-full">
+          <SearchTextAdmin
+            placeholderText='Search Brands...'
+            value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value) }}
+          />
+        </div>
+      )}
 
       {/* brandlist Render */}
       {filteredBrands.length > 0 && (
@@ -281,9 +276,8 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                   </button>
                   {/* Only allow deletion if no subcategories, or handle warning. Here we just allow it. */}
                   <button className="text-secondary hover:text-red-400 p-1"
-                    // onClick={(e) => { e.stopPropagation(); handleDeleteBrand(brand.brandId); }}
+                    // onClick={(e) => { e.stopPropagation(); deleteBrand(brand.brandId, token) }}
                     disabled={true}
-                    onClick={() => deleteBrand(brand.brandId, token)}
                     title="Delete Brand"
                   >
                     <Trash2 className="w-4 h-4 opacity-70" />

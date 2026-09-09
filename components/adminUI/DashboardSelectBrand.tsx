@@ -6,7 +6,7 @@ import { ProductDetailActionCreate } from "@/lib/reducer/productReducer";
 import { ProductDetailActionEdit } from "@/lib/reducer/editProductReducer";
 import { BrandProps } from "@/types/brandType";
 
-import { showBrandListName } from "@/lib/api/brandService";
+import { BrandListNameSearchHeader } from "@/lib/api/brandService";
 
 import {
   SearchText,
@@ -41,7 +41,7 @@ const DashboardSelectBrand: React.FC<BrandComponentProps> = (
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        const brandsData: BrandProps[] = await showBrandListName();
+        const brandsData: BrandProps[] = await BrandListNameSearchHeader();
         setBrands(brandsData);
       } catch (error) {
         console.error("Error fetching brands:", error);

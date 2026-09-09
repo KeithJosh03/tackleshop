@@ -1,35 +1,20 @@
 'use client';
 
-import { useReducer } from 'react';
+import { useReducer, Dispatch } from 'react';
 import { UIComponentReducer, initialUIComponent } from '@/lib/api/reDucer';
 import CollapsibleTextarea from './CollapsibleTextarea';
-
-
-
-
-
+import { ProductDetails, ProductDetailActionCreate } from '@/lib/reducer/productReducer';
 
 export interface ProductContentInputsProps {
-    description: string | null;
-    specifications: string | null;
-    features: string | null;
+    ProductDetailState: ProductDetails;
+    dispatchProductDetailCreate: Dispatch<ProductDetailActionCreate>;
     errors?: Record<string, string>;
-    onDescriptionChange: (value: string) => void;
-    onSpecificationsChange: (value: string) => void;
-    onFeaturesChange: (value: string) => void;
-    onDescriptionErrorClear?: () => void;
 }
 
-
 export default function ProductContentInputs({
-    description,
-    specifications,
-    features,
+    ProductDetailState,
+    dispatchProductDetailCreate,
     errors = {},
-    onDescriptionChange,
-    onSpecificationsChange,
-    onFeaturesChange,
-    onDescriptionErrorClear,
 }: ProductContentInputsProps) {
     const initialUi: initialUIComponent = {
         descriptionUI: false,
@@ -41,7 +26,6 @@ export default function ProductContentInputs({
 
     return (
         <div className='flex flex-col gap-3'>
-
             <CollapsibleTextarea
                 label='Description'
                 required
@@ -52,9 +36,9 @@ export default function ProductContentInputs({
                 }
                 isOpen={uiState.descriptionUI}
                 onToggle={() => dispatchUI({ type: 'UPDATE_FIELD', field: 'descriptionUI', value: !uiState.descriptionUI })}
-                value={description}
+                value={ProductDetailState.description}
                 placeholder='Describe the product in detail…'
-                onChange={(val) => { onDescriptionChange(val); onDescriptionErrorClear?.(); }}
+                onChange={(val) => dispatchProductDetailCreate({ type: 'UPDATE_DESCRIPTION', payload: val })}
                 error={errors.description}
             />
 
@@ -67,9 +51,9 @@ export default function ProductContentInputs({
                 }
                 isOpen={uiState.specificationsUI}
                 onToggle={() => dispatchUI({ type: 'UPDATE_FIELD', field: 'specificationsUI', value: !uiState.specificationsUI })}
-                value={specifications}
+                value={ProductDetailState.specifications}
                 placeholder='List specifications (weight, dimensions, material…)'
-                onChange={onSpecificationsChange}
+                onChange={(val) => dispatchProductDetailCreate({ type: 'UPDATE_SPECIFICATIONS', payload: val })}
             />
 
             <CollapsibleTextarea
@@ -81,11 +65,10 @@ export default function ProductContentInputs({
                 }
                 isOpen={uiState.featuresUI}
                 onToggle={() => dispatchUI({ type: 'UPDATE_FIELD', field: 'featuresUI', value: !uiState.featuresUI })}
-                value={features}
+                value={ProductDetailState.features}
                 placeholder='Highlight key product features…'
-                onChange={onFeaturesChange}
+                onChange={(val) => dispatchProductDetailCreate({ type: 'UPDATE_FEATURES', payload: val })}
             />
-
         </div>
     );
 }

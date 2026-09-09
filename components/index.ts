@@ -13,18 +13,16 @@ import StoreServices from './home-page/StoreServices/StoreServices';
 // import Setups from './setups';
 // import Discounts from './sales';
 
-import { DashboardBrandClient } from './DashboardBrandClient';
+import { DashboardBrandClient } from './adminUI/DashboardBrandClient';
 import DashBoardButtonLayoutOption from './DashBoardButtonLayoutOption';
 import IconButton from '@/components/ui/IconButton';
 import FacebookReviewClient from './home-page/FacebookReviews/FacebookReviewClient';
-import DashboardHeader from './DashboardHeader';
+import DashboardHeader from './adminUI/DashboardHeader';
 import DashboardOverviewClient from './DashboardOverviewClient';
-import DashboardSelectBrand from './DashboardSelectBrand';
-import DashboardSelectCategory from './DashboardSelectCategory';
-import DashboardSelectSubCategory from './DashboardSelectSubCategory';
 import DashboardVariantsComponent from './DashboardVariantsComponent';
 import ProductVariantBuilder from './ProductVariantBuilder';
 import ProductMedia from './ProductMedia';
+export * from './ProductForm';
 
 
 
@@ -43,7 +41,7 @@ import ImageIconUpload from '@/components/ui/ImageIconUpload';
 import DropDownText from '@/components/ui/DropDownText';
 import CustomPrimaryButton from '@/components/CustomPrimaryButton';
 
-import { DashboardCategoryClient } from './DashboardCategoryClient';
+import { DashboardCategoryClient } from './adminUI/DashboardCategoryClient';
 
 export {
     // layout
@@ -63,9 +61,6 @@ export {
     DashBoardButtonLayoutOption,
     DashboardHeader,
     DashboardOverviewClient,
-    DashboardSelectBrand,
-    DashboardSelectCategory,
-    DashboardSelectSubCategory,
     DashboardVariantsComponent,
     ProductVariantBuilder,
     ProductMedia,

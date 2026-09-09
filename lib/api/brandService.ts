@@ -25,9 +25,9 @@ interface HeaderBrandResponse {
   brands: BrandProps[];
 }
 
-export async function showBrandListName(): Promise<BrandProps[]> {
+export async function BrandListNameSearchHeader(): Promise<BrandProps[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/brands/brandNameList/`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/brands/brandNameListSearchHeader/`,
     { cache: 'no-store' }
   );
 

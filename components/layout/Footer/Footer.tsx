@@ -8,7 +8,7 @@ import { imagesAsset } from "@/types/image";
 export default function Footer() {
   return (
     <footer className={`${montserrat.className} relative z-10 text-white w-full flex flex-col items-center border-t border-ma-primary/20 bg-ma-surface-container-low shadow-[0_-5px_15px_rgba(0,0,0,0.3)]`}>
-      <div className="w-full max-w-7xl mx-auto px-6 py-12 md:py-16 gap-y-10 md:gap-y-0 flex flex-col md:flex-row justify-between items-center md:items-start text-center md:text-left">
+      <div className="w-full max-w-7xl mx-auto px-6 py-10 md:py-8 gap-y-10 md:gap-y-0 flex flex-col md:flex-row justify-between items-center md:items-start text-center md:text-left">
 
         {/* Brand / Logo Section */}
         <div className="flex flex-col items-center md:items-start max-w-xs w-full">

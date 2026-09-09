@@ -6,7 +6,7 @@ import { showCategories, CategoryPropsResponse } from '@/lib/api/categoryService
 
 // Components
 import DropDownText from '@/components/ui/DropDownText';
-import SearchText from './SearchText';
+import SearchText from '../SearchText';
 
 // Reducers
 import { ProductDetailActionCreate } from "@/lib/reducer/productReducer";
@@ -126,7 +126,6 @@ export default function DashboardSelectCategory(
     setFilteredCategories([])
     setSearchTerm('')
   }
-
 
   return (
     <div className="flex-1 flex flex-col relative w-full">
