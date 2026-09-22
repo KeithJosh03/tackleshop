@@ -1,3 +1,15 @@
+// lib/utils/skuGenerator.ts
+
+import { FormVariantType, FormVariantOption } from '@/lib/reducer/productFormReducer';
+
+export interface MatrixRowData {
+    skuCode: string;
+    stockQuantity: string;
+    price: string;
+    variantOptionIds: (string | number)[];
+    imageUrl: File | string | null;
+}
+
 export const deriveAttributeCode = (optionValue: string): string => {
     if (!optionValue) return '';
 
@@ -50,14 +62,19 @@ export const deriveAttributeCode = (optionValue: string): string => {
 
     const words = clean.split(/\s+/).filter(Boolean);
 
+    // If string has digits/numbers (e.g., "50lb", "4000HG", "10ft"), preserve it cleanly
+    if (/\d/.test(clean) && words.length <= 2) {
+        return clean.replace(/\s+/g, '').toUpperCase().substring(0, 6);
+    }
+
     if (words.length > 1) {
-        // Multi-word: take first letter of each word (up to 3)
+        // Multi-word without numbers: take first letter of each word (up to 3)
         return words.map(w => w[0]).join('').toUpperCase().substring(0, 3);
     }
 
     const word = words[0];
 
-    // Single word / code (e.g. "S", "M", "L", "70", "100", "RED")
+    // Single word / code (e.g. "S", "M", "L", "RED")
     if (word.length <= 3) {
         return word.toUpperCase();
     }
@@ -78,6 +95,7 @@ export const deriveBrandCode = (brandName: string): string => {
     if (!brandName) return '';
     const trimmed = brandName.trim();
     const lower = trimmed.toLowerCase();
+
     const brandMap: Record<string, string> = {
         'shimano': 'SHM',
         'daiwa': 'DW',
@@ -90,61 +108,119 @@ export const deriveBrandCode = (brandName: string): string => {
         'megabass': 'MGB',
         'major craft': 'MJC',
     };
+
     if (brandMap[lower]) return brandMap[lower];
     return deriveAttributeCode(trimmed);
 };
 
-export const generateSimpleSku = (productTitle: string, brandName?: string): string => {
-    const brandCode = brandName ? deriveBrandCode(brandName) : '';
-
+export const generateTitleCode = (productTitle: string, brandName?: string): string => {
     const cleanTitle = (productTitle || '').replace(/[^a-zA-Z0-9\s]/g, '').trim();
-    const words = cleanTitle.split(/\s+/).filter(Boolean);
+    let words = cleanTitle.split(/\s+/).filter(Boolean);
 
-    let titleCode = '';
-    if (words.length === 0) {
-        titleCode = 'PROD';
-    } else if (words.length === 1) {
-        titleCode = words[0].substring(0, 4).toUpperCase();
-    } else {
-        let idx = 0;
-        if (brandName && words[0].toLowerCase() === brandName.toLowerCase() && words.length > 1) {
-            idx = 1;
+    if (words.length === 0) return 'PROD';
+
+    // Strip brand name if title starts with it (e.g. "Abu Garcia Max Pro" -> "Max Pro")
+    if (brandName) {
+        const cleanBrand = brandName.replace(/[^a-zA-Z0-9\s]/g, '').trim().toLowerCase();
+        const cleanTitleLower = cleanTitle.toLowerCase();
+
+        if (cleanTitleLower.startsWith(cleanBrand)) {
+            const remaining = cleanTitle.substring(cleanBrand.length).trim();
+            const remainingWords = remaining.split(/\s+/).filter(Boolean);
+            if (remainingWords.length > 0) {
+                words = remainingWords;
+            }
         }
-        titleCode = words[idx].substring(0, 4).toUpperCase();
     }
 
-    const parts = [brandCode, titleCode, '001'].filter(Boolean);
+    // Return first meaningful word snippet (up to 4 chars)
+    return words[0].substring(0, 4).toUpperCase();
+};
+
+export const generateSimpleSku = (
+    productTitle: string,
+    brandName?: string,
+    categoryName?: string,
+    subCategoryName?: string
+): string => {
+    const brandCode = brandName ? deriveBrandCode(brandName) : '';
+    const categoryCode = categoryName ? deriveAttributeCode(categoryName) : '';
+    const subCategoryCode = subCategoryName ? deriveAttributeCode(subCategoryName) : '';
+    const titleCode = generateTitleCode(productTitle, brandName);
+
+    // Format: BRAND-CAT-SUBCAT-TITLE (e.g., DW-REE-SR-SPOR)
+    const parts = [brandCode, categoryCode, subCategoryCode, titleCode].filter(Boolean);
     return parts.join('-');
 };
 
-export const deriveBasePrefixFromTitle = (productTitle: string): string => {
-    const cleanTitle = (productTitle || '').replace(/[^a-zA-Z0-9\s]/g, '').trim();
-    const words = cleanTitle.split(/\s+/).filter(Boolean);
-
-    if (words.length === 0) return 'PROD';
-    return words[0].toUpperCase();
-};
-
-export const generateVariantSkuFromTitle = (
-    productTitle: string,
-    optionValues: string[] = []
+export const generateVariantSku = (
+    parentSkuOrTitle: string,
+    optionValues: string[] = [],
+    brandName?: string
 ): string => {
-    const parentCode = deriveBasePrefixFromTitle(productTitle);
+    const isFullSku = parentSkuOrTitle.includes('-');
+    const baseCode = isFullSku
+        ? parentSkuOrTitle
+        : generateTitleCode(parentSkuOrTitle, brandName);
+
     const attrCodes = optionValues
         .map(val => deriveAttributeCode(val).replace(/[^a-zA-Z0-9]/g, '').toUpperCase())
         .filter(Boolean);
 
-    if (attrCodes.length === 0) return parentCode;
-    return [parentCode, ...attrCodes].join('-');
+    if (attrCodes.length === 0) return baseCode;
+    return [baseCode, ...attrCodes].join('-');
 };
 
-export const generateVariantSku = (parentSkuOrTitle: string, optionValues: string[] = []): string => {
-    return generateVariantSkuFromTitle(parentSkuOrTitle, optionValues);
-};
-
-export const generateSku = (productTitle: string, optionValues: string[] = []): string => {
+export const generateSku = (
+    productTitle: string,
+    optionValues: string[] = [],
+    brandName?: string,
+    categoryName?: string,
+    subCategoryName?: string
+): string => {
     if (optionValues.length > 0) {
-        return generateVariantSku(productTitle, optionValues);
+        const parentSku = generateSimpleSku(productTitle, brandName, categoryName, subCategoryName);
+        return generateVariantSku(parentSku, optionValues);
     }
-    return generateSimpleSku(productTitle);
+    return generateSimpleSku(productTitle, brandName, categoryName, subCategoryName);
+};
+
+/**
+ * Generates Cartesian matrix rows for all variant combinations 
+ * using current master SKU, title, and base price.
+ */
+export const generateVariantCombinations = (
+    variants: FormVariantType[],
+    masterSku: string,
+    basePrice: string = '0',
+    productTitle: string = ''
+): Record<string, MatrixRowData> => {
+    const validTypes = variants.filter((v) => v.variantOptions.length > 0);
+    if (validTypes.length === 0) return {};
+
+    const cartesian = (acc: FormVariantOption[][], curr: FormVariantType) =>
+        acc.flatMap((accItem) => curr.variantOptions.map((opt) => [...accItem, opt]));
+
+    const initialAcc: FormVariantOption[][] = validTypes[0].variantOptions.map((opt) => [opt]);
+    const rawCombinations = validTypes.slice(1).reduce(cartesian, initialAcc);
+
+    const newRows: Record<string, MatrixRowData> = {};
+    const baseSku = masterSku.trim() || generateTitleCode(productTitle);
+
+    rawCombinations.forEach((combo) => {
+        const comboLabel = combo.map((o) => o.variantOptionValue).join(' / ');
+        const optionValues = combo.map((o) => o.variantOptionValue);
+
+        const autoSku = generateVariantSku(baseSku, optionValues);
+
+        newRows[comboLabel] = {
+            skuCode: autoSku,
+            stockQuantity: '0',
+            price: basePrice || '0',
+            variantOptionIds: combo.map((o) => o.id),
+            imageUrl: null,
+        };
+    });
+
+    return newRows;
 };

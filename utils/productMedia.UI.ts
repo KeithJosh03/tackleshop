@@ -13,6 +13,8 @@ export const buildProductImages = (
 ): UIProductImage[] => {
   const images: UIProductImage[] = [];
 
+  console.log(details);
+
   details.productMedias?.forEach((media, index) => {
     if (media.imageUrl) {
       images.push({

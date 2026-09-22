@@ -1,15 +1,9 @@
 import React, { InputHTMLAttributes } from 'react';
 
-export interface InputTextProps extends InputHTMLAttributes<HTMLInputElement> {
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  type?: string;
-  className?: string;
-}
+export interface InputTextProps extends InputHTMLAttributes<HTMLInputElement> { }
 
 const InputText: React.FC<InputTextProps> = ({
-  value,
+  value = '',
   onChange,
   placeholder,
   type = 'text',

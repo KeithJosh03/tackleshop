@@ -5,7 +5,7 @@ import Footer from './layout/Footer/Footer';
 
 import Hero from './home-page/Hero/Hero';
 import Brands from './home-page/BrandsLogo/BrandsLogo';
-import Collections from './home-page/ProductCollections/Collection';
+import Collections from './home-page/ProductCollections/page';
 
 import StoreServices from './home-page/StoreServices/StoreServices';
 
@@ -21,8 +21,7 @@ import DashboardHeader from './adminUI/DashboardHeader';
 import DashboardOverviewClient from './DashboardOverviewClient';
 import DashboardVariantsComponent from './DashboardVariantsComponent';
 import ProductVariantBuilder from './ProductVariantBuilder';
-import ProductMedia from './ProductMedia';
-export * from './ProductForm';
+export * from './adminUI/ProductForm';
 
 
 
@@ -63,7 +62,6 @@ export {
     DashboardOverviewClient,
     DashboardVariantsComponent,
     ProductVariantBuilder,
-    ProductMedia,
     ProductContentInputs,
     FieldError,
     FieldHint,

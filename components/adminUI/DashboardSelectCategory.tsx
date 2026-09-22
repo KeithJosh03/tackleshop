@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useEffect, useState } from 'react';
 
 // API
@@ -9,37 +10,29 @@ import DropDownText from '@/components/ui/DropDownText';
 import SearchText from '../SearchText';
 
 // Reducers
-import { ProductDetailActionCreate } from "@/lib/reducer/productReducer";
-
-
+import { ProductFormAction } from "@/lib/reducer/productFormReducer";
 import { CategoryProps } from '@/types/categoryType';
 
-
-import { ProductDetailActionEdit } from '@/lib/reducer/editProductReducer';
-
-type ReducerType = 'CREATE' | 'EDIT' | 'FILTER'
+type ReducerType = 'CREATE' | 'EDIT' | 'FILTER';
 
 interface CategoryPropsComponent {
-  dispatchProductDetailCreate?: React.Dispatch<ProductDetailActionCreate>;
-  ProductDetailEditReducer?: React.Dispatch<ProductDetailActionEdit>;
+  dispatchProductDetailCreate?: React.Dispatch<ProductFormAction>;
   ReducerType: ReducerType;
   currentCategory: CategoryProps | null;
   onSelectCategory?: (category: CategoryProps | null) => void;
   customPlaceholder?: string;
 }
 
-export default function DashboardSelectCategory(
-  {
-    ProductDetailEditReducer,
-    dispatchProductDetailCreate,
-    ReducerType,
-    currentCategory,
-    onSelectCategory,
-    customPlaceholder
-  }: CategoryPropsComponent) {
+export default function DashboardSelectCategory({
+  dispatchProductDetailCreate,
+  ReducerType,
+  currentCategory,
+  onSelectCategory,
+  customPlaceholder
+}: CategoryPropsComponent) {
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<CategoryProps | null>();
+  const [selectedCategory, setSelectedCategory] = useState<CategoryProps | null>(null);
   const [filteredCategories, setFilteredCategories] = useState<CategoryProps[]>([]);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -47,8 +40,8 @@ export default function DashboardSelectCategory(
     const fetchCategories = async () => {
       try {
         const categoriesList: CategoryPropsResponse = await showCategories();
-        setCategories(categoriesList.categories);
-        setFilteredCategories(categoriesList.categories);
+        setCategories(categoriesList.categories || []);
+        setFilteredCategories(categoriesList.categories || []);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
@@ -58,74 +51,60 @@ export default function DashboardSelectCategory(
   }, []);
 
   useEffect(() => {
-    if (selectedCategory?.categoryName.toLowerCase() === searchTerm.toLowerCase()) {
-      setFilteredCategories([])
-      return;
+    if (!searchTerm) {
+      setFilteredCategories(categories);
     } else {
-      setSelectedCategory(undefined)
+      setFilteredCategories(
+        categories.filter((category) =>
+          category.categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
     }
-    setFilteredCategories(
-      categories.filter((category) =>
-        category.categoryName.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-  }, [searchTerm, categories, selectedCategory]);
+  }, [searchTerm, categories]);
 
   useEffect(() => {
-    if (currentCategory === null) {
-      setSelectedCategory(null)
+    if (!currentCategory || !currentCategory.categoryId) {
+      setSelectedCategory(null);
       setSearchTerm('');
       return;
-    };
+    }
     setSelectedCategory(currentCategory);
     setSearchTerm(currentCategory.categoryName);
-  }, [currentCategory])
-
+  }, [currentCategory]);
 
   const handleCategorySelect = (category: CategoryProps) => {
-    if (ReducerType === 'EDIT' && ProductDetailEditReducer) {
-      ProductDetailEditReducer({
-        type: 'UPDATE_CATEGORY',
-        payload: category
-      })
-    }
-
-    if (ReducerType === 'CREATE' && dispatchProductDetailCreate) {
+    if (dispatchProductDetailCreate) {
       dispatchProductDetailCreate({
-        type: 'UPDATE_CATEGORY',
+        type: 'SET_CATEGORY',
         payload: category
-      })
+      });
     }
 
     if (ReducerType === 'FILTER' && onSelectCategory) {
       onSelectCategory(category);
     }
+
+    setSelectedCategory(category);
+    setSearchTerm(category.categoryName);
+    setIsFocused(false);
   };
 
-
   const clearInputs = () => {
-    if (ReducerType === 'CREATE' && dispatchProductDetailCreate) {
+    if (dispatchProductDetailCreate) {
       dispatchProductDetailCreate({
-        type: 'REMOVE_CATEGORY'
-      })
-      dispatchProductDetailCreate({
-        type: 'SELECT_SUBCATEGORY_DELETE'
-      })
+        type: 'SET_CATEGORY',
+        payload: null
+      });
     }
-    if (ReducerType === 'EDIT' && ProductDetailEditReducer) {
-      ProductDetailEditReducer({
-        type: 'REMOVE_CATEGORY'
-      })
-      ProductDetailEditReducer({
-        type: 'REMOVE_SUBCATEGORY'
-      })
-    }
+
     if (ReducerType === 'FILTER' && onSelectCategory) {
       onSelectCategory(null);
     }
-    setFilteredCategories([])
-    setSearchTerm('')
-  }
+
+    setSelectedCategory(null);
+    setFilteredCategories(categories);
+    setSearchTerm('');
+  };
 
   return (
     <div className="flex-1 flex flex-col relative w-full">
@@ -138,16 +117,23 @@ export default function DashboardSelectCategory(
         onFocus={() => setIsFocused(true)}
         onBlur={() => setTimeout(() => setIsFocused(false), 200)}
       />
-      {isFocused && filteredCategories.length > 0 && (
-        <ul className="absolute top-full left-0 right-0 mt-2 z-[60] list-none bg-[#1e2a38] border rounded-xl border-[#3d4859] shadow-2xl shadow-black/60 max-h-56 overflow-y-auto custom-scrollbar ring-1 ring-white/5">
-          {filteredCategories.map((category) => (
-            <DropDownText
-              onClick={() => handleCategorySelect(category)}
-              key={category.categoryId}
-              indexKey={category.categoryId}
-              listName={category.categoryName}
-            />
-          ))}
+      {isFocused && (
+        <ul className="absolute top-full left-0 right-0 mt-1.5 z-[100] list-none bg-[#16202c] border rounded-xl border-[#3d4859] shadow-2xl shadow-black/80 max-h-56 overflow-y-auto custom-scrollbar ring-1 ring-white/10 py-1">
+          {filteredCategories.length > 0 ? (
+            filteredCategories.map((category) => (
+              <DropDownText
+                onClick={() => handleCategorySelect(category)}
+                key={category.categoryId}
+                indexKey={category.categoryId}
+                listName={category.categoryName.toUpperCase()}
+                isSelected={selectedCategory?.categoryId === category.categoryId}
+              />
+            ))
+          ) : (
+            <li className="px-4 py-3 text-xs text-[#a6a7a6] text-center font-medium">
+              No categories found
+            </li>
+          )}
         </ul>
       )}
     </div>

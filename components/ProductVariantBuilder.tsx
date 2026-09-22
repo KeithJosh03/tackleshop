@@ -3,8 +3,8 @@
 import { useState, KeyboardEvent, ChangeEvent } from "react";
 import Image from "next/image";
 
-import { VariantDetails, VariantOption, ProductDetailActionCreate } from "@/lib/reducer/productReducer";
-import { ProductDetailActionEdit } from "@/lib/reducer/editProductReducer";
+import { VariantDetails, VariantOption, ProductDetailActionCreate } from "@/lib/reducer/productDetailCreateReducer";
+import { ProductDetailActionEdit } from "@/lib/reducer/productDetailEditReducer";
 import { ProductVariantTypes } from "@/types/productVariantsTypes";
 
 type ReducerType = 'CREATE' | 'EDIT';
@@ -24,7 +24,7 @@ export default function ProductVariantBuilder({
   basePrice,
   ReduceType
 }: ProductVariantBuilderProps) {
-  
+
   // Local state for the input of new pills for each variant block
   const [pillInputs, setPillInputs] = useState<Record<number, string>>({});
 
@@ -44,7 +44,7 @@ export default function ProductVariantBuilder({
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       const val = (pillInputs[variantIndex] || '').trim();
-      
+
       if (val) {
         // Check if option already exists
         const exists = variantsList[variantIndex]?.variantOptions.find(opt => opt.variantOptionValue === val);
@@ -72,13 +72,13 @@ export default function ProductVariantBuilder({
 
   return (
     <div className="flex flex-col gap-6 font-medium text-zinc-200">
-      
+
       {Array.isArray(variantsList) && variantsList.length > 0 && (
         <div className="flex flex-col gap-6">
           {variantsList.map((variant, variantIndex) => (
             <div key={variantIndex} className="flex flex-col rounded-xl border border-zinc-700 bg-zinc-900 overflow-hidden shadow-sm relative animate-in fade-in slide-in-from-top-2 duration-300">
-              
-              <button 
+
+              <button
                 onClick={() => dispatchProductDetailCreate && dispatchProductDetailCreate({ type: 'REMOVE_VARIANT_TYPE', payload: { variantIndex } })}
                 className="absolute top-4 right-4 text-zinc-500 hover:text-red-400 transition-colors"
                 title="Remove Variant Type"
@@ -97,8 +97,8 @@ export default function ProductVariantBuilder({
                     className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg focus:ring-2 focus:ring-[#E89347] focus:border-[#E89347] outline-none text-sm font-medium transition-all text-zinc-100"
                     value={variant.variantTypeName}
                     onChange={(e) => dispatchProductDetailCreate && dispatchProductDetailCreate({
-                        type: 'UPDATE_VARIANT_TYPE_NAME',
-                        payload: { variantIndex, variantTypeName: e.target.value }
+                      type: 'UPDATE_VARIANT_TYPE_NAME',
+                      payload: { variantIndex, variantTypeName: e.target.value }
                     })}
                     placeholder="e.g. Size, Color, Weight"
                   />
@@ -111,7 +111,7 @@ export default function ProductVariantBuilder({
                     {variant.variantOptions.map((option, optionIndex) => (
                       <span key={optionIndex} className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1 bg-[#E89347]/10 border border-[#E89347]/30 text-[#E89347] text-sm font-bold rounded-full">
                         {option.variantOptionValue}
-                        <button 
+                        <button
                           onClick={() => dispatchProductDetailCreate && dispatchProductDetailCreate({ type: 'REMOVE_VARIANT_OPTION', payload: { variantIndex, optionIndex } })}
                           className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-[#E89347]/20 text-[#E89347] transition-colors"
                         >
@@ -145,14 +145,14 @@ export default function ProductVariantBuilder({
                       {variant.variantOptions.map((option, optionIndex) => (
                         <div key={optionIndex} className="grid grid-cols-[1fr_160px_auto] gap-4 items-center bg-zinc-800/30 p-2 rounded-lg border border-zinc-800 shadow-sm animate-in fade-in duration-200">
                           <input
-                              className="bg-transparent text-sm font-medium text-zinc-200 border-b border-transparent hover:border-zinc-600 focus:border-[#E89347] outline-none transition-colors w-full pl-2"
-                              value={option.variantOptionValue}
-                              onChange={(e) => dispatchProductDetailCreate && dispatchProductDetailCreate({
-                                  type: 'UPDATE_VARIANT_OPTION_NAME',
-                                  payload: { variantIndex, optionIndex, variantOptionValue: e.target.value }
-                              })}
+                            className="bg-transparent text-sm font-medium text-zinc-200 border-b border-transparent hover:border-zinc-600 focus:border-[#E89347] outline-none transition-colors w-full pl-2"
+                            value={option.variantOptionValue}
+                            onChange={(e) => dispatchProductDetailCreate && dispatchProductDetailCreate({
+                              type: 'UPDATE_VARIANT_OPTION_NAME',
+                              payload: { variantIndex, optionIndex, variantOptionValue: e.target.value }
+                            })}
                           />
-                          
+
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm font-bold">₱</span>
                             <input
@@ -160,12 +160,12 @@ export default function ProductVariantBuilder({
                               className="w-full pl-7 pr-3 py-1.5 bg-zinc-950 border border-zinc-700 rounded-md focus:ring-2 focus:ring-[#E89347] focus:border-[#E89347] outline-none text-sm transition-all text-zinc-200"
                               value={option.price_adjusting || ''}
                               onChange={(e) => {
-                                  if (dispatchProductDetailCreate) {
-                                      dispatchProductDetailCreate({
-                                          type: 'ADJUST_PRICE',
-                                          payload: { variantIndex, optiontIndex: optionIndex, price_adjust: e.target.value },
-                                      });
-                                  }
+                                if (dispatchProductDetailCreate) {
+                                  dispatchProductDetailCreate({
+                                    type: 'ADJUST_PRICE',
+                                    payload: { variantIndex, optiontIndex: optionIndex, price_adjust: e.target.value },
+                                  });
+                                }
                               }}
                               placeholder="0.00"
                             />
@@ -179,16 +179,16 @@ export default function ProductVariantBuilder({
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                                 <span>Add Image</span>
-                                <input 
-                                  type="file" 
-                                  className="hidden" 
+                                <input
+                                  type="file"
+                                  className="hidden"
                                   accept="image/*"
                                   onChange={(e) => {
                                     if (e.target.files && e.target.files[0] && dispatchProductDetailCreate) {
-                                        dispatchProductDetailCreate({
-                                            type: 'ADD_IMAGE_VARIANT',
-                                            payload: { variantIndex, optiontIndex: optionIndex, variantImage: e.target.files[0] },
-                                        });
+                                      dispatchProductDetailCreate({
+                                        type: 'ADD_IMAGE_VARIANT',
+                                        payload: { variantIndex, optiontIndex: optionIndex, variantImage: e.target.files[0] },
+                                      });
                                     }
                                   }}
                                 />
@@ -196,25 +196,25 @@ export default function ProductVariantBuilder({
                             ) : (
                               <div className="relative w-full h-full group rounded-md overflow-hidden border border-zinc-700 bg-zinc-900 flex items-center justify-center">
                                 <Image
-                                    src={URL.createObjectURL(option.imageUrl)}
-                                    alt={`variant-${optionIndex}`}
-                                    fill
-                                    className="object-cover"
+                                  src={URL.createObjectURL(option.imageUrl)}
+                                  alt={`variant-${optionIndex}`}
+                                  fill
+                                  className="object-cover"
                                 />
                                 <button
-                                    onClick={() => {
-                                        if (dispatchProductDetailCreate) {
-                                            dispatchProductDetailCreate({
-                                                type: 'REMOVE_VARIANT_IMAGE',
-                                                payload: { variantIndex, optionIndex }
-                                            });
-                                        }
-                                    }}
-                                    className="absolute inset-0 bg-red-500/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => {
+                                    if (dispatchProductDetailCreate) {
+                                      dispatchProductDetailCreate({
+                                        type: 'REMOVE_VARIANT_IMAGE',
+                                        payload: { variantIndex, optionIndex }
+                                      });
+                                    }
+                                  }}
+                                  className="absolute inset-0 bg-red-500/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
-                                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
+                                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
                                 </button>
                               </div>
                             )}
@@ -237,7 +237,7 @@ export default function ProductVariantBuilder({
         className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-zinc-700 text-zinc-400 hover:text-[#E89347] hover:border-[#E89347]/50 hover:bg-[#E89347]/5 transition-all duration-200"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
         </svg>
         <span className="text-sm font-bold">Add Variant Type</span>
       </button>

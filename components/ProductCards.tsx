@@ -16,6 +16,8 @@ export default function ProductCards({ product, index }: { product: NewArrivalPr
     discountType,
   } = product;
 
+  console.log(product);
+
   return (
     <Link href={`/product/${productId}/${slugify(productName).toLowerCase()}`}>
       <div

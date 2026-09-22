@@ -11,13 +11,8 @@ import { Info, Settings, FileText } from 'lucide-react';
 import ProductDetailsDropDown from '@/components/ProductDetailsDropDown';
 import CustomPrimaryButton from '@/components/CustomPrimaryButton';
 
-import { ProductDetailsViewProps, ProductSku } from '@/types/productTypes';
-import { ProductVariantTypes, ProductVariantOptions } from '@/types/productVariantsTypes';
-
-
-const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
-
-/* ─────────────────────────── Types ─────────────────────────── */
+import { ProductDetailsViewProps } from '@/types/productTypes';
+import { ProductVariantOptions } from '@/types/productVariantsTypes';
 
 interface ProductDetailClientProps {
     productDetailProps: ProductDetailsViewProps;
@@ -26,14 +21,21 @@ interface ProductDetailClientProps {
 
 type VariantSelections = Record<string, ProductVariantOptions>;
 
-/* ─────────────────────────── Component ─────────────────────── */
+/**
+ * Safely formats image URLs so relative paths and absolute URLs both work seamlessly.
+ */
+function getImageUrl(path?: string | null): string {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    const base = (process.env.NEXT_PUBLIC_BASE_URL || '').replace(/\/$/, '');
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return base ? `${base}${cleanPath}` : cleanPath;
+}
 
 export default function ProductDetailClient({
     productDetailProps,
     initialVariantId,
 }: ProductDetailClientProps) {
-
-
     const [productDetails] = useState<ProductDetailsViewProps>(productDetailProps);
 
     // Images
@@ -113,7 +115,7 @@ export default function ProductDetailClient({
             if (!productDetails) return;
             const titleSlug = slugify(productDetails.productTitle);
             const valueSlug = slugify(option.variantOptionValue);
-            const newPath = `/product/${productDetails.productId}/${titleSlug}/variant/${option.variantOptionId}/${valueSlug}`;
+            const newPath = `/product-details/${productDetails.productId}/${titleSlug}/variant/${option.variantOptionId}/${valueSlug}`;
             window.history.pushState(null, '', newPath);
         },
         [productDetails]
@@ -151,21 +153,32 @@ export default function ProductDetailClient({
         pushVariantUrl(option);
     };
 
+    // Calculate effective price: Uses matched SKU price, basePrice, or lowest available SKU price fallback
     const displayPrice = (): string => {
         if (!productDetails) return '0.00';
 
         if (hasVariants && currentSku) {
-            return currentSku.price;
+            return String(currentSku.price);
         }
 
-        return parseFloat(productDetails.basePrice).toFixed(2);
+        const basePriceNum = parseFloat(String(productDetails.basePrice || 0));
+        if (basePriceNum > 0) {
+            return basePriceNum.toFixed(2);
+        }
+
+        if (productDetails.productSkus && productDetails.productSkus.length > 0) {
+            const validPrices = productDetails.productSkus
+                .map((s) => parseFloat(String(s.price)))
+                .filter((p) => p > 0);
+            if (validPrices.length > 0) {
+                return Math.min(...validPrices).toFixed(2);
+            }
+        }
+
+        return '0.00';
     };
 
     const currentImage = productImages.find((img) => img.id === selectedImageId);
-
-    /* ════════════════════════════════════════════════════════════ */
-    /*                          RENDER                            */
-    /* ════════════════════════════════════════════════════════════ */
 
     return (
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
@@ -191,7 +204,7 @@ export default function ProductDetailClient({
                                 className="relative w-full h-full p-8"
                             >
                                 <Image
-                                    src={`${baseURL}${currentImage.imageUrl}`}
+                                    src={getImageUrl(currentImage.imageUrl)}
                                     alt={productDetails?.productTitle || 'Product Image'}
                                     fill
                                     sizes="(max-width: 1024px) 100vw, 50vw"
@@ -204,6 +217,7 @@ export default function ProductDetailClient({
                         )}
                     </AnimatePresence>
                 </motion.div>
+
                 {/* Thumbnail Strip */}
                 {productImages.length > 1 && (
                     <motion.div
@@ -224,7 +238,7 @@ export default function ProductDetailClient({
                             >
                                 <div className="absolute inset-0 bg-ma-surface/30 backdrop-blur-[2px] z-0" />
                                 <Image
-                                    src={`${baseURL}${img.imageUrl}`}
+                                    src={getImageUrl(img.imageUrl)}
                                     alt="Thumbnail"
                                     fill
                                     sizes="112px"
@@ -286,15 +300,15 @@ export default function ProductDetailClient({
                         </div>
 
                         {/* Display Stock Status */}
-                        {productDetails?.hasVariants ? (
+                        {hasVariants ? (
                             currentSku ? (
                                 <div className={`text-sm font-semibold tracking-wide ${currentSku.inStock ? 'text-green-400' : 'text-red-400'}`}>
                                     {currentSku.inStock ? `${currentSku.stockQuantity} in stock` : 'Out of Stock'}
                                 </div>
                             ) : null
                         ) : (
-                            <div className={`text-sm font-semibold tracking-wide ${productDetails?.inStock ? 'text-green-400' : 'text-red-400'}`}>
-                                {productDetails?.inStock ? `${productDetails?.stockQuantity} in stock` : 'Out of Stock'}
+                            <div className={`text-sm font-semibold tracking-wide ${productDetails?.stockQuantity ? 'text-green-400' : 'text-red-400'}`}>
+                                {productDetails?.stockQuantity ? `${productDetails?.stockQuantity} in stock` : 'Out of Stock'}
                             </div>
                         )}
                     </motion.div>
@@ -327,7 +341,8 @@ export default function ProductDetailClient({
                                         const isSelected =
                                             variantSelections[variant.variantTypeName]?.variantOptionId ===
                                             option.variantOptionId;
-                                        const hasImage = productImages.some(
+
+                                        const variantImg = productImages.find(
                                             (img) =>
                                                 img.source === 'variant' &&
                                                 img.id === `variant-${option.variantOptionId}`
@@ -342,12 +357,10 @@ export default function ProductDetailClient({
                                                 }
                                             >
                                                 {/* Image preview badge for options with images */}
-                                                {hasImage && (
+                                                {variantImg && (
                                                     <span className="relative w-6 h-6 rounded-md overflow-hidden shrink-0 ring-1 ring-white/20 shadow-sm">
                                                         <Image
-                                                            src={`${baseURL}${productImages.find(
-                                                                (img) => img.id === `variant-${option.variantOptionId}`
-                                                            )?.imageUrl}`}
+                                                            src={getImageUrl(variantImg.imageUrl)}
                                                             alt={option.variantOptionValue}
                                                             fill
                                                             sizes="24px"

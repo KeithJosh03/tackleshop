@@ -48,8 +48,16 @@ function DropDownItem({ section, isOpen, onToggle }: DropDownItemProps) {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        <div className="px-6 pb-6 text-ma-on-surface-variant text-base leading-relaxed whitespace-pre-line border-t border-white/5 pt-5 font-normal">
-                            {section.content}
+                        <div className="px-6 pb-6 text-ma-on-surface-variant text-base leading-relaxed border-t border-white/5 pt-5 font-normal">
+                            <div
+                                className="prose prose-invert max-w-none text-ma-on-surface-variant
+                                    [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2
+                                    [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-2
+                                    [&_p]:mb-3 [&_p:last-child]:mb-0
+                                    [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-ma-on-surface [&_h2]:mt-4 [&_h2]:mb-2
+                                    [&_a]:text-ma-primary [&_a]:underline"
+                                dangerouslySetInnerHTML={{ __html: section.content || '' }}
+                            />
                         </div>
                     </motion.div>
                 )}

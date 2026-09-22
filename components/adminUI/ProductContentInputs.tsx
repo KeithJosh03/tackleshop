@@ -1,13 +1,13 @@
 'use client';
 
-import { useReducer, Dispatch } from 'react';
+import { useReducer, Dispatch, useEffect } from 'react';
 import { UIComponentReducer, initialUIComponent } from '@/lib/api/reDucer';
 import CollapsibleTextarea from './CollapsibleTextarea';
-import { ProductDetails, ProductDetailActionCreate } from '@/lib/reducer/productReducer';
+import { ProductFormState, ProductFormAction } from '@/lib/reducer/productFormReducer';
 
 export interface ProductContentInputsProps {
-    ProductDetailState: ProductDetails;
-    dispatchProductDetailCreate: Dispatch<ProductDetailActionCreate>;
+    ProductDetailState: ProductFormState;
+    dispatchProductDetailCreate: Dispatch<ProductFormAction>;
     errors?: Record<string, string>;
 }
 
@@ -17,12 +17,24 @@ export default function ProductContentInputs({
     errors = {},
 }: ProductContentInputsProps) {
     const initialUi: initialUIComponent = {
-        descriptionUI: false,
-        specificationsUI: false,
-        featuresUI: false,
+        descriptionUI: Boolean(ProductDetailState.description),
+        specificationsUI: Boolean(ProductDetailState.specifications),
+        featuresUI: Boolean(ProductDetailState.features),
     };
 
     const [uiState, dispatchUI] = useReducer(UIComponentReducer, initialUi);
+
+    useEffect(() => {
+        if (ProductDetailState.description && !uiState.descriptionUI) {
+            dispatchUI({ type: 'UPDATE_FIELD', field: 'descriptionUI', value: true });
+        }
+        if (ProductDetailState.specifications && !uiState.specificationsUI) {
+            dispatchUI({ type: 'UPDATE_FIELD', field: 'specificationsUI', value: true });
+        }
+        if (ProductDetailState.features && !uiState.featuresUI) {
+            dispatchUI({ type: 'UPDATE_FIELD', field: 'featuresUI', value: true });
+        }
+    }, [ProductDetailState.description, ProductDetailState.specifications, ProductDetailState.features]);
 
     return (
         <div className='flex flex-col gap-3'>

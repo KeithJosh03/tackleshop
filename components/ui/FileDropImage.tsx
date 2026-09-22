@@ -7,7 +7,7 @@ type ImageUploadProps = {
     imageAlt?: string;
     className?: string;
     maxImages: number;
-    onFileChange: ((file: File) => void) | ((files: File[]) => void);
+    onFileChange: (files: File | File[]) => void;
     children?: React.ReactNode;
 };
 
@@ -32,10 +32,9 @@ const FileDropImage: React.FC<ImageUploadProps> = ({
         }
 
         if (maxImages === 1) {
-            (onFileChange as (file: File) => void)(filesArray[0]);
-        }
-        else {
-            (onFileChange as (files: File[]) => void)(filesArray);
+            onFileChange(filesArray[0]);
+        } else {
+            onFileChange(filesArray);
         }
     };
 
@@ -102,5 +101,3 @@ const FileDropImage: React.FC<ImageUploadProps> = ({
 };
 
 export default FileDropImage;
-
-

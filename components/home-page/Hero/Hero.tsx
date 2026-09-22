@@ -49,6 +49,8 @@ export default function Hero() {
           premium-quality fishing gear for every angler.
         </motion.p>
 
+
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

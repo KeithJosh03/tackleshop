@@ -12,11 +12,11 @@ import {
     InputPrice
 } from '@/components/ui'
 
-import { VariantDetails, VariantOption, ProductDetailActionCreate } from "@/lib/reducer/productReducer";
+import { VariantDetails, VariantOption, ProductDetailActionCreate } from "@/lib/reducer/productDetailCreateReducer";
 import ImageIconUpload from "@/components/ui/ImageIconUpload";
 // ACTION REDUCER
 
-import { ProductDetailActionEdit } from "@/lib/reducer/editProductReducer";
+import { ProductDetailActionEdit } from "@/lib/reducer/productDetailEditReducer";
 import { ProductVariantTypes } from "@/types/productVariantsTypes";
 import { ProductDetailsEdit } from "@/lib/api/productService";
 

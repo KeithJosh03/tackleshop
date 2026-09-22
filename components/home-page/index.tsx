@@ -1,6 +1,6 @@
 import Hero from "./Hero/Hero";
 import Brands from "./BrandsLogo/BrandsLogo";
-import Collections from "./ProductCollections/Collection";
+import Collections from "./ProductCollections/page";
 // import StoreServices from "./StoreServices/StoreServices";
 // import FacebookReview from "./FacebookReviews/FacebookReview";
 import { Header, Footer } from "../layout";

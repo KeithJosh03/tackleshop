@@ -6,27 +6,23 @@ import Link from 'next/link';
 import slugify from 'slugify';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, ShoppingCart, User, Search, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, X, ChevronDown, ShoppingCart, User, Search, LogOut } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 
-import {
-  SearchBar,
-} from '@/components/ui';
+import { SearchBar } from '@/components/ui';
 
 // Types
 import { BrandProps } from '@/types/brandType';
 import { CategoryProps } from '@/types/categoryType';
-
 import { imagesAsset } from '@/types/image';
 import { montserrat } from '@/types/fonts';
-import { data } from 'framer-motion/client';
 
 type Props = {
-  brands: BrandProps[];
-  categories: CategoryProps[];
+  initialBrands?: BrandProps[];
+  initialCategories?: CategoryProps[];
 };
 
-export default function HeaderClient({ brands, categories }: Props) {
+export default function HeaderClient({ initialBrands = [], initialCategories = [] }: Props) {
   const { data: session, status } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -35,7 +31,11 @@ export default function HeaderClient({ brands, categories }: Props) {
 
   const pathname = usePathname();
   const isHome = pathname === '/';
-  const shouldShowSearch = isHome || pathname.startsWith('/brand') || pathname.startsWith('/category') || pathname.startsWith('/product');
+  const shouldShowSearch =
+    isHome ||
+    pathname.startsWith('/brand') ||
+    pathname.startsWith('/category') ||
+    pathname.startsWith('/product');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,12 +46,14 @@ export default function HeaderClient({ brands, categories }: Props) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route change
+  // Close mobile menu and dropdowns on route change
   useEffect(() => {
     setMenuOpen(false);
+    setActiveDropdown(null);
+    setProfileDropdownOpen(false);
   }, [pathname]);
 
-  // Prevent background scrolling when menu is open
+  // Prevent background scrolling when mobile menu is open
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = 'hidden';
@@ -59,7 +61,6 @@ export default function HeaderClient({ brands, categories }: Props) {
       document.body.style.overflow = '';
     }
   }, [menuOpen]);
-
 
   /* ── Navigation Items ── */
   const navItems = [
@@ -76,28 +77,36 @@ export default function HeaderClient({ brands, categories }: Props) {
         : 'bg-ma-surface'
         }`}
     >
-      {/* ── Thin accent line at the very top ── */}
+      {/* ── Thin accent line at top ── */}
       <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-ma-primary/30 to-transparent" />
 
-      <nav className='px-4 md:px-8 lg:px-14'>
+      <nav className="px-4 md:px-8 lg:px-14">
         {/* ── ROW 1: Search | Logo | Cart + User ── */}
-        <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-14 md:h-16' : 'h-18 md:h-20'}`}>
-
+        <div
+          className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-14 md:h-16' : 'h-18 md:h-20'
+            }`}
+        >
           {/* LEFT: Burger (mobile) / Search (desktop) */}
           <div className="flex items-center flex-1 h-full">
-            {/* Burger (mobile only) */}
+            {/* Burger (mobile) */}
             <button
               aria-label="Open menu"
               onClick={() => setMenuOpen(true)}
-              className="md:hidden p-1.5 -ml-1 rounded-lg text-ma-primary/80 hover:text-ma-primary transition-colors flex items-center justify-center"
+              className="md:hidden p-1.5 -ml-1 rounded-lg text-ma-primary/80 hover:text-ma-primary transition-colors flex items-center justify-center cursor-pointer"
             >
               <Menu className="w-5 h-5" strokeWidth={2} />
             </button>
 
-            {/* Search icon (desktop) */}
+            {/* Search icon/bar (desktop) */}
             <div className="hidden md:flex items-center">
-              {shouldShowSearch ? <SearchBar /> : (
-                <Link href="/" className="p-1.5 text-ma-primary/70 hover:text-ma-primary transition-colors flex items-center justify-center" aria-label="Search">
+              {shouldShowSearch ? (
+                <SearchBar />
+              ) : (
+                <Link
+                  href="/"
+                  className="p-1.5 text-ma-primary/70 hover:text-ma-primary transition-colors flex items-center justify-center"
+                  aria-label="Search"
+                >
                   <Search className="w-[18px] h-[18px]" strokeWidth={1.8} />
                 </Link>
               )}
@@ -107,13 +116,15 @@ export default function HeaderClient({ brands, categories }: Props) {
           {/* CENTER: Logo */}
           <div className="flex items-center justify-center shrink-0 px-4 h-full">
             <Link href="/" className="relative flex items-center justify-center">
-              <div className={`relative transition-all duration-300 ease-out ${scrolled
-                ? 'w-36 h-12 md:w-44 md:h-14'
-                : 'w-44 h-14 md:w-60 md:h-18'
-                }`}>
+              <div
+                className={`relative transition-all duration-300 ease-out ${scrolled
+                  ? 'w-36 h-12 md:w-44 md:h-14'
+                  : 'w-44 h-14 md:w-60 md:h-18'
+                  }`}
+              >
                 <Image
                   src={imagesAsset.logo}
-                  fill={true}
+                  fill
                   sizes="(min-width: 1024px) 320px, (min-width: 768px) 256px, 180px"
                   alt="Smooth Casting Tackle Shop"
                   className="object-contain drop-shadow-[0_0_12px_rgba(232,147,71,0.2)]"
@@ -123,7 +134,6 @@ export default function HeaderClient({ brands, categories }: Props) {
             </Link>
           </div>
 
-
           {/* RIGHT: Cart + Profile icons */}
           <div className="flex items-center justify-end gap-x-2 md:gap-x-4 flex-1 h-full">
             {/* Mobile search */}
@@ -132,18 +142,18 @@ export default function HeaderClient({ brands, categories }: Props) {
             </div>
 
             <Link
-              href="#"
+              href="/cart"
               className="p-1.5 text-ma-primary/70 hover:text-ma-primary transition-colors flex items-center justify-center"
               aria-label="Shopping cart"
             >
               <ShoppingCart className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.8} />
             </Link>
 
-            <div className="relative flex items-center justify-center"
+            <div
+              className="relative flex items-center justify-center"
               onMouseEnter={() => setProfileDropdownOpen(true)}
               onMouseLeave={() => setProfileDropdownOpen(false)}
             >
-
               {status === 'loading' ? (
                 <div className="p-1.5">
                   <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-ma-primary/20 animate-pulse" />
@@ -153,16 +163,16 @@ export default function HeaderClient({ brands, categories }: Props) {
                   <button
                     className="p-1.5 text-ma-primary/70 hover:text-ma-primary transition-colors flex items-center justify-center outline-none cursor-pointer"
                     aria-label="User profile menu"
-                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                    onClick={() => setProfileDropdownOpen((prev) => !prev)}
                   >
                     {session.user.image ? (
                       <div className="w-5 h-5 md:w-6 md:h-6 rounded-full overflow-hidden relative border border-ma-primary/30">
                         <Image
                           src={session.user.image}
                           alt="Profile"
-                          width={30}
-                          height={30}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="30px"
+                          className="object-cover"
                         />
                       </div>
                     ) : (
@@ -179,11 +189,15 @@ export default function HeaderClient({ brands, categories }: Props) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.96 }}
                         transition={{ duration: 0.18, ease: 'easeOut' }}
-                        className="absolute top-full right-0 mt-1 w-48 bg-[ma-surface]/98 backdrop-blur-xl border border-ma-primary/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] rounded-xl overflow-hidden py-2 z-50"
+                        className="absolute top-full right-0 mt-1 w-48 bg-ma-surface/95 backdrop-blur-xl border border-ma-primary/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] rounded-xl overflow-hidden py-2 z-50"
                       >
                         <div className="px-4 py-2 border-b border-ma-primary/10 mb-1">
-                          <p className="text-[13px] font-semibold text-ma-primary truncate">{session.user.name || 'User'}</p>
-                          <p className="text-[11px] text-ma-primary/60 truncate">{session.user.email}</p>
+                          <p className="text-[13px] font-semibold text-ma-primary truncate">
+                            {session.user.name || 'User'}
+                          </p>
+                          <p className="text-[11px] text-ma-primary/60 truncate">
+                            {session.user.email}
+                          </p>
                         </div>
                         <ul className="flex flex-col px-1.5 gap-0.5">
                           <li>
@@ -227,21 +241,25 @@ export default function HeaderClient({ brands, categories }: Props) {
         </div>
 
         {/* ── ROW 2: Centered Nav Links (desktop only) ── */}
-        <div className={`hidden md:flex items-center justify-center gap-x-8 lg:gap-x-10 transition-all duration-300 ${scrolled ? 'pb-2' : 'pb-3'}`}>
+        <div
+          className={`hidden md:flex items-center justify-center gap-x-8 lg:gap-x-10 transition-all duration-300 ${scrolled ? 'pb-2' : 'pb-3'
+            }`}
+        >
           {navItems.map((item) => {
             if (item.hasDropdown) {
               const dropdownKey = item.hasDropdown;
-              const dropdownItems = dropdownKey === 'brands'
-                ? brands?.map(({ brandName, brandId }) => ({
-                  id: brandId,
-                  name: brandName,
-                  href: `/brand/${slugify(brandName).toLowerCase()}`,
-                }))
-                : categories.map(({ categoryName, categoryId }) => ({
-                  id: categoryId,
-                  name: categoryName,
-                  href: `/category/${slugify(categoryName).toLowerCase()}`,
-                }));
+              const dropdownItems =
+                dropdownKey === 'brands'
+                  ? initialBrands.map(({ brandName, brandId }) => ({
+                    id: brandId,
+                    name: brandName.toUpperCase(),
+                    href: `/brand/${slugify(brandName).toLowerCase()}`,
+                  }))
+                  : initialCategories.map(({ categoryName, categoryId }) => ({
+                    id: categoryId,
+                    name: categoryName.toUpperCase(),
+                    href: `/category/${slugify(categoryName.toLowerCase())}`,
+                  }));
 
               return (
                 <div
@@ -251,11 +269,9 @@ export default function HeaderClient({ brands, categories }: Props) {
                   onMouseLeave={() => setActiveDropdown(null)}
                 >
                   <button
-                    className={`group flex items-center gap-x-1 transition-colors outline-none cursor-pointer py-1
-                      text-[12px] lg:text-[13px] font-bold uppercase tracking-[0.1em] leading-none
-                      ${item.isActive || activeDropdown === dropdownKey
-                        ? 'text-ma-primary'
-                        : 'text-ma-primary/60 hover:text-ma-primary'
+                    className={`group flex items-center gap-x-1 transition-colors outline-none cursor-pointer py-1 text-[12px] lg:text-[13px] font-bold uppercase tracking-[0.1em] leading-none ${item.isActive || activeDropdown === dropdownKey
+                      ? 'text-ma-primary'
+                      : 'text-ma-primary/60 hover:text-ma-primary'
                       }`}
                   >
                     {item.label}
@@ -268,11 +284,13 @@ export default function HeaderClient({ brands, categories }: Props) {
 
                   {/* Underline indicator */}
                   <span
-                    className={`absolute bottom-0 left-0 h-[1.5px] bg-ma-primary rounded-full transition-all duration-300
-                      ${item.isActive ? 'w-full' : activeDropdown === dropdownKey ? 'w-full' : 'w-0'}`}
+                    className={`absolute bottom-0 left-0 h-[1.5px] bg-ma-primary rounded-full transition-all duration-300 ${item.isActive || activeDropdown === dropdownKey
+                      ? 'w-full'
+                      : 'w-0'
+                      }`}
                   />
 
-                  {/* Dropdown */}
+                  {/* Dropdown Menu */}
                   <AnimatePresence>
                     {activeDropdown === dropdownKey && (
                       <motion.div
@@ -280,10 +298,10 @@ export default function HeaderClient({ brands, categories }: Props) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.96 }}
                         transition={{ duration: 0.18, ease: 'easeOut' }}
-                        className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-52 bg-[ma-surface]/98 backdrop-blur-xl border border-ma-primary/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] rounded-xl overflow-hidden py-2 z-50"
+                        className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-52 bg-ma-surface/95 backdrop-blur-xl border border-ma-primary/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] rounded-xl overflow-hidden py-2 z-50"
                       >
                         <ul className="flex flex-col max-h-[60vh] overflow-y-auto custom-scrollbar px-1.5 gap-0.5">
-                          {dropdownItems?.map(({ id, name, href }) => (
+                          {dropdownItems.map(({ id, name, href }) => (
                             <li key={id}>
                               <Link
                                 href={href}
@@ -306,17 +324,16 @@ export default function HeaderClient({ brands, categories }: Props) {
               <div key={item.label} className="relative group">
                 <Link
                   href={item.href}
-                  className={`block transition-colors py-1 text-[12px] lg:text-[13px] font-bold uppercase tracking-[0.1em] leading-none
-                    ${item.isActive
-                      ? 'text-ma-primary'
-                      : 'text-ma-primary/60 hover:text-ma-primary'
+                  className={`block transition-colors py-1 text-[12px] lg:text-[13px] font-bold uppercase tracking-[0.1em] leading-none ${item.isActive
+                    ? 'text-ma-primary'
+                    : 'text-ma-primary/60 hover:text-ma-primary'
                     }`}
                 >
                   {item.label}
                 </Link>
                 <span
-                  className={`absolute bottom-0 left-0 h-[1.5px] bg-ma-primary rounded-full transition-all duration-300
-                    ${item.isActive ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                  className={`absolute bottom-0 left-0 h-[1.5px] bg-ma-primary rounded-full transition-all duration-300 ${item.isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                    }`}
                 />
               </div>
             );
@@ -348,8 +365,8 @@ export default function HeaderClient({ brands, categories }: Props) {
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed left-0 top-0 h-[100dvh] w-[85vw] max-w-sm bg-[ma-surface] border-r border-ma-primary/10 shadow-2xl shadow-black text-ma-primary flex flex-col z-[1001] md:hidden overflow-hidden"
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed left-0 top-0 h-[100dvh] w-[85vw] max-w-sm bg-ma-surface border-r border-ma-primary/10 shadow-2xl shadow-black text-ma-primary flex flex-col z-[1001] md:hidden overflow-hidden"
             role="dialog"
             aria-modal="true"
           >
@@ -358,7 +375,8 @@ export default function HeaderClient({ brands, categories }: Props) {
               <Link href="/" onClick={() => setMenuOpen(false)} className="relative w-28 h-9">
                 <Image
                   src={imagesAsset.logo}
-                  fill={true}
+                  fill
+                  sizes="112px"
                   alt="Logo"
                   className="object-contain"
                 />
@@ -378,10 +396,9 @@ export default function HeaderClient({ brands, categories }: Props) {
                 <Link
                   href="/newarrival"
                   onClick={() => setMenuOpen(false)}
-                  className={`px-4 py-3 rounded-lg text-[14px] font-bold uppercase tracking-wide transition-colors
-                    ${pathname === '/newarrival'
-                      ? 'text-ma-primary bg-ma-primary/10'
-                      : 'text-ma-primary/70 hover:text-ma-primary hover:bg-ma-primary/5'
+                  className={`px-4 py-3 rounded-lg text-[14px] font-bold uppercase tracking-wide transition-colors ${pathname === '/newarrival'
+                    ? 'text-ma-primary bg-ma-primary/10'
+                    : 'text-ma-primary/70 hover:text-ma-primary hover:bg-ma-primary/5'
                     }`}
                 >
                   NEW ARRIVALS
@@ -389,55 +406,62 @@ export default function HeaderClient({ brands, categories }: Props) {
 
                 {/* Brands section */}
                 <div className="mt-4 mb-1">
-                  <div className="px-4 mb-2 text-[10px] text-ma-primary/30 uppercase tracking-[0.15em] font-bold">Brands</div>
+                  <div className="px-4 mb-2 text-[10px] text-ma-primary/30 uppercase tracking-[0.15em] font-bold">
+                    Brands
+                  </div>
                   <ul className="flex flex-col gap-0.5">
-                    {brands?.map(({ brandName, brandId }) => (
-                      <li key={brandId}>
-                        <Link
-                          href={`/brand/${slugify(brandName).toLowerCase()}`}
-                          onClick={() => setMenuOpen(false)}
-                          className={`block px-4 py-2.5 rounded-lg text-[13px] font-semibold transition-colors
-                            ${pathname === `/brand/${slugify(brandName).toLowerCase()}`
+                    {initialBrands.map(({ brandName, brandId }) => {
+                      const brandSlug = `/brand/${slugify(brandName).toLowerCase()}`;
+                      return (
+                        <li key={brandId}>
+                          <Link
+                            href={brandSlug}
+                            onClick={() => setMenuOpen(false)}
+                            className={`block px-4 py-2.5 rounded-lg text-[13px] font-semibold transition-colors ${pathname === brandSlug
                               ? 'text-ma-primary bg-ma-primary/10'
                               : 'text-ma-primary/60 hover:text-ma-primary hover:bg-ma-primary/5'
-                            }`}
-                        >
-                          {brandName}
-                        </Link>
-                      </li>
-                    ))}
+                              }`}
+                          >
+                            {brandName}
+                          </Link>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
 
                 {/* Categories section */}
                 <div className="mt-4 mb-1">
-                  <div className="px-4 mb-2 text-[10px] text-ma-primary/30 uppercase tracking-[0.15em] font-bold">Categories</div>
+                  <div className="px-4 mb-2 text-[10px] text-ma-primary/30 uppercase tracking-[0.15em] font-bold">
+                    Categories
+                  </div>
                   <ul className="flex flex-col gap-0.5">
-                    {categories.map(({ categoryName, categoryId }) => (
-                      <li key={categoryId}>
-                        <Link
-                          href={`/category/${slugify(categoryName).toLowerCase()}`}
-                          onClick={() => setMenuOpen(false)}
-                          className={`block px-4 py-2.5 rounded-lg text-[13px] font-semibold transition-colors
-                            ${pathname === `/category/${slugify(categoryName).toLowerCase()}`
+                    {initialCategories.map(({ categoryName, categoryId }) => {
+                      const categorySlug = `/category/${slugify(categoryName).toLowerCase()}`;
+                      return (
+                        <li key={categoryId}>
+                          <Link
+                            href={categorySlug}
+                            onClick={() => setMenuOpen(false)}
+                            className={`block px-4 py-2.5 rounded-lg text-[13px] font-semibold transition-colors ${pathname === categorySlug
                               ? 'text-ma-primary bg-ma-primary/10'
                               : 'text-ma-primary/60 hover:text-ma-primary hover:bg-ma-primary/5'
-                            }`}
-                        >
-                          {categoryName}
-                        </Link>
-                      </li>
-                    ))}
+                              }`}
+                          >
+                            {categoryName}
+                          </Link>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
 
                 <Link
                   href="/category/apparel"
                   onClick={() => setMenuOpen(false)}
-                  className={`mt-4 px-4 py-3 rounded-lg text-[14px] font-bold uppercase tracking-wide transition-colors
-                    ${pathname === '/category/apparel'
-                      ? 'text-ma-primary bg-ma-primary/10'
-                      : 'text-ma-primary/70 hover:text-ma-primary hover:bg-ma-primary/5'
+                  className={`mt-4 px-4 py-3 rounded-lg text-[14px] font-bold uppercase tracking-wide transition-colors ${pathname === '/category/apparel'
+                    ? 'text-ma-primary bg-ma-primary/10'
+                    : 'text-ma-primary/70 hover:text-ma-primary hover:bg-ma-primary/5'
                     }`}
                 >
                   APPAREL
@@ -449,7 +473,7 @@ export default function HeaderClient({ brands, categories }: Props) {
             <div className="px-5 py-4 border-t border-ma-primary/10 flex flex-col gap-3 shrink-0">
               <div className="flex items-center gap-3 w-full">
                 <Link
-                  href="#"
+                  href="/cart"
                   onClick={() => setMenuOpen(false)}
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-ma-primary/10 text-ma-primary text-[12px] font-bold uppercase tracking-wider hover:bg-ma-primary/15 transition-colors"
                 >
@@ -457,7 +481,7 @@ export default function HeaderClient({ brands, categories }: Props) {
                   Cart
                 </Link>
                 <Link
-                  href={session?.user ? "/profile" : "/login"}
+                  href={session?.user ? '/profile' : '/login'}
                   onClick={() => setMenuOpen(false)}
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-ma-primary/10 text-ma-primary text-[12px] font-bold uppercase tracking-wider hover:bg-ma-primary/15 transition-colors"
                 >
@@ -465,7 +489,13 @@ export default function HeaderClient({ brands, categories }: Props) {
                     <div className="w-5 h-5 rounded-full bg-ma-primary/20 animate-pulse" />
                   ) : session?.user?.image ? (
                     <div className="w-6 h-6 rounded-full overflow-hidden relative border border-ma-primary/30">
-                      <Image src={session.user.image} alt="Profile" fill className="object-cover" />
+                      <Image
+                        src={session.user.image}
+                        alt="Profile"
+                        fill
+                        sizes="24px"
+                        className="object-cover"
+                      />
                     </div>
                   ) : (
                     <User className="w-5 h-5" strokeWidth={1.8} />
@@ -476,7 +506,10 @@ export default function HeaderClient({ brands, categories }: Props) {
 
               {session?.user && (
                 <button
-                  onClick={() => { setMenuOpen(false); signOut({ callbackUrl: '/' }); }}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    signOut({ callbackUrl: '/' });
+                  }}
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-red-500/20 text-red-400 text-[12px] font-bold uppercase tracking-wider hover:bg-red-500/10 transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" strokeWidth={1.8} />

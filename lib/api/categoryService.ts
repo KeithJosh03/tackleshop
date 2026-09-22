@@ -1,6 +1,5 @@
 import axios, { AxiosError } from "axios";
 
-
 import {
   SubCategoryProps,
   CategoryProducts
@@ -15,27 +14,33 @@ import {
 
 export type { CategoryCollectionProps, ProductCollections };
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
 
 
 export async function CategoryListNameSearchHeader(): Promise<CategoryPropsListAdmin[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/categories/`,
-    { cache: 'no-store' }
-  );
+  try {
+    const res = await fetch(`${BASE_URL}/api/categories/header-list`, {
+      next: { revalidate: 3600, tags: ['header-categories'] },
+    });
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch categories');
+    if (!res.ok) {
+      console.error(`Failed to fetch header categories. Status: ${res.status}`);
+      return [];
+    }
+
+    const data: HeaderCategoryResponse = await res.json();
+    return data.categories || [];
+  } catch (error) {
+    console.error('Network error fetching header categories:', error);
+    return [];
   }
-  const data: HeaderCategoryResponse = await res.json();
-  return data.categories;
 }
-
 
 export async function selectedCategorySubCategory(
   { categoryId }: { categoryId: number }
 ): Promise<selectedCategorySubCategoriesProps[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/categories/categorysub/${categoryId}/`,
+    `${BASE_URL}/api/categories/categorysub/${categoryId}/`,
     { cache: 'no-store' }
   );
 
@@ -46,8 +51,6 @@ export async function selectedCategorySubCategory(
   const data: selectedCategorySubCategoryProps = await res.json();
   return data.categorySubs;
 }
-
-
 
 // ADD CATEGORY
 export interface NewCategoryPayload {
@@ -64,7 +67,7 @@ export async function addCategory(
   token: string
 ): Promise<NewCategoryResponse | null> {
   try {
-    const res = await fetch('/api/categories', {
+    const res = await fetch(`${BASE_URL}/api/categories`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -89,7 +92,7 @@ export async function addCategory(
 // DELETE CATEGORY
 export async function deleteCategory(categoryId: number, token: string): Promise<boolean> {
   try {
-    const res = await fetch(`/api/categories/${categoryId}`, {
+    const res = await fetch(`${BASE_URL}/api/categories/${categoryId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -102,7 +105,6 @@ export async function deleteCategory(categoryId: number, token: string): Promise
     return false;
   }
 }
-
 
 // UPDATE CATEGORY
 export interface UpdateCategoryPayload {
@@ -127,7 +129,7 @@ export async function editCategory(
   token: string
 ): Promise<UpdatedCategoryResponse | null> {
   try {
-    const res = await fetch(`/api/categories/${categoryId}`, {
+    const res = await fetch(`${BASE_URL}/api/categories/${categoryId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -155,7 +157,7 @@ export async function toggleCategoryStatus(
   token: string
 ): Promise<CategoryProps | null> {
   try {
-    const res = await fetch(`/api/categories/${categoryId}/status`, {
+    const res = await fetch(`${BASE_URL}/api/categories/${categoryId}/status`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -178,7 +180,8 @@ export async function reorderCategories(
 ): Promise<boolean> {
   try {
     const orders = orderedIds.map((id, index) => ({ id, sort_order: index }));
-    const res = await fetch("/api/categories/reorder", {
+
+    const res = await fetch(`${BASE_URL}/api/categories/reorder`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -195,17 +198,26 @@ export async function reorderCategories(
 }
 
 export async function fetchCategoryCollection(): Promise<CategoryCollectionProps[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/categories/categorycollection/`,
-    { cache: 'no-store' }
-  );
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch categories');
+  try {
+    const res = await fetch(
+      `${BASE_URL}/api/categories/categorycollection`,
+      {
+        next: {
+          revalidate: 300,
+          tags: ['category-collections']
+        },
+      }
+    );
+    if (!res.ok) {
+      console.error(`Failed to fetch category collection. Status: ${res.status}`);
+      return [];
+    }
+    const data: CategoryCollectionResponse = await res.json();
+    return data?.categories || [];
+  } catch (error) {
+    console.error('Network error fetching category collection:', error);
+    return [];
   }
-
-  const data: CategoryCollectionResponse = await res.json();
-  return data.categories;
 }
 
 // Read
@@ -218,26 +230,26 @@ interface CategorySubResponse {
   status: boolean;
   categorySub: SubCategoryProps[];
 }
-export const showCategories = async (): Promise<CategoryPropsResponse | any> => {
+
+export const showCategories = async (): Promise<CategoryPropsResponse | null> => {
   try {
-    const response = await axios.get<CategoryProps>('/api/categories');
+    const response = await axios.get<CategoryPropsResponse>(`${BASE_URL}/api/categories`);
     return response.data;
   } catch (err) {
-    console.log(`Error fetching category ${err}`)
+    console.error(`Error fetching categories:`, err);
     return null;
   }
-}
+};
 
 export const showSubCategory = async (id: number): Promise<SubCategoryProps[] | null> => {
   try {
-    const response = await axios.get<CategorySubResponse>(`/api/categories/SubCatByCategoryId/${id}`)
+    const response = await axios.get<CategorySubResponse>(`${BASE_URL}/api/categories/SubCatByCategoryId/${id}`);
     return response.data.categorySub;
   } catch (err) {
-    console.log(`Error fetching category ${err}`)
+    console.error(`Error fetching subcategories:`, err);
     return null;
   }
-}
-
+};
 
 interface CategoryProductResponse {
   status: boolean;
@@ -252,8 +264,9 @@ export const fetchSpecificCategoryProducts = async (
   page: number
 ): Promise<CategoryProductResponse | null> => {
   try {
+    const encodedCategory = encodeURIComponent(category);
     const response = await axios.get<CategoryProductResponse>(
-      `/api/categories/specificCategory/${category}?page=${page}`
+      `${BASE_URL}/api/categories/specificCategory/${encodedCategory}?page=${page}`
     );
 
     return response.data;
@@ -263,9 +276,9 @@ export const fetchSpecificCategoryProducts = async (
     if (error.response) {
       console.error("Error fetching category products:", error.response.data);
     } else if (error.request) {
-      console.error("No response received:", error.request);
+      console.error("No response received from backend server:", error.request);
     } else {
-      console.error("Request error:", error.message);
+      console.error("Request configuration error:", error.message);
     }
 
     return null;

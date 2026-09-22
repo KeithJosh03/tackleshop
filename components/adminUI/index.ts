@@ -11,6 +11,7 @@ import { ProductBaseDetails } from "./ProductBaseDetails";
 import DashboardHeader from "./DashboardHeader";
 import DashboardSideBar from "./DashboardSidebar";
 import ProductMedia from "./ProductMedia";
+import { ProductSimpleInventory } from "./ProductSimpleInventory";
 
 export {
     ProductContentInputs, FieldError,
@@ -19,5 +20,5 @@ export {
     DashboardSelectCategory, DashboardSelectSubCategory,
     ProductInventoryTypeToggle, ProductBaseDetails,
     DashboardHeader, DashboardSideBar,
-    ProductMedia
+    ProductMedia, ProductSimpleInventory
 };

@@ -1,58 +1,53 @@
+'use client';
 
-import { montserrat } from "@/types/fonts";
-import { BrandProps } from "@/types/brandType"
-import BrandCard from "./BrandsCard";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { BrandProps } from '@/types/brandType';
+import { montserrat } from '@/types/fonts';
+import BrandsCard from './BrandsCard';
 
-export default function BrandsCardClient(
-  { brandlogos }:
-    { brandlogos: BrandProps[] }
-) {
-  const hasBrands = Array.isArray(brandlogos) && brandlogos.length > 0;
+type Props = {
+  brandlogos: BrandProps[];
+};
+
+export default function BrandsCardClient({ brandlogos = [] }: Props) {
+  if (!brandlogos || brandlogos.length === 0) {
+    return null;
+  }
+
   return (
-    <section
-      className="relative w-full overflow-hidden px-4 pb-20 pt-14 sm:px-6 bg-ma-surface-container-low"
-      id="brands"
-    >
-
-      {/* ── Decorative divider ── */}
-      <div className="mx-auto mb-14 flex w-full max-w-4xl items-center gap-4">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
-        <div className="h-1 w-1 rotate-45 rounded-[1px] bg-ma-primary/50" />
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
-      </div>
-
-      <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-y-10">
-
-        {/* ── Section Header ── */}
-        <div className="flex flex-col items-center gap-y-3 px-4 text-center">
-          <h2
-            className={`${montserrat.className} text-3xl font-extrabold uppercase tracking-wider text-ma-primary sm:text-4xl md:text-5xl`}
-          >
-            Our Brands
+    <section className={`${montserrat.className} py-12 md:py-16 px-4 md:px-8 lg:px-12 w-full`}>
+      <div className="max-w-7xl mx-auto w-full">
+        {/* Section Header */}
+        <div className="flex flex-col items-center justify-center text-center mb-10 md:mb-12">
+          <span className="text-ma-primary text-xs font-bold uppercase tracking-[0.2em] mb-2">
+            Featured Brands
+          </span>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-ma-primary tracking-tight">
+            TRUSTED FISHING BRANDS
           </h2>
-          <p className={`${montserrat.className} max-w-md text-[0.82rem] leading-relaxed text-ma-on-surface/40 sm:text-sm`}>
-            Gear up with the world&apos;s leading fishing brands —
-            <br className="hidden sm:block" />
-            exclusively at Smooth Casting.
-          </p>
+          <div className="mt-3 h-[2px] w-12 bg-ma-primary/40 rounded-full" />
         </div>
 
-        {/* ── Brand Cards Grid ── */}
-        {hasBrands && (
-          <div className="w-full px-1 sm:px-4">
-            <div className="grid grid-cols-2 justify-items-center gap-3.5 xs:grid-cols-3 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-              {brandlogos.map((brand, index) => (
-                <div
-                  key={`brand-${brand.brandId}`}
-                  className="w-full animate-fade-in-up"
-                  style={{ animationDelay: `${index * 60}ms`, animationFillMode: "both" }}
-                >
-                  <BrandCard {...brand} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Spacious Wide Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 w-full">
+          {brandlogos.map((brand, index) => (
+            <motion.div
+              key={brand.brandId}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: index * 0.04 }}
+              className="w-full flex"
+            >
+              <BrandsCard
+                brandId={brand.brandId}
+                brandName={brand.brandName}
+                imageUrl={brand.imageUrl}
+              />
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -13,16 +13,23 @@ export type Category = CategoryProps;
 export interface ProductCollections {
     productId: number;
     productTitle: string;
-    basePrice: string;
-    brandName: string;
-    productThumbNail: string;
-    subCategoryName: string;
+    basePrice: number | string;
+    minPrice?: number;
+    maxPrice?: number;
+    formattedPrice?: string;
+    brandName?: string;
+    productThumbNail?: string;
+    subCategoryName?: string;
 }
 
 export interface CategoryCollectionProps {
     categoryId: number;
     categoryName: string;
-    products: ProductCollections[]
+    products: ProductCollections[];
+}
+
+export interface CategoryCollectionResponse {
+    categories: CategoryCollectionProps[];
 }
 
 export interface selectedCategorySubCategoriesProps {
@@ -34,13 +41,12 @@ export interface selectedCategorySubCategoriesProps {
     sort_order?: number;
 }
 
-
 export interface selectedCategorySubCategoryProps {
     status: boolean;
     categorySubs: selectedCategorySubCategoriesProps[];
 }
 
-// API Response
+// Admin / Header API Responses
 export interface CategoryPropsListAdmin {
     categoryId: number;
     categoryName: string;
@@ -54,13 +60,4 @@ export interface CategoryPropsListAdmin {
 export interface HeaderCategoryResponse {
     status: boolean;
     categories: CategoryPropsListAdmin[];
-}
-
-export interface CategoryCollectionResponse {
-    categories: CategoryCollectionProps[];
-}
-
-export interface selectedCategorySubCategoriesProps {
-    subCategoryId: number;
-    subCategoryName: string;
 }

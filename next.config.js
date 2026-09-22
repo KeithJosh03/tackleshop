@@ -3,14 +3,13 @@ const nextConfig = {
   reactStrictMode: true,
 
   async rewrites() {
-    return {
-      fallback: [
-        {
-          source: '/api/:path*',
-          destination: 'http://localhost:8000/api/:path*',
-        },
-      ],
-    };
+    return [
+      {
+        // Exclude /api/auth so NextAuth stays local, proxy everything else to Laravel
+        source: '/api/:path((?!auth).*)',
+        destination: 'http://localhost:8000/api/:path*',
+      },
+    ];
   },
 
   images: {

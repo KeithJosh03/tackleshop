@@ -4,7 +4,6 @@ import { CategoryProps } from "./categoryType";
 import { ProductVariantTypes } from "./productVariantsTypes";
 import { ProductMedias } from "./productMedia";
 
-
 export interface ProductSkuImage {
   imageUrl: string;
   isMain: boolean;
@@ -34,11 +33,10 @@ export interface ProductDetailsViewProps {
   sku: string | null;
   stockQuantity: number | null;
   inStock: boolean;
-  productMedias: ProductMedias[] | null;
+  productMedias: ProductMedias[];
   productVariants: ProductVariantTypes[] | null;
   productSkus: ProductSku[] | null;
 }
-
 
 export interface ProductDetailsEditProps {
   productId: number;
@@ -50,49 +48,49 @@ export interface ProductDetailsEditProps {
   subCategory: SubCategory | null;
   category: CategoryProps | null;
   brand: BrandProps | null;
-  productMedias: ProductMedias[] | null;
+  productMedias: ProductMedias[]; // Non-nullable array for clean state management
   productVariants: ProductVariantTypes[];
 }
 
 export interface ProductListDashboardVariantOption {
-    optionId: number;
-    optionName: string;
-    priceAdjustment: string;
-    image: string | null;
+  optionId: number;
+  optionName: string;
+  priceAdjustment: string;
+  image: string | null;
 }
 
 export interface ProductListDashboardVariant {
-    variantTypeName: string;
-    variantOptions: ProductListDashboardVariantOption[];
+  variantTypeName: string;
+  variantOptions: ProductListDashboardVariantOption[];
 }
 
 export interface ProductListDashboardSku {
-    skuId: number;
-    skuCode: string;
-    price: string;
-    stockQuantity: number;
-    isActive: boolean;
-    variantOptions: {
-        optionId: number;
-        optionName: string;
-    }[];
+  skuId: number;
+  skuCode: string;
+  price: string;
+  stockQuantity: number;
+  isActive: boolean;
+  variantOptions: {
+    optionId: number;
+    optionName: string;
+  }[];
 }
 
 export interface ProductListDashboard {
-    productId: number;
-    productTitle: string;
-    basePrice: string;
-    brandName: string | null;
-    subCategoryName: string | null;
-    productTypeVariant: ProductListDashboardVariant[];
-    sku: string | null;
-    stockQuantity: number | null;
-    hasVariants: boolean;
-    productSkus: ProductListDashboardSku[];
+  productId: number;
+  productTitle: string;
+  basePrice: string;
+  brandName: string | null;
+  subCategoryName: string | null;
+  productTypeVariant: ProductListDashboardVariant[];
+  sku: string | null;
+  stockQuantity: number | null;
+  hasVariants: boolean;
+  productSkus: ProductListDashboardSku[];
 }
 
 export interface PaginationProps {
-    current_page: number;
-    last_page: number;
-    total: number;
+  current_page: number;
+  last_page: number;
+  total: number;
 }

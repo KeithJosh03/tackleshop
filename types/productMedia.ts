@@ -1,6 +1,10 @@
 export interface ProductMedias {
-    imageId?: number;
+    mediaId?: number;
+    imageId?: string;
+    url?: string;
+    mediaUrl?: string;
     imageUrl?: string;
-    file?: File;
+    file?: File | string | null;
     isMain: boolean;
+    is_main?: boolean;
 }

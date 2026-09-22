@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import MainLayoutCollection from "./layout";
 import CollectionComponentLayout from './CollectionComponentLayout';
-import Loading from "./Loading";
+import Loading from "./loading";
 
-import { CategoryCollectionProps } from "@/lib/api/categoryService";
+import { CategoryCollectionProps } from "@/types/categoryType";
 
 type Props = {
     categoryProductsProps: CategoryCollectionProps[];
@@ -36,6 +36,7 @@ export default function CollectionClient({ categoryProductsProps }: Props) {
                             />
                         );
                     }
+                    return null;
                 })
             )}
         </MainLayoutCollection>

@@ -7,16 +7,11 @@ import { Pencil, Trash2, CheckCircle2, AlertCircle, X, Plus, UploadCloud, Check 
 import { worksans } from '@/types/fonts';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import DashBoardButtonLayoutOption from '../DashBoardButtonLayoutOption';
-
 import { BrandProps } from '@/types/brandType';
-
 import {
   SearchTextAdmin,
   InputText,
-  IconButton,
   FileDropImage,
-  DropDownText,
   CustomPrimaryButton
 } from '@/components/ui';
 
@@ -40,7 +35,7 @@ type Props = {
 };
 
 export const DashboardBrandClient = ({ brandslist }: Props) => {
-  const [brandState, dispatchCreateBrand] = useDashboardBrandCreateReducer()
+  const [brandState, dispatchCreateBrand] = useDashboardBrandCreateReducer();
   const [brandStateUpdate, dispatchUpdateBrand] = useDashboardBrandUpdateReducer();
   const [brands, setBrands] = useState<BrandProps[]>(brandslist);
   const { data: session } = useSession();
@@ -51,7 +46,6 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
   const [filteredBrands, setFilteredBrands] = useState<BrandProps[]>([]);
 
   // Edit
-
   const [isCreating, setIsCreating] = useState(false);
   const [editMode, seteditMode] = useState(false);
 
@@ -85,7 +79,6 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
     setSearchTerm(brand.brandName);
     setFilteredBrands([]);
   };
-
 
   const handleAddBrand = async () => {
     setLoading(true);
@@ -139,7 +132,7 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
     }
 
     try {
-      // 2️⃣ build API payload (SEPARATE TYPE)
+      // 2️⃣ build API payload
       const payload: {
         brandId: number;
         brandName?: string;
@@ -204,12 +197,12 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
         brandName: '',
         imageUrl: null
       }
-    })
-    setIsCreating(false)
-  }
+    });
+    setIsCreating(false);
+  };
 
   return (
-    <div className={`${worksans.className} bg-ma-surface-container/50 border-2 border-greyColor/20 rounded-xl rounded-2xl shadow-sm p-6 w-full h-full flex flex-col space-y-4`}>
+    <div className={`${worksans.className} bg-ma-surface-container/50 border-2 border-greyColor/20 rounded-2xl shadow-sm p-6 w-full h-full flex flex-col space-y-4`}>
       <div className="flex flex-row items-center justify-between mb-2">
         <div className="flex items-center">
           <span className="text-primaryColor text-2xl font-bold">#</span>
@@ -218,8 +211,8 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
         <CustomPrimaryButton
           isSelected
           onClick={() => {
-            setIsCreating(true)
-            setSelectedBrand(null)
+            setIsCreating(true);
+            setSelectedBrand(null);
             setSearchTerm('');
           }}
           className="py-2 px-4"
@@ -233,7 +226,7 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
           <SearchTextAdmin
             placeholderText='Search Brands...'
             value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value) }}
+            onChange={(e) => { setSearchTerm(e.target.value); }}
           />
         </div>
       )}
@@ -255,10 +248,10 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                     brandName: brand.brandName,
                     imageUrl: brand.imageUrl ?? null
                   }
-                })
-                handleSelectBrand(brand)
-                setIsCreating(false)
-                setSearchTerm('')
+                });
+                handleSelectBrand(brand);
+                setIsCreating(false);
+                setSearchTerm('');
               }}>
                 <div className="text-secondary text-sm">#{brand.brandId}</div>
                 <div className="flex flex-col gap-1">
@@ -268,18 +261,10 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                   </span>
                 </div>
                 <div className="flex items-center justify-end gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                  <button className="text-secondary hover:text-red-400 p-1"
-                    // onClick={(e) => { e.stopPropagation(); handleEditCategory(brand.brandId); }}e
-                    title="Edit Brand"
-                  >
+                  <button className="text-secondary hover:text-red-400 p-1" title="Edit Brand">
                     <Pencil className="w-4 h-4 opacity-70" />
                   </button>
-                  {/* Only allow deletion if no subcategories, or handle warning. Here we just allow it. */}
-                  <button className="text-secondary hover:text-red-400 p-1"
-                    // onClick={(e) => { e.stopPropagation(); deleteBrand(brand.brandId, token) }}
-                    disabled={true}
-                    title="Delete Brand"
-                  >
+                  <button className="text-secondary hover:text-red-400 p-1" disabled={true} title="Delete Brand">
                     <Trash2 className="w-4 h-4 opacity-70" />
                   </button>
                 </div>
@@ -354,13 +339,14 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                     <label className="text-xs font-bold text-[#a6a7a6] uppercase tracking-wider">Brand Logo</label>
                     <FileDropImage
                       maxImages={1}
-                      onFileChange={(file: File) =>
-                        dispatchUpdateBrand({
-                          type: 'BRAND_IMAGE_UPDATE',
-                          payload: file
-                        })
-                      }
-                      className="w-full h-40 border-2 border-dashed border-primaryColor/40 hover:border-primaryColor bg-[#0a1420] rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden relative group"
+                      onFileChange={(file: File | File[]) => {
+                        if (file instanceof File) {
+                          dispatchUpdateBrand({
+                            type: 'BRAND_IMAGE_UPDATE',
+                            payload: file
+                          });
+                        }
+                      }}
                     >
                       {brandStateUpdate.imageUrl instanceof File ? (
                         <>
@@ -468,11 +454,13 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                 <label className="text-xs font-bold text-[#a6a7a6] uppercase tracking-wider">Brand Logo Image</label>
                 <FileDropImage
                   maxImages={1}
-                  onFileChange={(file: File) => {
-                    dispatchCreateBrand({
-                      type: 'BRAND_IMAGE_CREATE',
-                      payload: file
-                    });
+                  onFileChange={(file: File | File[]) => {
+                    if (file instanceof File) {
+                      dispatchCreateBrand({
+                        type: 'BRAND_IMAGE_CREATE',
+                        payload: file
+                      });
+                    }
                   }}
                   className="w-full h-44 border-2 border-dashed border-primaryColor/40 hover:border-primaryColor bg-[#0a1420] rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden relative group"
                 >
@@ -520,7 +508,6 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
         )}
       </AnimatePresence>
 
-
       {/* ── Toast Notification ── */}
       <AnimatePresence>
         {statusMessage && (
@@ -552,8 +539,6 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
   );
 };
-
