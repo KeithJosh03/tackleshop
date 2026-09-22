@@ -17,7 +17,8 @@ import {
   CheckCircle2,
   AlertCircle,
   RefreshCw,
-  ShoppingBag
+  ShoppingBag,
+  Users
 } from 'lucide-react';
 import { generateSku } from '@/lib/utils/skuGenerator';
 import { createBundle } from '@/lib/api/bundleService';
@@ -76,9 +77,9 @@ export default function BuildSetupPage() {
   // Item additions from modal
   const handleSelectItems = (newItems: SelectedBundleItem[]) => {
     setSelectedItems((prev) => {
-      const existingKeyMap = new Set(prev.map((item) => `${item.product.productId}-${item.sku?.skuId || 'base'}`));
+      const existingKeyMap = new Set(prev.map((item) => item.is_custom ? item.id : `${item.product?.productId}-${item.sku_id || 'base'}`));
       const itemsToAdd = newItems.filter(
-        (item) => !existingKeyMap.has(`${item.product.productId}-${item.sku?.skuId || 'base'}`)
+        (item) => !existingKeyMap.has(item.is_custom ? item.id : `${item.product?.productId}-${item.sku_id || 'base'}`)
       );
       return [...prev, ...itemsToAdd];
     });
@@ -138,7 +139,8 @@ export default function BuildSetupPage() {
 
   // Stock calculation from items
   const lowestComponentStock = selectedItems.reduce((min, item) => {
-    const itemStock = item.sku?.stockQuantity ?? item.product.stockQuantity ?? 0;
+    if (item.is_custom) return min; // custom items don't have stock
+    const itemStock = item.sku?.stockQuantity ?? item.product?.stockQuantity ?? 0;
     const maxBundlesFromThisItem = Math.floor(itemStock / item.quantity);
     return Math.min(min, maxBundlesFromThisItem);
   }, selectedItems.length > 0 ? Infinity : 0);
@@ -173,9 +175,15 @@ export default function BuildSetupPage() {
         is_published: isPublished,
         start_date: startDate || undefined,
         end_date: endDate || undefined,
-        bundle_items: selectedItems.map((item) => ({
-          product_id: item.product.productId,
-          sku_id: item.sku ? item.sku.skuId : undefined,
+        bundle_items: selectedItems.filter(i => !i.is_custom).map((item) => ({
+          product_id: item.product?.productId,
+          sku_id: item.sku_id,
+          quantity: item.quantity,
+          is_required: item.is_required,
+        })),
+        custom_inclusions: selectedItems.filter(i => i.is_custom).map((item) => ({
+          title: item.product_title,
+          price: item.unit_price,
           quantity: item.quantity,
           is_required: item.is_required,
         })),
@@ -224,8 +232,8 @@ export default function BuildSetupPage() {
         {feedbackMsg && (
           <div
             className={`p-4 rounded-xl border flex items-center gap-3 max-w-md ${feedbackMsg.type === 'success'
-                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+              : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
               }`}
           >
             {feedbackMsg.type === 'success' ? (
@@ -350,8 +358,8 @@ export default function BuildSetupPage() {
                 type="button"
                 onClick={() => setPricingType('fixed')}
                 className={`p-5 rounded-xl border-2 text-left transition-all relative ${pricingType === 'fixed'
-                    ? 'border-primaryColor bg-primaryColor/10'
-                    : 'border-greyColor/20 bg-[#121922] hover:border-greyColor/40'
+                  ? 'border-primaryColor bg-primaryColor/10'
+                  : 'border-greyColor/20 bg-[#121922] hover:border-greyColor/40'
                   }`}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -373,8 +381,8 @@ export default function BuildSetupPage() {
                 type="button"
                 onClick={() => setPricingType('calculated')}
                 className={`p-5 rounded-xl border-2 text-left transition-all relative ${pricingType === 'calculated'
-                    ? 'border-primaryColor bg-primaryColor/10'
-                    : 'border-greyColor/20 bg-[#121922] hover:border-greyColor/40'
+                  ? 'border-primaryColor bg-primaryColor/10'
+                  : 'border-greyColor/20 bg-[#121922] hover:border-greyColor/40'
                   }`}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -448,8 +456,8 @@ export default function BuildSetupPage() {
                   type="button"
                   onClick={() => setStockMode('calculated')}
                   className={`flex-1 p-4 rounded-xl border transition-all text-left ${stockMode === 'calculated'
-                      ? 'border-primaryColor bg-primaryColor/10'
-                      : 'border-greyColor/20 bg-[#121922]'
+                    ? 'border-primaryColor bg-primaryColor/10'
+                    : 'border-greyColor/20 bg-[#121922]'
                     }`}
                 >
                   <div className="text-sm font-semibold text-white">Calculated Lowest Stock</div>
@@ -462,8 +470,8 @@ export default function BuildSetupPage() {
                   type="button"
                   onClick={() => setStockMode('manual')}
                   className={`flex-1 p-4 rounded-xl border transition-all text-left ${stockMode === 'manual'
-                      ? 'border-primaryColor bg-primaryColor/10'
-                      : 'border-greyColor/20 bg-[#121922]'
+                    ? 'border-primaryColor bg-primaryColor/10'
+                    : 'border-greyColor/20 bg-[#121922]'
                     }`}
                 >
                   <div className="text-sm font-semibold text-white">Manual Stock Limit</div>
@@ -532,29 +540,58 @@ export default function BuildSetupPage() {
             ) : (
               <div className="space-y-3">
                 {selectedItems.map((item, index) => {
+                  const isFlexible = item.product?.hasVariants && item.sku_id === null && !item.is_custom;
+                  const isCustom = item.is_custom;
+
                   return (
                     <div
-                      key={`${item.product.productId}-${item.sku?.skuId || 'base'}`}
-                      className="p-4 rounded-xl bg-[#121922] border border-greyColor/20 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-greyColor/40"
+                      key={isCustom ? item.id : `${item.product?.productId}-${item.sku_id || 'base'}`}
+                      className={`p-4 rounded-xl bg-[#121922] border flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all ${isCustom ? 'border-indigo-500/30' : isFlexible ? 'border-amber-500/30' : 'border-greyColor/20 hover:border-greyColor/40'}`}
                     >
                       {/* Left: Thumbnail & Title */}
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-greyColor/30 flex-shrink-0 bg-slate-900 flex items-center justify-center">
-                          <ShoppingBag className="w-6 h-6 text-[#788ca5]" />
+                        <div className={`relative w-14 h-14 rounded-lg overflow-hidden border flex-shrink-0 bg-slate-900 flex items-center justify-center ${isCustom ? 'border-indigo-500/50' : isFlexible ? 'border-amber-500/50' : 'border-greyColor/30'}`}>
+                          {isCustom ? <Box className="w-6 h-6 text-indigo-400" /> : isFlexible ? <Users className="w-6 h-6 text-amber-500" /> : <ShoppingBag className="w-6 h-6 text-[#788ca5]" />}
                         </div>
                         <div className="min-w-0">
-                          <div className="text-sm font-bold text-white truncate">
-                            {item.product.productTitle}
+                          <div className="text-sm font-bold text-white truncate flex items-center gap-2">
+                            {item.product_title}
                           </div>
-                          {item.variant_label ? (
-                            <div className="text-xs text-primaryColor font-medium mt-0.5">
-                              Variant: {item.variant_label}
+
+                          {isCustom ? (
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 mt-1 px-2 py-0.5 rounded bg-indigo-500/10 inline-block">
+                              Unlisted Item / Freebie
                             </div>
                           ) : (
-                            <div className="text-xs text-[#788ca5] mt-0.5">Base Product</div>
+                            <div className="flex flex-col gap-1 mt-1">
+                              {/* Category Path Badge */}
+                              <div className="text-[10px] text-[#a9b7cd] flex items-center gap-1.5 uppercase tracking-wider">
+                                {item.product?.categoryName || 'Uncategorized'}
+                                {item.product?.subCategoryName && (
+                                  <>
+                                    <span className="text-greyColor/40">•</span>
+                                    <span>{item.product.subCategoryName}</span>
+                                  </>
+                                )}
+                              </div>
+
+                              {/* Variant Badge */}
+                              {isFlexible ? (
+                                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-500 px-2 py-0.5 rounded bg-amber-500/10 inline-block self-start">
+                                  Customer Chooses Variant
+                                </div>
+                              ) : item.variant_label && item.variant_label !== 'Base Product' ? (
+                                <div className="text-xs text-primaryColor font-medium">
+                                  Fixed Variant: {item.variant_label}
+                                </div>
+                              ) : (
+                                <div className="text-xs text-[#788ca5]">Base Product</div>
+                              )}
+                            </div>
                           )}
-                          <div className="text-[11px] text-[#788ca5] font-mono mt-0.5">
-                            SKU: {item.sku?.skuCode || item.product.sku || 'N/A'}
+
+                          <div className="text-[11px] text-[#788ca5] font-mono mt-1">
+                            SKU: {item.sku_code || item.product?.sku || 'N/A'}
                           </div>
                         </div>
                       </div>
@@ -587,8 +624,8 @@ export default function BuildSetupPage() {
                             type="button"
                             onClick={() => handleToggleRequired(index)}
                             className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors ${item.is_required
-                                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                                : 'bg-greyColor/20 text-[#788ca5]'
+                              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                              : 'bg-greyColor/20 text-[#788ca5]'
                               }`}
                           >
                             {item.is_required ? 'Required' : 'Optional'}

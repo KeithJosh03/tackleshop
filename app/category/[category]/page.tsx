@@ -53,11 +53,15 @@ export default function Category() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  const fetchProducts = useCallback(async (page: number) => {
-    if (loading) return;
+  // Filter States
+  const [searchQuery, setSearchQuery] = useState("");
+  const [budget, setBudget] = useState("");
+  const [sortOption, setSortOption] = useState("newest");
+
+  const fetchProducts = useCallback(async (page: number, search: string, bdgt: string, sort: string) => {
     setLoading(true);
     try {
-      const data = await fetchSpecificCategoryProducts(category.replaceAll("-", " "), page);
+      const data = await fetchSpecificCategoryProducts(category.replaceAll("-", " "), page, search, bdgt, sort);
       if (!data) return;
       setProducts(data.categoryproducts.products);
       setCurrentPage(data.currentPage);
@@ -67,17 +71,23 @@ export default function Category() {
       setLoading(false);
       setInitialLoading(false);
     }
-  }, [category, loading]);
-
-  useEffect(() => {
-    setInitialLoading(true);
-    setProducts([]);
-    setCurrentPage(1);
-    fetchProducts(1);
   }, [category]);
 
+  // Debounced fetch for filters
+  useEffect(() => {
+    setInitialLoading(true);
+    const handler = setTimeout(() => {
+      setProducts([]);
+      setCurrentPage(1);
+      fetchProducts(1, searchQuery, budget, sortOption);
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(handler);
+  }, [category, searchQuery, budget, sortOption, fetchProducts]);
+
+  console.log(products);
   return (
-    <div className="min-h-screen px-6 pb-16 pt-4 md:px-10 flex flex-col gap-8">
+    <div className="min-h-screen px-6 pb-16 pt-4 md:px-10 flex flex-col gap-2">
 
       {/* ── Hero Header ── */}
       <div className="flex flex-col gap-1 items-center justify-center pt-8 pb-4">
@@ -90,18 +100,54 @@ export default function Category() {
       </div>
 
       {/* ── Sort & Info Bar ── */}
-      <div className="flex flex-col sm:flex-row justify-between items-center py-4 border-b border-[#272a2c]">
+      <div className="flex flex-col gap-4 py-4 border-b border-[#272a2c]">
+
+        {/* Filters Row */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            {/* Search Input */}
+            <div className="relative w-full sm:w-64">
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#101415] border border-[#323537] rounded-md px-4 py-2 text-sm text-[#e0e3e5] focus:outline-none focus:border-[#ffc49a] transition-colors"
+              />
+            </div>
+            {/* Budget Input */}
+            <div className="relative w-full sm:w-48 flex items-center">
+              <span className="absolute left-3 text-[#a28d7e] text-sm">₱</span>
+              <input
+                type="number"
+                placeholder="Max Budget"
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
+                className="w-full bg-[#101415] border border-[#323537] rounded-md pl-8 pr-4 py-2 text-sm text-[#e0e3e5] focus:outline-none focus:border-[#ffc49a] transition-colors"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-[#e0e3e5] font-bold w-full sm:w-auto justify-end">
+            <span className="text-[#a28d7e] uppercase text-xs tracking-wider">Sort by:</span>
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="bg-transparent border-none outline-none cursor-pointer uppercase tracking-wider text-[#e0e3e5]"
+            >
+              <option value="newest" className="bg-[#101415]">Newest Arrivals</option>
+              <option value="price_low" className="bg-[#101415]">Price: Low to High</option>
+              <option value="price_high" className="bg-[#101415]">Price: High to Low</option>
+            </select>
+          </div>
+
+        </div>
+
+        {/* Results Info */}
         <p className="text-sm text-[#a28d7e] font-semibold">
           {!initialLoading ? `${products.length} products - Page ${currentPage} of ${lastPage}` : 'Loading...'}
         </p>
-        <div className="flex items-center gap-2 text-sm text-[#e0e3e5] font-bold mt-4 sm:mt-0">
-          <span className="text-[#a28d7e] uppercase text-xs tracking-wider">Sort by:</span>
-          <select className="bg-transparent border-none outline-none cursor-pointer uppercase tracking-wider text-[#e0e3e5]">
-            <option className="bg-[#101415]">Newest Arrivals</option>
-            <option className="bg-[#101415]">Price: Low to High</option>
-            <option className="bg-[#101415]">Price: High to Low</option>
-          </select>
-        </div>
       </div>
 
       {/* ── Content ── */}
@@ -131,7 +177,7 @@ export default function Category() {
           <div className="flex items-center justify-center gap-4 mt-4">
             <PaginationBtn
               disabled={currentPage === 1 || loading}
-              onClick={() => fetchProducts(currentPage - 1)}
+              onClick={() => fetchProducts(currentPage - 1, searchQuery, budget, sortOption)}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -143,7 +189,7 @@ export default function Category() {
               {Array.from({ length: lastPage }).map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => fetchProducts(i + 1)}
+                  onClick={() => fetchProducts(i + 1, searchQuery, budget, sortOption)}
                   disabled={loading}
                   className={`w-8 h-8 flex items-center justify-center text-xs font-bold transition-all duration-200 border
                     ${currentPage === i + 1
@@ -159,7 +205,7 @@ export default function Category() {
 
             <PaginationBtn
               disabled={!hasMore || loading}
-              onClick={() => fetchProducts(currentPage + 1)}
+              onClick={() => fetchProducts(currentPage + 1, searchQuery, budget, sortOption)}
             >
               Next
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">

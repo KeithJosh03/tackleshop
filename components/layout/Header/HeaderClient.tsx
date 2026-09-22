@@ -68,6 +68,8 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
     { label: 'BRANDS', href: '#', isActive: pathname.startsWith('/brand'), hasDropdown: 'brands' as const },
     { label: 'CATEGORIES', href: '#', isActive: pathname.startsWith('/category'), hasDropdown: 'categories' as const },
     { label: 'APPAREL', href: '/category/apparel', isActive: pathname === '/category/apparel' },
+    { label: 'BLOGS', href: '/blogs', isActive: pathname === '/category/blogs' },
+
   ];
 
   return (

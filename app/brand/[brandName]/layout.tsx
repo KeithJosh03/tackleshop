@@ -8,7 +8,7 @@ export default function BrandLayout(
   return (
     <>
       <Header />
-      <div className='relative w-full px-40 mt-40 mb-10'>
+      <div className='relative w-full px-40 mt-20 mb-10'>
         {children}
       </div>
       <Footer />

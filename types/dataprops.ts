@@ -30,9 +30,13 @@ export interface CategorySubProps {
 export interface BrandProducts {
     productId: number;
     productName: string;
-    basePrice: number;
-    categoryType: string;
-    mainImage: string;
+    basePrice: number | string;
+    minPrice?: number;
+    maxPrice?: number;
+    formattedPrice?: string;
+    categoryType?: string;
+    subCategoryName?: string;
+    mainImage?: string;
 }
 
 // ProductDetails

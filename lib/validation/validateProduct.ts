@@ -20,7 +20,6 @@ const parseInteger = (val: unknown): number => {
 export const validateProduct = (
     productDetailState: Record<string, any>
 ): ProductValidationResult => {
-    console.log(productDetailState);
 
     const state = productDetailState || {};
     const errors: Record<string, string> = {};

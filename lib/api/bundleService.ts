@@ -1,6 +1,15 @@
+const BASE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+
 export interface BundleItemPayload {
     product_id: number;
     sku_id?: number | null;
+    quantity: number;
+    is_required: boolean;
+}
+
+export interface CustomInclusionPayload {
+    title: string;
+    price: number;
     quantity: number;
     is_required: boolean;
 }
@@ -19,11 +28,12 @@ export interface CreateBundlePayload {
     start_date?: string;
     end_date?: string;
     bundle_items: BundleItemPayload[];
+    custom_inclusions?: CustomInclusionPayload[];
 }
 
 export const createBundle = async (payload: CreateBundlePayload): Promise<any> => {
     console.log('Submitting Bundle Payload:', payload);
-    const response = await fetch('/api/bundles/store', {
+    const response = await fetch(`${BASE_URL}/api/setups`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

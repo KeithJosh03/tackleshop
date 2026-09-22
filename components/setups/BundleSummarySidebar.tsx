@@ -45,7 +45,7 @@ export function BundleSummarySidebar({
       {/* Live Price & Savings Card */}
       <div className="bg-ma-surface-container/50 border-2 border-greyColor/20 rounded-2xl p-6 shadow-sm backdrop-blur-sm relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-primaryColor/5 rounded-full blur-2xl -z-10 pointer-events-none" />
-        
+
         <div className="flex items-center gap-2 mb-4 text-[#788ca5] text-xs font-semibold uppercase tracking-wider">
           <Sparkles className="w-4 h-4 text-primaryColor" />
           <span>Live Pricing Summary</span>
@@ -112,23 +112,32 @@ export function BundleSummarySidebar({
           <button
             type="button"
             onClick={() => setIsPublished(!isPublished)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              isPublished ? 'bg-primaryColor' : 'bg-greyColor/40'
-            }`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isPublished ? 'bg-primaryColor' : 'bg-greyColor/40'
+              }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                isPublished ? 'translate-x-6' : 'translate-x-1'
-              }`}
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isPublished ? 'translate-x-6' : 'translate-x-1'
+                }`}
             />
           </button>
         </div>
 
         {/* Start Date */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-[#9cb3cf] flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-[#788ca5]" /> Promotion Start Date
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-[#9cb3cf] flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-[#788ca5]" /> Promotion Start Date (Optional)
+            </label>
+            {startDate && (
+              <button
+                type="button"
+                onClick={() => setStartDate('')}
+                className="text-[10px] text-primaryColor hover:underline"
+              >
+                Clear
+              </button>
+            )}
+          </div>
           <input
             type="datetime-local"
             value={startDate}
@@ -139,9 +148,20 @@ export function BundleSummarySidebar({
 
         {/* End Date */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-[#9cb3cf] flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-[#788ca5]" /> Promotion End Date (Optional)
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-[#9cb3cf] flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-[#788ca5]" /> Promotion End Date (Optional)
+            </label>
+            {endDate && (
+              <button
+                type="button"
+                onClick={() => setEndDate('')}
+                className="text-[10px] text-primaryColor hover:underline"
+              >
+                Clear
+              </button>
+            )}
+          </div>
           <input
             type="datetime-local"
             value={endDate}

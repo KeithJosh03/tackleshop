@@ -23,6 +23,14 @@ interface BrandLogosResponse {
   brandLogo: BrandProps[];
 }
 
+export interface BrandProductsResponse {
+  status: boolean;
+  products: any[];
+  currentPage: number;
+  lastPage: number;
+  hasMore: boolean;
+}
+
 interface DeleteBrandResponse {
   status: boolean;
 }
@@ -97,6 +105,32 @@ export async function deleteBrand(
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+/**
+ * Fetches products for a specific brand
+ */
+export async function fetchSpecificBrandProducts(
+  brandName: string,
+  page: number = 1,
+  search?: string,
+  budget?: string,
+  sort?: string
+): Promise<BrandProductsResponse | null> {
+  const formattedBrandName = brandName.replaceAll("-", " ").toLowerCase();
+
+  const params = new URLSearchParams();
+  params.append('page', page.toString());
+  if (search) params.append('search', search);
+  if (budget) params.append('budget', budget);
+  if (sort) params.append('sort', sort);
+
+  return apiClient<BrandProductsResponse>(`/api/brands/specificbrand/${formattedBrandName}?${params.toString()}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
     },
   });
 }

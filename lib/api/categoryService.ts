@@ -261,12 +261,22 @@ interface CategoryProductResponse {
 
 export const fetchSpecificCategoryProducts = async (
   category: string,
-  page: number
+  page: number = 1,
+  search?: string,
+  budget?: string,
+  sort?: string
 ): Promise<CategoryProductResponse | null> => {
   try {
     const encodedCategory = encodeURIComponent(category);
+    
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    if (search) params.append('search', search);
+    if (budget) params.append('budget', budget);
+    if (sort) params.append('sort', sort);
+
     const response = await axios.get<CategoryProductResponse>(
-      `${BASE_URL}/api/categories/specificCategory/${encodedCategory}?page=${page}`
+      `${BASE_URL}/api/categories/specificCategory/${encodedCategory}?${params.toString()}`
     );
 
     return response.data;
