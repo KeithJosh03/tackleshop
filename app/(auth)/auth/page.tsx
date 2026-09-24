@@ -3,15 +3,25 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Eye, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { registerUser } from "@/lib/api/registerService";
 
-export default function Login() {
+export default function AuthPage() {
+    const [isLogin, setIsLogin] = useState(true);
+    
+    // Shared State
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    
+    // Register-specific state
+    const [name, setName] = useState("");
+    const [terms, setTerms] = useState(false);
+
     const router = useRouter();
     const { status } = useSession();
 
@@ -24,30 +34,59 @@ export default function Login() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+
+        if (!isLogin && !terms) {
+            setError("You must accept the Terms & Conditions.");
+            return;
+        }
+
         setIsLoading(true);
 
         try {
-            const res = await signIn('credentials', {
-                email,
-                password,
-                redirect: false,
-            });
+            if (isLogin) {
+                // Handle Login
+                const res = await signIn('credentials', {
+                    email,
+                    password,
+                    redirect: false,
+                });
 
-            if (res?.error) {
-                setError("Invalid email or password");
+                if (res?.error) {
+                    setError("Invalid email or password");
+                } else {
+                    router.push('/admin/dashboard'); 
+                }
             } else {
-                router.push('/admin/dashboard'); // Or maybe just '/', but since it's an admin feature, redirect to dashboard. If it's a customer, they can't login via credentials right now because backend only checks Admin table!
+                // Handle Registration
+                const data = await registerUser({ name, email, password });
+                if (data.token) {
+                    // Registration success! Automatically log them in now.
+                    const res = await signIn('credentials', {
+                        email,
+                        password,
+                        redirect: false,
+                    });
+                    
+                    if (res?.error) {
+                         // Fallback just in case
+                         setIsLogin(true);
+                         setError("Account created! Please sign in.");
+                    } else {
+                         router.push('/admin/dashboard'); 
+                    }
+                }
             }
-        } catch (err) {
-            setError("Something went wrong. Please try again.");
+        } catch (err: any) {
+            setError(err.message || "Something went wrong. Please try again.");
         } finally {
             setIsLoading(false);
         }
     };
+
     return (
         <div className="w-full max-w-[420px] flex flex-col items-center relative mt-12 mb-12">
             {/* Main Card */}
-            <div className="w-full bg-ma-surface/70 backdrop-blur-xl border border-ma-surface-bright rounded-[1rem] p-8 sm:p-10 shadow-2xl flex flex-col items-center relative z-10">
+            <div className="w-full bg-ma-surface/70 backdrop-blur-xl border border-ma-surface-bright rounded-[1rem] p-8 sm:p-10 shadow-2xl flex flex-col items-center relative z-10 transition-all duration-300">
 
                 {/* Logo */}
                 <div className="mb-6 w-40 h-14 relative">
@@ -55,14 +94,33 @@ export default function Login() {
                 </div>
 
                 {/* Headings */}
-                <h1 className="text-[32px] font-[700] text-ma-on-surface mb-2 tracking-tight leading-[1.3]">Welcome back</h1>
-                <p className="text-[16px] text-ma-outline mb-8 text-center leading-[1.6]">Sign in to access your account and orders.</p>
+                <h1 className="text-[32px] font-[700] text-ma-on-surface mb-2 tracking-tight leading-[1.3] text-center">
+                    {isLogin ? "Welcome back" : "Create Account"}
+                </h1>
+                <p className="text-[16px] text-ma-outline mb-8 text-center leading-[1.6]">
+                    {isLogin ? "Sign in to access your account." : "Join the elite angling community."}
+                </p>
 
                 {/* Form */}
                 <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit}>
                     {error && (
                         <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg text-center">
                             {error}
+                        </div>
+                    )}
+
+                    {/* Full Name (Only for Register) */}
+                    {!isLogin && (
+                        <div className="flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <label className="text-[14px] font-[700] text-ma-outline uppercase tracking-[0.05em]">Full Name</label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required={!isLogin}
+                                placeholder="John Doe"
+                                className="w-full bg-ma-surface-container/80 border border-ma-surface-bright rounded-[0.5rem] px-4 py-3 text-[16px] text-ma-on-surface placeholder:text-ma-outline-variant focus:outline-none focus:border-ma-primary transition-colors"
+                            />
                         </div>
                     )}
 
@@ -84,38 +142,57 @@ export default function Login() {
                         <label className="text-[14px] font-[700] text-ma-outline uppercase tracking-[0.05em]">Password</label>
                         <div className="relative">
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
+                                minLength={!isLogin ? 8 : 1}
                                 placeholder="........"
                                 className="w-full bg-ma-surface-container/80 border border-ma-surface-bright rounded-[0.5rem] px-4 py-3 text-[16px] text-ma-on-surface placeholder:text-ma-outline-variant focus:outline-none focus:border-ma-primary transition-colors"
                             />
-                            <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-ma-outline hover:text-ma-on-surface transition-colors">
-                                <Eye className="w-4 h-4" />
+                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-ma-outline hover:text-ma-on-surface transition-colors">
+                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </button>
                         </div>
                     </div>
+
+                    {/* Terms Checkbox (Only for Register) */}
+                    {!isLogin && (
+                        <div className="flex items-start gap-3 mt-1 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <input
+                                type="checkbox"
+                                id="terms"
+                                checked={terms}
+                                onChange={(e) => setTerms(e.target.checked)}
+                                className="mt-0.5 w-4 h-4 rounded-[0.25rem] border-ma-surface-bright bg-ma-surface-container text-ma-primary focus:ring-ma-primary focus:ring-offset-ma-surface cursor-pointer"
+                            />
+                            <label htmlFor="terms" className="text-[13px] text-ma-outline leading-[1.6] cursor-pointer">
+                                I accept the <Link href="/terms" className="text-ma-primary hover:underline">Terms</Link> & <Link href="/privacy" className="text-ma-primary hover:underline">Privacy Policy</Link>.
+                            </label>
+                        </div>
+                    )}
+
+                    {/* Forgot Password (Only for Login) */}
+                    {isLogin && (
+                        <div className="flex justify-end w-full -mt-2 animate-in fade-in duration-300">
+                            <Link href="/forgot-password" className="text-[14px] font-[700] text-ma-primary hover:text-ma-primary-container transition-colors">
+                                Forgot password?
+                            </Link>
+                        </div>
+                    )}
 
                     <button
                         type="submit"
                         disabled={isLoading}
                         className="w-full bg-ma-primary text-ma-on-primary rounded-[0.5rem] py-3 flex
                         items-center justify-center gap-3 font-[700] text-[15px] hover:bg-ma-primary/90
-                        transition-colors mt-2 disabled:opacity-70 hover:cursor-pointer"
+                        transition-colors mt-2 disabled:opacity-70 hover:cursor-pointer uppercase tracking-wider shadow-lg shadow-ma-primary/10"
                     >
-                        {isLoading ? "Signing in..." : "Sign In"}
+                        {isLoading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
                     </button>
 
-                    {/* Forgot Password */}
-                    <div className="flex justify-end w-full mt-1">
-                        <Link href="/forgot-password" className="text-[14px] font-[700] text-ma-primary hover:text-ma-primary-container transition-colors">
-                            Forgot password?
-                        </Link>
-                    </div>
-
                     {/* OR Divider */}
-                    <div className="flex items-center gap-3 w-full my-4 opacity-80">
+                    <div className="flex items-center gap-3 w-full my-3 opacity-80">
                         <div className="flex-1 h-px bg-ma-surface-bright"></div>
                         <span className="text-[14px] font-[700] text-ma-outline uppercase tracking-[0.05em]">OR</span>
                         <div className="flex-1 h-px bg-ma-surface-bright"></div>
@@ -155,14 +232,21 @@ export default function Login() {
                     </div>
                 </form>
 
-                {/* Footer Text */}
-                <p className="mt-8 text-[16px] text-ma-outline">
-                    Don&apos;t have an account? <Link href="/register" className="text-ma-primary font-[700] hover:underline">Sign up</Link>
+                {/* Footer Text (Toggle) */}
+                <p className="mt-8 text-[15px] text-ma-outline">
+                    {isLogin ? "Don't have an account?" : "Already have an account?"} {" "}
+                    <button 
+                        type="button" 
+                        onClick={() => {
+                            setIsLogin(!isLogin);
+                            setError("");
+                        }} 
+                        className="text-ma-primary font-[700] hover:underline"
+                    >
+                        {isLogin ? "Sign up" : "Log In"}
+                    </button>
                 </p>
 
-                <p className="mt-4 text-[14px] text-ma-outline text-center max-w-[85%] leading-[1.6]">
-                    By continuing, you agree to our <Link href="/terms" className="underline hover:text-ma-on-surface transition-colors">Terms of Service</Link> and <Link href="/privacy" className="underline hover:text-ma-on-surface transition-colors">Privacy Policy</Link>.
-                </p>
             </div>
 
             {/* Pill Badges */}

@@ -3,25 +3,19 @@
 import Header from './layout/Header/Header';
 import Footer from './layout/Footer/Footer';
 
+// Home-Page
 import Hero from './home-page/Hero/Hero';
 import Brands from './home-page/BrandsLogo/BrandsLogo';
 import Collections from './home-page/ProductCollections/page';
-
 import StoreServices from './home-page/StoreServices/StoreServices';
 
 
-// import Setups from './setups';
-// import Discounts from './sales';
-
-import { DashboardBrandClient } from './adminUI/DashboardBrandClient';
 import DashBoardButtonLayoutOption from './DashBoardButtonLayoutOption';
 import IconButton from '@/components/ui/IconButton';
-import FacebookReviewClient from './home-page/FacebookReviews/FacebookReviewClient';
 import DashboardHeader from './adminUI/DashboardHeader';
-import DashboardOverviewClient from './DashboardOverviewClient';
 import DashboardVariantsComponent from './DashboardVariantsComponent';
 import ProductVariantBuilder from './ProductVariantBuilder';
-export * from './adminUI/ProductForm';
+// export * from './adminUI/ProductForm';
 
 
 
@@ -40,7 +34,6 @@ import ImageIconUpload from '@/components/ui/ImageIconUpload';
 import DropDownText from '@/components/ui/DropDownText';
 import CustomPrimaryButton from '@/components/CustomPrimaryButton';
 
-import { DashboardCategoryClient } from './adminUI/DashboardCategoryClient';
 
 export {
     // layout
@@ -51,15 +44,11 @@ export {
     Hero,
     Brands,
     StoreServices,
-    FacebookReviewClient,
     Collections,
 
     // dashboard
-    DashboardBrandClient,
-    DashboardCategoryClient,
     DashBoardButtonLayoutOption,
     DashboardHeader,
-    DashboardOverviewClient,
     DashboardVariantsComponent,
     ProductVariantBuilder,
     ProductContentInputs,

@@ -6,10 +6,15 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 
 import CategoryCards from "./CategoryCards";
+
+import {
+  ProductFilterBar,
+  BrandCategoryPaginationButton
+} from "@/components/ui"
+
 import { fetchSpecificCategoryProducts } from "@/lib/api/categoryService";
 import { CategorizeProduct } from "@/types/dataprops";
 
-/* ─── Skeleton card ────────────────────────────────────────────────────── */
 function SkeletonCard() {
   return (
     <div className="rounded-md border border-[#323537] bg-[#1d2022] overflow-hidden animate-pulse min-h-[360px] flex flex-col">
@@ -23,25 +28,6 @@ function SkeletonCard() {
   );
 }
 
-/* ─── Pagination button ────────────────────────────────────────────────── */
-function PaginationBtn({ onClick, disabled, children }: { onClick: () => void; disabled: boolean; children: React.ReactNode }) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-200 border
-        ${disabled
-          ? 'border-[#323537] text-[#544338] cursor-not-allowed opacity-50'
-          : 'border-[#a28d7e] text-[#e0e3e5] hover:border-[#ffc49a] hover:text-[#ffc49a]'
-        }
-      `}
-    >
-      {children}
-    </button>
-  );
-}
-
-/* ─── Page ─────────────────────────────────────────────────────────────── */
 export default function Category() {
   const { category } = useParams<{ category: string }>();
   const displayName = category.replaceAll("-", " ").toUpperCase();
@@ -73,23 +59,21 @@ export default function Category() {
     }
   }, [category]);
 
-  // Debounced fetch for filters
   useEffect(() => {
     setInitialLoading(true);
     const handler = setTimeout(() => {
       setProducts([]);
       setCurrentPage(1);
       fetchProducts(1, searchQuery, budget, sortOption);
-    }, 500); // 500ms debounce
+    }, 500);
 
     return () => clearTimeout(handler);
   }, [category, searchQuery, budget, sortOption, fetchProducts]);
 
   console.log(products);
+
   return (
     <div className="min-h-screen px-6 pb-16 pt-4 md:px-10 flex flex-col gap-2">
-
-      {/* ── Hero Header ── */}
       <div className="flex flex-col gap-1 items-center justify-center pt-8 pb-4">
         <p className="text-xs font-bold text-[#a28d7e] uppercase tracking-widest">
           BROWSE <span className="mx-1">›</span> CATEGORY
@@ -99,60 +83,21 @@ export default function Category() {
         </h1>
       </div>
 
-      {/* ── Sort & Info Bar ── */}
-      <div className="flex flex-col gap-4 py-4 border-b border-[#272a2c]">
+      {/* Reusable Filter Bar Component */}
+      <ProductFilterBar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        budget={budget}
+        onBudgetChange={setBudget}
+        sortOption={sortOption}
+        onSortChange={setSortOption}
+        productCount={products.length}
+        currentPage={currentPage}
+        lastPage={lastPage}
+        initialLoading={initialLoading}
+      />
 
-        {/* Filters Row */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-            {/* Search Input */}
-            <div className="relative w-full sm:w-64">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#101415] border border-[#323537] rounded-md px-4 py-2 text-sm text-[#e0e3e5] focus:outline-none focus:border-[#ffc49a] transition-colors"
-              />
-            </div>
-            {/* Budget Input */}
-            <div className="relative w-full sm:w-48 flex items-center">
-              <span className="absolute left-3 text-[#a28d7e] text-sm">₱</span>
-              <input
-                type="number"
-                placeholder="Max Budget"
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
-                className="w-full bg-[#101415] border border-[#323537] rounded-md pl-8 pr-4 py-2 text-sm text-[#e0e3e5] focus:outline-none focus:border-[#ffc49a] transition-colors"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-sm text-[#e0e3e5] font-bold w-full sm:w-auto justify-end">
-            <span className="text-[#a28d7e] uppercase text-xs tracking-wider">Sort by:</span>
-            <select
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-              className="bg-transparent border-none outline-none cursor-pointer uppercase tracking-wider text-[#e0e3e5]"
-            >
-              <option value="newest" className="bg-[#101415]">Newest Arrivals</option>
-              <option value="price_low" className="bg-[#101415]">Price: Low to High</option>
-              <option value="price_high" className="bg-[#101415]">Price: High to Low</option>
-            </select>
-          </div>
-
-        </div>
-
-        {/* Results Info */}
-        <p className="text-sm text-[#a28d7e] font-semibold">
-          {!initialLoading ? `${products.length} products - Page ${currentPage} of ${lastPage}` : 'Loading...'}
-        </p>
-      </div>
-
-      {/* ── Content ── */}
       {initialLoading ? (
-        /* Skeleton grid */
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
@@ -173,49 +118,15 @@ export default function Category() {
             </motion.div>
           </AnimatePresence>
 
-          {/* ── Pagination ── */}
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <PaginationBtn
-              disabled={currentPage === 1 || loading}
-              onClick={() => fetchProducts(currentPage - 1, searchQuery, budget, sortOption)}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-              Prev
-            </PaginationBtn>
-
-            <div className="flex items-center gap-2">
-              {Array.from({ length: lastPage }).map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => fetchProducts(i + 1, searchQuery, budget, sortOption)}
-                  disabled={loading}
-                  className={`w-8 h-8 flex items-center justify-center text-xs font-bold transition-all duration-200 border
-                    ${currentPage === i + 1
-                      ? 'bg-[#ffc49a] text-[#4f2500] border-[#ffc49a]'
-                      : 'border-[#323537] text-[#a28d7e] hover:border-[#a28d7e]'
-                    }
-                  `}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-
-            <PaginationBtn
-              disabled={!hasMore || loading}
-              onClick={() => fetchProducts(currentPage + 1, searchQuery, budget, sortOption)}
-            >
-              Next
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </PaginationBtn>
-          </div>
+          <BrandCategoryPaginationButton
+            currentPage={currentPage}
+            lastPage={lastPage}
+            hasMore={hasMore}
+            loading={loading}
+            onPageChange={(newPage) => fetchProducts(newPage, searchQuery, budget, sortOption)}
+          />
         </>
       ) : (
-        /* Empty state */
         <div className="flex-1 flex flex-col items-center justify-center gap-6 py-24 border-t border-[#272a2c]">
           <div className="w-20 h-20 rounded-full flex items-center justify-center border border-[#323537] bg-[#1d2022]">
             <svg className="w-9 h-9 text-[#ffc49a]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -226,9 +137,7 @@ export default function Category() {
             <h3 className="text-xl font-black text-[#e0e3e5]">No Products Found</h3>
             <p className="text-sm text-[#a28d7e] mt-1">There are no items in <span className="text-[#ffc49a] font-semibold">{displayName}</span> yet.</p>
           </div>
-          <Link href="/"
-            className="px-6 py-2.5 bg-[#ffc49a] text-[#4f2500] font-bold text-sm uppercase tracking-wider transition-all duration-200 hover:bg-[#ff9d4d]"
-          >
+          <Link href="/" className="px-6 py-2.5 bg-[#ffc49a] text-[#4f2500] font-bold text-sm uppercase tracking-wider transition-all duration-200 hover:bg-[#ff9d4d]">
             Back to Home
           </Link>
         </div>

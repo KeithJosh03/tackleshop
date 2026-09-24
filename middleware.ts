@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin')) {
     // 1. Unauthenticated users -> redirect to login with callback URL
     if (!token) {
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/auth', request.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(loginUrl);
     }

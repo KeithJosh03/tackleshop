@@ -2,7 +2,10 @@ import React from 'react'
 
 
 import { BrandLogos } from "@/lib/api/brandService";
-import { DashboardBrandClient, DashboardCategoryClient } from '@/components';
+import { DashboardBrandClient, DashboardCategoryClient } from "./index";
+
+
+
 import { CategoryListNameSearchHeader } from '@/lib/api/categoryService';
 
 export default async function page() {

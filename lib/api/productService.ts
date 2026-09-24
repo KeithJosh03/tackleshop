@@ -410,6 +410,12 @@ export const DeleteProductDashboard = async (productId: number): Promise<void> =
     });
 };
 
+export const ToggleProductStatus = async (productId: number): Promise<{ is_active: boolean }> => {
+    return apiClient<{ is_active: boolean }>(`/api/admin/products/${productId}/status`, {
+        method: 'PATCH',
+    });
+};
+
 export const editProductDetailsFetch = async (productId: number | string): Promise<ProductEditData> => {
     return apiClient<ProductEditData>(`/api/products/productdetailEditDashboard/${productId}`, {
         method: 'GET',

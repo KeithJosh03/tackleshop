@@ -12,7 +12,8 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ProductListDashboardSearch,
-  DeleteProductDashboard
+  DeleteProductDashboard,
+  ToggleProductStatus
 } from '@/lib/api/productService';
 import { numericConverter } from '@/utils/priceUtils';
 import Link from 'next/link';
@@ -22,6 +23,7 @@ import {
   Search,
   Filter,
   Eye,
+  EyeOff,
   Pencil,
   Trash2,
   ChevronDown,
@@ -273,15 +275,48 @@ export default function Page() {
                       )}
                     </div>
                     <div className="flex items-center justify-end gap-3 pr-2">
-                      <button className="text-[#a6a7a6] hover:text-white transition-colors"><Eye className="w-4 h-4" /></button>
+                      <button 
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            const res = await ToggleProductStatus(product.productId);
+                            setProductLists(prev => prev.map(p => 
+                              p.productId === product.productId ? { ...p, isActive: res.is_active } : p
+                            ));
+                            setStatusType('success');
+                            setStatusMessage(`Product ${res.is_active ? 'Activated' : 'Deactivated'}`);
+                            setTimeout(() => setStatusMessage(null), 3000);
+                          } catch (error) {
+                            setStatusType('error');
+                            setStatusMessage('Failed to change status');
+                            setTimeout(() => setStatusMessage(null), 3000);
+                          }
+                        }}
+                        className={`p-1 transition-colors ${product.isActive ? 'text-green-400 hover:text-red-400' : 'text-red-400 hover:text-green-400'}`}
+                        title={product.isActive ? "Deactivate Product" : "Activate Product"}
+                      >
+                        {product.isActive ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4 opacity-80" />}
+                      </button>
                       <Link
                         href={`/admin/dashboard/products/product-edit/${product.productId}`}
                         className="text-[#a6a7a6] hover:text-[#ffb77c] transition-colors">
                         <Pencil className="w-4 h-4" />
                       </Link>
                       <button
-                        onClick={() => console.log("product details delete", product)}
-                        className="text-[#a6a7a6] hover:text-[#ffb4ab] transition-colors">
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (product.isActive) {
+                            setStatusType('error');
+                            setStatusMessage('Cannot delete active product. Deactivate it first.');
+                            setTimeout(() => setStatusMessage(null), 5000);
+                            return;
+                          }
+                          setProductToDelete(product);
+                        }}
+                        className={`transition-colors p-1 ${product.isActive ? 'text-secondary opacity-30 cursor-not-allowed' : 'text-[#a6a7a6] hover:text-[#ffb4ab]'}`}
+                        title={product.isActive ? "Cannot delete active product" : "Delete Product"}
+                        disabled={product.isActive}
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                       {product.hasVariants ? (

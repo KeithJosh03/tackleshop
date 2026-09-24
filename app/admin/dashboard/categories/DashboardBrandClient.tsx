@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 
 import { Pencil, Trash2, CheckCircle2, AlertCircle, X, Plus, UploadCloud, Check } from 'lucide-react';
@@ -14,6 +14,7 @@ import {
   FileDropImage,
   CustomPrimaryButton
 } from '@/components/ui';
+import { DashboardBrandCategoryHeader } from '@/components/adminUI/DashboardBrandCategoryHeader';
 
 import {
   useDashboardBrandCreateReducer,
@@ -45,10 +46,8 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredBrands, setFilteredBrands] = useState<BrandProps[]>([]);
 
-  // Edit
+  // Edit / Create States
   const [isCreating, setIsCreating] = useState(false);
-  const [editMode, seteditMode] = useState(false);
-
   const [loading, setLoading] = useState(false);
 
   // Status Toast
@@ -65,6 +64,12 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
   };
 
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
+
+  const getImageUrl = (url: string | null | undefined) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${baseURL}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
 
   useEffect(() => {
     setFilteredBrands(
@@ -91,12 +96,17 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
 
     try {
       const uploadedImageUrl = await uploadImages([{ file: brandState.imageUrl, originIndex: 0 }]);
-      if (!uploadedImageUrl) throw new Error('No image URL returned.');
-      const newBrand = await createBrand({
+      if (!uploadedImageUrl || uploadedImageUrl.length === 0) throw new Error('No image URL returned.');
+
+      const newBrand = await createBrand<BrandProps>({
         brandName: brandState.brandName,
         imageUrl: uploadedImageUrl[0].url
       }, token);
-      setBrands(prev => [...prev, newBrand]);
+
+      if (newBrand) {
+        setBrands(prev => [...prev, newBrand]);
+      }
+
       cancelAddBrand();
       setIsCreating(false);
       showToast('Brand added successfully', 'success');
@@ -111,20 +121,17 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
   const handleUpdateBrand = async () => {
     setLoading(true);
 
-    // basic validation
     if (!brandStateUpdate.brandName?.trim() || !selectedBrand?.brandId) {
       console.error('❌ Brand name or selected brand ID is missing.');
       setLoading(false);
       return;
     }
 
-    // 1️⃣ get diff
     const changes = getChangedFieldsBrands({
       original: selectedBrand,
       updated: brandStateUpdate,
     });
 
-    // nothing changed → stop
     if (Object.keys(changes).length === 0) {
       console.log('⚠️ No changes detected');
       setLoading(false);
@@ -132,7 +139,6 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
     }
 
     try {
-      // 2️⃣ build API payload
       const payload: {
         brandId: number;
         brandName?: string;
@@ -141,12 +147,10 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
         brandId: selectedBrand.brandId,
       };
 
-      // add name if changed
       if (changes.brandName) {
         payload.brandName = changes.brandName;
       }
 
-      // 3️⃣ upload image ONLY if changed
       if (changes.imageUrl instanceof File) {
         const uploaded = await uploadImages([
           { file: changes.imageUrl, originIndex: 0 },
@@ -159,10 +163,8 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
         payload.imageUrl = uploaded[0].url;
       }
 
-      // 4️⃣ update brand
-      const updatedBrand = await updateBrand(payload, token);
+      const updatedBrand = await updateBrand<BrandProps>(payload, token);
 
-      // 5️⃣ update local state
       if (updatedBrand?.brandId) {
         setBrands((prev) =>
           prev.map((brand) =>
@@ -172,19 +174,41 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
           )
         );
 
-        // reset UI
         setSelectedBrand(null);
         dispatchUpdateBrand({
           type: 'CANCEL_BRAND_UPDATE',
           payload: { brandName: '', imageUrl: null },
         });
-        seteditMode(false);
 
         showToast('Brand updated successfully', 'success');
       }
     } catch (error) {
       console.error('❌ Error updating brand:', error);
       showToast('Failed to update brand', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteBrand = async (brandId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm('Are you sure you want to delete this brand?')) return;
+
+    setLoading(true);
+    try {
+      const res = await deleteBrand(brandId, token);
+      if (res) {
+        setBrands(prev => prev.filter(b => b.brandId !== brandId));
+        if (selectedBrand?.brandId === brandId) {
+          setSelectedBrand(null);
+        }
+        showToast('Brand deleted successfully', 'success');
+      } else {
+        throw new Error('Failed to delete');
+      }
+    } catch (error) {
+      console.error('❌ Error deleting brand:', error);
+      showToast('Failed to delete brand', 'error');
     } finally {
       setLoading(false);
     }
@@ -202,34 +226,27 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
   };
 
   return (
-    <div className={`${worksans.className} bg-ma-surface-container/50 border-2 border-greyColor/20 rounded-2xl shadow-sm p-6 w-full h-full flex flex-col space-y-4`}>
-      <div className="flex flex-row items-center justify-between mb-2">
-        <div className="flex items-center">
-          <span className="text-primaryColor text-2xl font-bold">#</span>
-          <h2 className="text-white text-xl font-bold tracking-tight">Brands</h2>
-        </div>
-        <CustomPrimaryButton
-          isSelected
-          onClick={() => {
-            setIsCreating(true);
-            setSelectedBrand(null);
-            setSearchTerm('');
-          }}
-          className="py-2 px-4"
-        >
-          <span>+</span> Add New Brand
-        </CustomPrimaryButton>
-      </div>
-
-      {(!isCreating) && (
-        <div className="flex items-center text-base w-full">
-          <SearchTextAdmin
-            placeholderText='Search Brands...'
-            value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value); }}
-          />
+    <div className={`${worksans.className} bg-ma-surface-container/50 border-2 border-greyColor/20 rounded-2xl shadow-sm p-6 w-full h-full flex flex-col space-y-4 relative`}>
+      {loading && (
+        <div className="absolute inset-0 bg-black/20 z-50 rounded-2xl flex items-center justify-center backdrop-blur-[1px]">
+          <div className="w-8 h-8 border-4 border-primaryColor border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
+
+      {/* Reusable Header & Search Component */}
+      <DashboardBrandCategoryHeader
+        title="Brands"
+        addButtonText="Add New Brand"
+        onAddClick={() => {
+          setIsCreating(true);
+          setSelectedBrand(null);
+          setSearchTerm('');
+        }}
+        isCreating={isCreating}
+        searchTerm={searchTerm}
+        onSearchChange={(e) => setSearchTerm(e.target.value)}
+        searchPlaceholder="Search Brands..."
+      />
 
       {/* brandlist Render */}
       {filteredBrands.length > 0 && (
@@ -241,18 +258,22 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
           </div>
           <ul className="list-none flex-1 overflow-y-auto divide-y divide-greyColor/20 custom-scrollbar">
             {filteredBrands.map((brand) => (
-              <li key={brand.brandId} className="grid grid-cols-[1fr_3fr_2fr] px-4 py-4 items-center hover:bg-white/5 transition-colors group cursor-pointer" onClick={() => {
-                dispatchUpdateBrand({
-                  type: 'SET_BRAND_UPDATE',
-                  payload: {
-                    brandName: brand.brandName,
-                    imageUrl: brand.imageUrl ?? null
-                  }
-                });
-                handleSelectBrand(brand);
-                setIsCreating(false);
-                setSearchTerm('');
-              }}>
+              <li
+                key={brand.brandId}
+                className="grid grid-cols-[1fr_3fr_2fr] px-4 py-4 items-center hover:bg-white/5 transition-colors group cursor-pointer"
+                onClick={() => {
+                  dispatchUpdateBrand({
+                    type: 'SET_BRAND_UPDATE',
+                    payload: {
+                      brandName: brand.brandName,
+                      imageUrl: brand.imageUrl ?? null
+                    }
+                  });
+                  handleSelectBrand(brand);
+                  setIsCreating(false);
+                  setSearchTerm('');
+                }}
+              >
                 <div className="text-secondary text-sm">#{brand.brandId}</div>
                 <div className="flex flex-col gap-1">
                   <span className="text-white font-bold text-sm">{brand.brandName.toUpperCase()}</span>
@@ -261,10 +282,22 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
                   </span>
                 </div>
                 <div className="flex items-center justify-end gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                  <button className="text-secondary hover:text-red-400 p-1" title="Edit Brand">
+                  <button className="text-secondary hover:text-primaryColor p-1" title="Edit Brand">
                     <Pencil className="w-4 h-4 opacity-70" />
                   </button>
-                  <button className="text-secondary hover:text-red-400 p-1" disabled={true} title="Delete Brand">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (brand.linkedProducts && brand.linkedProducts > 0) {
+                        showToast('Cannot delete brand with linked products', 'error');
+                        return;
+                      }
+                      handleDeleteBrand(brand.brandId, e);
+                    }} 
+                    className={`p-1 ${brand.linkedProducts && brand.linkedProducts > 0 ? 'text-secondary opacity-30 cursor-not-allowed' : 'text-secondary hover:text-red-400'}`} 
+                    title={brand.linkedProducts && brand.linkedProducts > 0 ? "Cannot delete: Has linked products" : "Delete Brand"}
+                    disabled={brand.linkedProducts !== undefined && brand.linkedProducts > 0}
+                  >
                     <Trash2 className="w-4 h-4 opacity-70" />
                   </button>
                 </div>
@@ -292,7 +325,6 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
               <button
                 onClick={() => {
                   setSelectedBrand(null);
-                  seteditMode(false);
                 }}
                 className="text-[#a6a7a6] hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5"
                 title="Close panel"
@@ -302,110 +334,92 @@ export const DashboardBrandClient = ({ brandslist }: Props) => {
             </div>
 
             <div className="flex flex-col items-center gap-4">
-              {!editMode ? (
-                <div className="w-full flex flex-col items-center gap-3">
-                  <div className="w-full max-w-[220px] h-[160px] relative rounded-xl overflow-hidden border border-greyColor/30 bg-[#0a1420] flex items-center justify-center p-3 shadow-inner">
-                    <Image
-                      src={`${baseURL}${selectedBrand.imageUrl}`}
-                      alt={selectedBrand.brandName}
-                      fill
-                      className="object-contain p-2"
-                    />
-                  </div>
-                  <button
-                    onClick={() => seteditMode(true)}
-                    className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primaryColor hover:text-primaryColor/80 px-4 py-2 rounded-lg bg-primaryColor/10 border border-primaryColor/20 hover:bg-primaryColor/20 transition-all cursor-pointer"
+              <div className="w-full flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-[#a6a7a6] uppercase tracking-wider">Brand Name</label>
+                  <InputText
+                    placeholder="Enter Brand Name..."
+                    value={brandStateUpdate.brandName}
+                    onChange={(e) => {
+                      dispatchUpdateBrand({
+                        type: 'BRAND_NAME_UPDATE',
+                        payload: e.target.value
+                      });
+                    }}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-[#a6a7a6] uppercase tracking-wider">Brand Logo</label>
+                  <FileDropImage
+                    maxImages={1}
+                    onFileChange={(file: File | File[]) => {
+                      if (file instanceof File) {
+                        dispatchUpdateBrand({
+                          type: 'BRAND_IMAGE_UPDATE',
+                          payload: file
+                        });
+                      }
+                    }}
+                    className="w-full h-44 border-2 border-dashed border-primaryColor/40 hover:border-primaryColor bg-[#0a1420] rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer overflow-hidden relative group"
                   >
-                    <Pencil className="w-4 h-4" /> Edit Brand
-                  </button>
-                </div>
-              ) : (
-                <div className="w-full flex flex-col gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-[#a6a7a6] uppercase tracking-wider">Brand Name</label>
-                    <InputText
-                      placeholder="Enter Brand Name..."
-                      value={brandStateUpdate.brandName}
-                      onChange={(e) => {
-                        dispatchUpdateBrand({
-                          type: 'BRAND_NAME_UPDATE',
-                          payload: e.target.value
-                        });
-                      }}
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-[#a6a7a6] uppercase tracking-wider">Brand Logo</label>
-                    <FileDropImage
-                      maxImages={1}
-                      onFileChange={(file: File | File[]) => {
-                        if (file instanceof File) {
-                          dispatchUpdateBrand({
-                            type: 'BRAND_IMAGE_UPDATE',
-                            payload: file
-                          });
-                        }
-                      }}
-                    >
-                      {brandStateUpdate.imageUrl instanceof File ? (
-                        <>
-                          <Image
-                            src={URL.createObjectURL(brandStateUpdate.imageUrl)}
-                            alt="updateBrandImage"
-                            fill
-                            className="object-contain p-3"
-                          />
-                          <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                            <span className="text-white text-xs font-bold px-3 py-1.5 border border-white/30 rounded-lg bg-black/50 shadow-sm">Replace Logo</span>
-                          </div>
-                        </>
-                      ) : selectedBrand.imageUrl ? (
-                        <>
-                          <Image
-                            src={`${baseURL}${selectedBrand.imageUrl}`}
-                            alt="currentBrandImage"
-                            fill
-                            className="object-contain p-3"
-                          />
-                          <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1.5 items-center justify-center backdrop-blur-sm">
-                            <UploadCloud className="w-6 h-6 text-primaryColor opacity-90" />
-                            <span className="text-white text-xs font-bold px-3 py-1 border border-white/30 rounded-lg bg-black/50 text-center">Click or Drag to Replace</span>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="flex flex-col items-center text-primaryColor/70 group-hover:text-primaryColor p-4 text-center">
-                          <UploadCloud className="w-8 h-8 mb-2 opacity-80" />
-                          <span className="font-bold text-sm">Drag & Drop Image</span>
-                          <span className="text-xs mt-1 text-[#a6a7a6]">or click to browse</span>
+                    {brandStateUpdate.imageUrl instanceof File ? (
+                      <>
+                        <Image
+                          src={URL.createObjectURL(brandStateUpdate.imageUrl)}
+                          alt="updateBrandImage"
+                          fill
+                          className="object-contain p-3"
+                        />
+                        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                          <span className="text-white text-xs font-bold px-3 py-1.5 border border-white/30 rounded-lg bg-black/50 shadow-sm">Replace Logo</span>
                         </div>
-                      )}
-                    </FileDropImage>
-                  </div>
-
-                  <div className="flex items-center justify-end gap-3 pt-2 border-t border-greyColor/20">
-                    <button
-                      onClick={() => {
-                        seteditMode(false);
-                        dispatchUpdateBrand({
-                          type: 'CANCEL_BRAND_UPDATE',
-                          payload: { brandName: '', imageUrl: '' }
-                        });
-                      }}
-                      className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-[#a6a7a6] hover:text-white hover:bg-white/5 transition-all cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <CustomPrimaryButton
-                      isSelected
-                      onClick={handleUpdateBrand}
-                      className="py-2 px-5 text-xs font-bold"
-                    >
-                      <Check className="w-4 h-4" /> Save Changes
-                    </CustomPrimaryButton>
-                  </div>
+                      </>
+                    ) : selectedBrand.imageUrl ? (
+                      <>
+                        <Image
+                          src={getImageUrl(selectedBrand.imageUrl)}
+                          alt="currentBrandImage"
+                          fill
+                          className="object-contain p-3"
+                        />
+                        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1.5 items-center justify-center backdrop-blur-sm">
+                          <UploadCloud className="w-6 h-6 text-primaryColor opacity-90" />
+                          <span className="text-white text-xs font-bold px-3 py-1 border border-white/30 rounded-lg bg-black/50 text-center">Click or Drag to Replace</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center text-primaryColor/70 group-hover:text-primaryColor p-4 text-center">
+                        <UploadCloud className="w-8 h-8 mb-2 opacity-80" />
+                        <span className="font-bold text-sm">Drag & Drop Image</span>
+                        <span className="text-xs mt-1 text-[#a6a7a6]">or click to browse</span>
+                      </div>
+                    )}
+                  </FileDropImage>
                 </div>
-              )}
+
+                <div className="flex items-center justify-end gap-3 pt-2 border-t border-greyColor/20">
+                  <button
+                    onClick={() => {
+                      setSelectedBrand(null);
+                      dispatchUpdateBrand({
+                        type: 'CANCEL_BRAND_UPDATE',
+                        payload: { brandName: '', imageUrl: '' }
+                      });
+                    }}
+                    className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-[#a6a7a6] hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <CustomPrimaryButton
+                    isSelected
+                    onClick={handleUpdateBrand}
+                    className="py-2 px-5 text-xs font-bold"
+                  >
+                    <Check className="w-4 h-4" /> Save Changes
+                  </CustomPrimaryButton>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}

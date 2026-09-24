@@ -1,3 +1,6 @@
+
+
+
 import ProductContentInputs from "./ProductContentInputs";
 import { FieldError } from "./FieldError";
 import { FieldHint } from "./FieldHint";
@@ -12,6 +15,8 @@ import DashboardHeader from "./DashboardHeader";
 import DashboardSideBar from "./DashboardSidebar";
 import ProductMedia from "./ProductMedia";
 import { ProductSimpleInventory } from "./ProductSimpleInventory";
+import DashboardOverviewClient from "./DashboardOverviewClient";
+import { DashboardBrandCategoryHeader } from "./DashboardBrandCategoryHeader";
 
 export {
     ProductContentInputs, FieldError,
@@ -20,5 +25,7 @@ export {
     DashboardSelectCategory, DashboardSelectSubCategory,
     ProductInventoryTypeToggle, ProductBaseDetails,
     DashboardHeader, DashboardSideBar,
-    ProductMedia, ProductSimpleInventory
+    ProductMedia, ProductSimpleInventory,
+    DashboardOverviewClient,
+    DashboardBrandCategoryHeader
 };

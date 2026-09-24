@@ -231,7 +231,7 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
                 </>
               ) : (
                 <Link
-                  href="/login"
+                  href="/auth"
                   className="p-1.5 text-ma-primary/70 hover:text-ma-primary transition-colors flex items-center justify-center"
                   aria-label="User login"
                 >
@@ -483,7 +483,7 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
                   Cart
                 </Link>
                 <Link
-                  href={session?.user ? '/profile' : '/login'}
+                  href={session?.user ? '/profile' : '/auth'}
                   onClick={() => setMenuOpen(false)}
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-ma-primary/10 text-ma-primary text-[12px] font-bold uppercase tracking-wider hover:bg-ma-primary/15 transition-colors"
                 >

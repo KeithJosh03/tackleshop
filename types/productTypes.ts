@@ -84,6 +84,7 @@ export interface ProductListDashboard {
   subCategoryName: string | null;
   productTypeVariant: ProductListDashboardVariant[];
   sku: string | null;
+  isActive?: boolean;
   stockQuantity: number | null;
   hasVariants: boolean;
   productSkus: ProductListDashboardSku[];
