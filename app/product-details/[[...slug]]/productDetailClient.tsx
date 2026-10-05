@@ -6,7 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { numericConverter } from '@/utils/priceUtils';
 import { buildProductImages, UIProductImage } from '@/utils/productMedia.UI';
 import { slugify } from '@/utils/slugUtils';
-import { Info, Settings, FileText } from 'lucide-react';
+import { Info, Settings, FileText, ShoppingCart, Plus, Minus } from 'lucide-react';
+import { useCart } from '@/contexts/CartContext';
 
 import ProductDetailsDropDown from '@/components/ProductDetailsDropDown';
 import CustomPrimaryButton from '@/components/CustomPrimaryButton';
@@ -41,6 +42,11 @@ export default function ProductDetailClient({
     // Images
     const [productImages, setProductImages] = useState<UIProductImage[]>([]);
     const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+
+    // Cart integration
+    const { addToCart } = useCart();
+    const [quantity, setQuantity] = useState(1);
+    const [isAdding, setIsAdding] = useState(false);
 
     // Variant selections
     const [variantSelections, setVariantSelections] = useState<VariantSelections>({});
@@ -158,17 +164,17 @@ export default function ProductDetailClient({
         if (!productDetails) return '0.00';
 
         if (hasVariants && currentSku) {
-            return String(currentSku.price);
+            return String(currentSku.finalPrice || currentSku.price);
         }
 
-        const basePriceNum = parseFloat(String(productDetails.basePrice || 0));
-        if (basePriceNum > 0) {
-            return basePriceNum.toFixed(2);
+        const baseFinalPriceNum = parseFloat(String(productDetails.finalPrice || productDetails.basePrice || 0));
+        if (baseFinalPriceNum > 0) {
+            return baseFinalPriceNum.toFixed(2);
         }
 
         if (productDetails.productSkus && productDetails.productSkus.length > 0) {
             const validPrices = productDetails.productSkus
-                .map((s) => parseFloat(String(s.price)))
+                .map((s) => parseFloat(String(s.finalPrice || s.price)))
                 .filter((p) => p > 0);
             if (validPrices.length > 0) {
                 return Math.min(...validPrices).toFixed(2);
@@ -178,7 +184,62 @@ export default function ProductDetailClient({
         return '0.00';
     };
 
+    const displayOriginalPrice = (): string | null => {
+        if (!productDetails) return null;
+
+        if (hasVariants && currentSku && currentSku.hasDiscount) {
+            return String(currentSku.price);
+        }
+
+        if (!hasVariants && productDetails.hasDiscount) {
+            return parseFloat(String(productDetails.basePrice || 0)).toFixed(2);
+        }
+
+        return null;
+    };
+
+    const currentDiscountLabel = (): string | null => {
+        if (hasVariants && currentSku && currentSku.hasDiscount) return currentSku.discountLabel;
+        if (!hasVariants && productDetails.hasDiscount) return productDetails.discountLabel;
+        return null;
+    };
+
     const currentImage = productImages.find((img) => img.id === selectedImageId);
+
+    const currentStock = hasVariants
+        ? (currentSku ? currentSku.stockQuantity : 0)
+        : (productDetails?.stockQuantity || 0);
+
+    const isOutOfStock = currentStock === 0;
+
+    const handleAddToCart = async () => {
+        if (!productDetails || isOutOfStock) return;
+
+        // If has variants but no sku is matched, block adding
+        if (hasVariants && !currentSku) {
+            alert('Please select all options before adding to cart.');
+            return;
+        }
+
+        setIsAdding(true);
+        try {
+            const success = await addToCart({
+                product_id: productDetails.productId,
+                sku_id: currentSku?.skuId || null,
+                quantity: quantity
+            });
+
+            if (success) {
+                // Reset quantity after adding
+                setQuantity(1);
+                // Optionally show a success toast here
+            } else {
+                alert('Failed to add item to cart. Please try again.');
+            }
+        } finally {
+            setIsAdding(false);
+        }
+    };
 
     return (
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
@@ -211,6 +272,11 @@ export default function ProductDetailClient({
                                     className="object-contain drop-shadow-2xl"
                                     priority
                                 />
+                                {currentDiscountLabel() && (
+                                    <div className="absolute top-4 left-4 bg-red-600 text-white text-[0.65rem] font-black px-2.5 py-1 rounded-sm uppercase tracking-wider z-10 shadow-md">
+                                        {currentDiscountLabel()} SALE
+                                    </div>
+                                )}
                             </motion.div>
                         ) : (
                             <div className="text-ma-on-surface-variant text-sm tracking-widest uppercase">No image available</div>
@@ -295,8 +361,15 @@ export default function ProductDetailClient({
                         transition={{ duration: 0.5, delay: 0.2 }}
                         className="flex flex-col gap-2 mt-2"
                     >
-                        <div className="text-4xl md:text-5xl font-extrabold text-ma-primary">
-                            {numericConverter(displayPrice())}
+                        <div className="flex items-baseline gap-3">
+                            <span className="text-4xl md:text-5xl font-extrabold text-ma-primary">
+                                {numericConverter(displayPrice())}
+                            </span>
+                            {displayOriginalPrice() && (
+                                <span className="text-2xl md:text-3xl font-semibold text-ma-on-surface-variant line-through">
+                                    {numericConverter(displayOriginalPrice()!)}
+                                </span>
+                            )}
                         </div>
 
                         {/* Display Stock Status */}
@@ -379,6 +452,51 @@ export default function ProductDetailClient({
                 )}
 
                 {hasVariants && <hr className="border-white/10" />}
+
+                {/* ─── Quantity & Add to Cart ─── */}
+                <div className="flex flex-col sm:flex-row gap-4 mt-2 mb-4">
+                    {/* Quantity Selector */}
+                    <div className="flex items-center justify-between bg-ma-surface-container-low border border-white/10 rounded-xl px-4 py-3 h-14 sm:w-32 shrink-0">
+                        <button
+                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                            disabled={quantity <= 1 || isOutOfStock}
+                            className="text-white/60 hover:text-white disabled:opacity-30 transition-colors"
+                        >
+                            <Minus className="w-5 h-5" strokeWidth={2.5} />
+                        </button>
+                        <span className="text-white font-bold text-lg select-none w-8 text-center">
+                            {quantity}
+                        </span>
+                        <button
+                            onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
+                            disabled={quantity >= currentStock || isOutOfStock}
+                            className="text-white/60 hover:text-white disabled:opacity-30 transition-colors"
+                        >
+                            <Plus className="w-5 h-5" strokeWidth={2.5} />
+                        </button>
+                    </div>
+
+                    {/* Add to Cart Button */}
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={isOutOfStock || isAdding || (hasVariants && !currentSku)}
+                        className={`flex-1 flex items-center justify-center gap-x-3 h-14 rounded-xl font-bold uppercase tracking-widest text-sm transition-all duration-300 relative overflow-hidden
+                            ${isOutOfStock || (hasVariants && !currentSku)
+                                ? 'bg-ma-surface-container-low text-white/30 cursor-not-allowed'
+                                : 'bg-ma-primary text-black hover:bg-ma-primary/90 hover:scale-[1.02] shadow-[0_4px_20px_rgba(255,196,154,0.3)] hover:shadow-[0_4px_30px_rgba(255,196,154,0.4)]'
+                            }
+                        `}
+                    >
+                        {isAdding ? (
+                            <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                        ) : (
+                            <>
+                                <ShoppingCart className="w-5 h-5" strokeWidth={2.5} />
+                                {isOutOfStock ? 'Out of Stock' : (hasVariants && !currentSku ? 'Select Options' : 'Add to Cart')}
+                            </>
+                        )}
+                    </button>
+                </div>
 
                 {/* ─── Description / Features / Specifications Accordions ─── */}
                 <ProductDetailsDropDown

@@ -56,7 +56,7 @@ export function BundleSummarySidebar({
           <div className="flex justify-between items-center text-sm py-2 border-b border-greyColor/15">
             <span className="text-[#9cb3cf]">Total Retail Value</span>
             <span className="font-semibold text-[#d9e3f4] line-through text-base">
-              ${totalRetailValue.toFixed(2)}
+              ₱{totalRetailValue.toFixed(2)}
             </span>
           </div>
 
@@ -73,9 +73,9 @@ export function BundleSummarySidebar({
             <span className="text-xs text-[#788ca5] font-medium">Bundle Offer Price</span>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-extrabold text-white tracking-tight">
-                ${bundlePrice.toFixed(2)}
+                ₱{bundlePrice.toFixed(2)}
               </span>
-              <span className="text-xs text-[#788ca5]">USD</span>
+              <span className="text-xs text-[#788ca5]">PHP</span>
             </div>
           </div>
 
@@ -87,7 +87,7 @@ export function BundleSummarySidebar({
             <div>
               <div className="text-xs text-emerald-400/80 font-medium">Customer Savings</div>
               <div className="text-sm font-bold text-emerald-400">
-                Save ${savingsAmount.toFixed(2)} ({savingsPercentage.toFixed(1)}%)
+                Save ₱{savingsAmount.toFixed(2)} ({savingsPercentage.toFixed(1)}%)
               </div>
             </div>
           </div>

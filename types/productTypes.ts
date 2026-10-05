@@ -13,6 +13,9 @@ export interface ProductSku {
   skuId: number;
   skuCode: string;
   price: string;
+  finalPrice?: string;
+  hasDiscount?: boolean;
+  discountLabel?: string | null;
   stockQuantity: number;
   inStock: boolean;
   variantOptionIds: number[];
@@ -23,6 +26,9 @@ export interface ProductDetailsViewProps {
   productId: number;
   productTitle: string;
   basePrice: string;
+  finalPrice?: string;
+  hasDiscount?: boolean;
+  discountLabel?: string | null;
   specifications: string | null;
   features: string | null;
   description: string | null;
@@ -81,6 +87,7 @@ export interface ProductListDashboard {
   productTitle: string;
   basePrice: string;
   brandName: string | null;
+  categoryName?: string | null;
   subCategoryName: string | null;
   productTypeVariant: ProductListDashboardVariant[];
   sku: string | null;

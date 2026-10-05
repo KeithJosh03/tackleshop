@@ -25,6 +25,18 @@ export function ProductBaseDetails({
 
     return (
         <div className="flex flex-col gap-6 p-2">
+            <div className="flex items-center gap-3 bg-[#12171e] p-3 rounded-lg border border-greyColor/20 w-fit">
+                <label className="text-xs font-semibold uppercase tracking-wider text-[#a6a7a6]">
+                    Active Status (Available in Store)
+                </label>
+                <div 
+                    onClick={() => dispatchProductDetailCreate({ type: 'TOGGLE_IS_ACTIVE', payload: !ProductDetailState.isActive })}
+                    className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition-colors ${ProductDetailState.isActive ? 'bg-primaryColor' : 'bg-greyColor/40'}`}
+                >
+                    <div className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${ProductDetailState.isActive ? 'translate-x-5' : 'translate-x-0'}`} />
+                </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2">
                     <label className="block text-xs font-semibold uppercase tracking-wider text-[#a6a7a6] mb-2">

@@ -8,20 +8,20 @@ export interface CreatePromotionPayload {
     discount_value: number;
     apply_to: PromotionScope;
     target_ids: number[];
-    start_date: string;
-    end_date: string;
+    start_date: string | null;
+    end_date: string | null;
     is_active?: boolean;
 }
 
 export type UpdatePromotionPayload = Partial<CreatePromotionPayload>;
 
 export const promotionsApi = {
-    getAll: () => apiClient<Promotion[]>('/admin/promotions'),
+    getAll: () => apiClient<Promotion[]>('/api/admin/promotions'),
 
-    getById: (id: string | number) => apiClient<Promotion>(`/admin/promotions/${id}`),
+    getById: (id: string | number) => apiClient<Promotion>(`/api/admin/promotions/${id}`),
 
     create: (payload: CreatePromotionPayload) =>
-        apiClient<Promotion>('/admin/promotions', {
+        apiClient<Promotion>('/api/admin/promotions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ export const promotionsApi = {
         }),
 
     update: (id: string | number, payload: UpdatePromotionPayload) =>
-        apiClient<Promotion>(`/admin/promotions/${id}`, {
+        apiClient<Promotion>(`/api/admin/promotions/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ export const promotionsApi = {
         }),
 
     delete: (id: string | number) =>
-        apiClient<{ success: boolean; message?: string }>(`/admin/promotions/${id}`, {
+        apiClient<{ success: boolean; message?: string }>(`/api/admin/promotions/${id}`, {
             method: 'DELETE',
         }),
 };

@@ -24,6 +24,7 @@ interface MatrixRowData {
     price: string;
     variantOptionIds: (string | number)[];
     imageUrl: File | string | null;
+    isActive: boolean;
 }
 
 interface ProductFormProps {
@@ -120,7 +121,8 @@ const mapInitialProductState = (data?: any): ProductFormState => {
         medias,
         masterSku: p?.sku || p?.masterSku || p?.master_sku || '',
         initialStock,
-        hasVariations
+        hasVariations,
+        isActive: p?.is_active ?? p?.isActive ?? true
     };
 };
 
@@ -156,6 +158,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                     price: String(row.price ?? row.checkout_price ?? '0'),
                     variantOptionIds: row.variantOptionIds || row.variant_option_ids || [],
                     imageUrl: row.imageUrl || row.image_url || null,
+                    isActive: row.isActive ?? row.is_active ?? true,
                 };
             }
         });
@@ -224,6 +227,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                         price: ProductDetailState.basePrice?.toString() || '0',
                         variantOptionIds: combo.optionIds,
                         imageUrl: null,
+                        isActive: true,
                     };
                 });
 
@@ -258,6 +262,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                 variant_option_ids: row?.variantOptionIds ?? combo.optionIds,
                 variant_option_values: combo.optionValues,
                 imageUrl: row?.imageUrl ?? null,
+                is_active: row?.isActive ?? true,
             };
         });
 
@@ -368,7 +373,8 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
             masterSku: hasProductVariant ? '' : ProductDetailState.masterSku,
             initialStock: hasProductVariant ? '' : ProductDetailState.initialStock,
             variants: (hasProductVariant ? ProductDetailState.variants : []) as any,
-            variantMatrixRows: matrixPayload
+            variantMatrixRows: matrixPayload,
+            is_active: ProductDetailState.isActive
         } as any;
 
         try {

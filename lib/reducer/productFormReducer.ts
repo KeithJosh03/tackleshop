@@ -37,6 +37,7 @@ export interface ProductFormState {
     masterSku: string;
     initialStock: string;
     hasVariations: boolean;
+    isActive: boolean;
 }
 
 export type ProductFormAction =
@@ -62,7 +63,8 @@ export type ProductFormAction =
     | { type: 'ADD_VARIANT_OPTION'; payload: { typeId: string | number; option: FormVariantOption } }
     | { type: 'REMOVE_VARIANT_OPTION'; payload: { typeId: string | number; optionId: string | number } }
     | { type: 'UPDATE_VARIANT_OPTION'; payload: { typeId: string | number; optionId: string | number; fields: Partial<FormVariantOption> } }
-    | { type: 'UPDATE_VARIANT_OPTION_BY_ID'; payload: { optionId: string | number; fields: Partial<FormVariantOption> } };
+    | { type: 'UPDATE_VARIANT_OPTION_BY_ID'; payload: { optionId: string | number; fields: Partial<FormVariantOption> } }
+    | { type: 'TOGGLE_IS_ACTIVE'; payload: boolean };
 
 export const defaultFormState: ProductFormState = {
     productTitle: '',
@@ -77,7 +79,8 @@ export const defaultFormState: ProductFormState = {
     medias: [],
     masterSku: '',
     initialStock: '',
-    hasVariations: false
+    hasVariations: false,
+    isActive: true
 };
 
 export function productFormReducer(state: ProductFormState, action: ProductFormAction): ProductFormState {
@@ -114,6 +117,9 @@ export function productFormReducer(state: ProductFormState, action: ProductFormA
                 ...state,
                 hasVariations: action.payload
             };
+
+        case 'TOGGLE_IS_ACTIVE':
+            return { ...state, isActive: action.payload };
 
         case 'SET_BRAND':
             return { ...state, brand: action.payload };

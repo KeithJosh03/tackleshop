@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -21,19 +21,25 @@ import {
   Users
 } from 'lucide-react';
 import { generateSku } from '@/lib/utils/skuGenerator';
-import { createBundle } from '@/lib/api/bundleService';
+import { updateBundle, getSetupById } from '@/lib/api/bundleService';
 import { BundleItemSelector, SelectedBundleItem } from '@/components/setups/BundleItemSelector';
 import { BundleSummarySidebar } from '@/components/setups/BundleSummarySidebar';
+import { useSession } from 'next-auth/react';
+import { useParams } from 'next/navigation';
 
-export default function BuildSetupPage() {
+export default function EditSetupPage() {
+  const { data: session } = useSession();
+  const token = session?.accessToken || '';
+  const params = useParams();
+  const setupId = Number(params?.id);
   // Meta details state
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [setupCategoryId, setSetupCategoryId] = useState('');
-  const [setupCategories, setSetupCategories] = useState<{ id: number, name: string }[]>([]);
+  const [setupCategories, setSetupCategories] = useState<{id: number, name: string}[]>([]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchCategories = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/setup-categories`);
@@ -89,6 +95,50 @@ export default function BuildSetupPage() {
   const handleRegenerateSku = () => {
     setSku(generateSku(title || 'Bundle', ['SETUP']));
   };
+
+  React.useEffect(() => {
+    if (!setupId || !token) return;
+
+    const fetchDetails = async () => {
+      try {
+        const res = await getSetupById(setupId, token);
+        if (res.status && res.data) {
+          const s = res.data;
+          setTitle(s.bundle_title || '');
+          setSlug(s.slug || '');
+          setDescription(s.description || '');
+          setSetupCategoryId(s.setup_category_id ? s.setup_category_id.toString() : '');
+          setSku(s.sku || '');
+          setRetailPrice(s.retail_price ? parseFloat(s.retail_price) : 0);
+          setFixedPrice(s.bundle_price ? parseFloat(s.bundle_price) : 0);
+          setIsPublished(s.is_published);
+
+          if (s.images && s.images.length > 0) {
+            const mainImg = s.images.find((img: any) => img.isMain);
+            if (mainImg) setBannerUrl(mainImg.image_url);
+          }
+
+          if (s.items) {
+            const mappedItems = s.items.map((i: any) => ({
+              is_custom: false,
+              product_title: i.product?.product_title || 'Unknown Product',
+              unit_price: parseFloat(i.product?.base_price || 0),
+              quantity: i.quantity,
+              is_required: i.is_required,
+              group_name: i.group_name || '',
+              product: i.product,
+              sku_id: i.sku_id,
+              sku: i.sku,
+            }));
+            setSelectedItems(mappedItems);
+          }
+        }
+      } catch (err) {
+        setFeedbackMsg({ type: 'error', text: 'Failed to fetch setup details.' });
+      }
+    };
+    fetchDetails();
+  }, [setupId, token]);
 
   // Item additions from modal
   const handleSelectItems = (newItems: SelectedBundleItem[]) => {
@@ -206,12 +256,12 @@ export default function BuildSetupPage() {
         })),
       };
 
-      const res = await createBundle(payload);
-      setFeedbackMsg({ type: 'success', text: res.message || 'Bundle setup created successfully!' });
+      const res = await updateBundle(setupId, payload, token);
+      setFeedbackMsg({ type: 'success', text: res.message || 'Bundle setup updated successfully!' });
     } catch (err: any) {
       setFeedbackMsg({
         type: 'error',
-        text: err.message || 'Failed to create bundle setup. Please try again.',
+        text: err.message || 'Failed to update bundle setup. Please try again.',
       });
     } finally {
       setIsSubmitting(false);
@@ -236,10 +286,10 @@ export default function BuildSetupPage() {
             </div>
             <div>
               <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
-                Build New Setup Bundle
+                Edit Setup Bundle
               </h1>
               <p className="text-xs lg:text-sm text-[#788ca5]">
-                Combine catalog products and variants into a single discounted offer.
+                Update details, components, and pricing for this bundle.
               </p>
             </div>
           </div>

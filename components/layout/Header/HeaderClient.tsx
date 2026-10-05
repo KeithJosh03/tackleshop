@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown, ShoppingCart, User, Search, LogOut } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
+import { useCart } from '@/contexts/CartContext';
 
 import { SearchBar } from '@/components/ui';
 
@@ -24,6 +25,7 @@ type Props = {
 
 export default function HeaderClient({ initialBrands = [], initialCategories = [] }: Props) {
   const { data: session, status } = useSession();
+  const { itemCount } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -145,10 +147,15 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
 
             <Link
               href="/cart"
-              className="p-1.5 text-ma-primary/70 hover:text-ma-primary transition-colors flex items-center justify-center"
+              className="relative p-1.5 text-ma-primary/70 hover:text-ma-primary transition-colors flex items-center justify-center"
               aria-label="Shopping cart"
             >
               <ShoppingCart className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.8} />
+              {itemCount > 0 && (
+                <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full transform translate-x-1/4 -translate-y-1/4">
+                  {itemCount}
+                </span>
+              )}
             </Link>
 
             <div
@@ -477,10 +484,15 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
                 <Link
                   href="/cart"
                   onClick={() => setMenuOpen(false)}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-ma-primary/10 text-ma-primary text-[12px] font-bold uppercase tracking-wider hover:bg-ma-primary/15 transition-colors"
+                  className="relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-ma-primary/10 text-ma-primary text-[12px] font-bold uppercase tracking-wider hover:bg-ma-primary/15 transition-colors"
                 >
                   <ShoppingCart className="w-5 h-5" strokeWidth={1.8} />
                   Cart
+                  {itemCount > 0 && (
+                    <span className="ml-1 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">
+                      {itemCount}
+                    </span>
+                  )}
                 </Link>
                 <Link
                   href={session?.user ? '/profile' : '/auth'}

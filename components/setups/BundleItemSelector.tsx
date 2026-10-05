@@ -20,6 +20,7 @@ export interface SelectedBundleItem {
     sku?: ProductListDashboardSku | null;
     variant_label?: string;
     is_custom?: boolean;
+    group_name?: string | null;
 }
 
 export interface BundleItemSelectorProps {

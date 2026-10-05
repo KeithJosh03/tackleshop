@@ -11,6 +11,7 @@ interface MatrixRowData {
     price: string;
     variantOptionIds: (string | number)[];
     imageUrl: File | string | null;
+    isActive: boolean;
 }
 
 interface ProductInventoryTypeToggleProps {

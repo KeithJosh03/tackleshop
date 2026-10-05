@@ -416,6 +416,12 @@ export const ToggleProductStatus = async (productId: number): Promise<{ is_activ
     });
 };
 
+export const ToggleSkuStatus = async (skuId: number): Promise<{ is_active: boolean }> => {
+    return apiClient<{ is_active: boolean }>(`/api/admin/products/sku/${skuId}/status`, {
+        method: 'PATCH',
+    });
+};
+
 export const editProductDetailsFetch = async (productId: number | string): Promise<ProductEditData> => {
     return apiClient<ProductEditData>(`/api/products/productdetailEditDashboard/${productId}`, {
         method: 'GET',

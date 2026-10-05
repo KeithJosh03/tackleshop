@@ -1,4 +1,5 @@
 // lib/api/apiClient.ts
+import { getSession } from 'next-auth/react';
 
 // Server runtime uses API_BASE_URL; falls back to public key if omitted
 const BASE_URL =
@@ -24,10 +25,19 @@ export async function apiClient<T>(
     const url = `${BASE_URL}${cleanEndpoint}${queryString}`;
 
     try {
+        let authHeader = {};
+        const session: any = await getSession();
+        if (session && session.accessToken) {
+            authHeader = { Authorization: `Bearer ${session.accessToken}` };
+        } else if (session && session.user && (session.user as any).token) {
+            authHeader = { Authorization: `Bearer ${(session.user as any).token}` };
+        }
+
         const res = await fetch(url, {
             headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
+                ...authHeader,
                 ...headers,
             },
             ...restOptions,

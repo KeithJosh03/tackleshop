@@ -1,6 +1,7 @@
 import Hero from "./Hero/Hero";
 import Brands from "./BrandsLogo/BrandsLogo";
-import Collections from "./ProductCollections/page";
+import Collections from "./ProductCollection/page";
+import SetupCollection from "./SetupCollection";
 import StoreServices from "./StoreServices/StoreServices";
 import { Header, Footer } from "../layout";
 
@@ -14,6 +15,7 @@ export default function HomePage() {
                 <Hero />
                 <Brands />
                 <Collections />
+                <SetupCollection />
                 <StoreServices />
                 {/* <FacebookReview /> */}
             </main>

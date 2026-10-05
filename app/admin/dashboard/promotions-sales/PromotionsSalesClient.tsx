@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { getSession } from 'next-auth/react';
 import { inter } from '@/types/fonts';
 import { Plus, Tag, X, Loader2 } from 'lucide-react';
 
@@ -11,7 +12,7 @@ import { PromotionCard } from './PromotionCard';
 import { PromotionFilterBar } from './PromotionFilterBar';
 
 export type DiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT';
-export type PromotionScope = 'ALL' | 'CATEGORY' | 'PRODUCT';
+export type PromotionScope = 'ALL' | 'SETUP' | 'PRODUCT';
 
 export interface OptionItem {
     id: number | string;
@@ -40,7 +41,7 @@ export default function PromotionsSalesClient() {
     const [searchQuery, setSearchQuery] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
-    const [categories, setCategories] = useState<OptionItem[]>([]);
+    const [setups, setSetups] = useState<OptionItem[]>([]);
     const [products, setProducts] = useState<OptionItem[]>([]);
     const [loadingOptions, setLoadingOptions] = useState(true);
 
@@ -53,6 +54,7 @@ export default function PromotionsSalesClient() {
         discountValue: '',
         startDate: '',
         endDate: '',
+        hasDates: true,
         applyTo: 'ALL' as PromotionScope,
         targetItems: [] as (number | string)[]
     });
@@ -60,29 +62,39 @@ export default function PromotionsSalesClient() {
     const fetchTargetOptions = useCallback(async () => {
         setLoadingOptions(true);
         try {
-            const token = localStorage.getItem('token');
+            const session: any = await getSession();
+            const token = session?.accessToken || session?.user?.token;
+
             const headers: HeadersInit = {
                 'Accept': 'application/json',
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {})
             };
 
-            const [catsRes, prodsRes] = await Promise.all([
-                fetch(`${API_BASE_URL}/categories`, { headers }),
+            const [setupsRes, prodsRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/setups`, { headers }),
                 fetch(`${API_BASE_URL}/products`, { headers })
             ]);
 
-            if (catsRes.ok) {
-                const catsData = await catsRes.json();
-                const catList = Array.isArray(catsData) ? catsData : catsData.data || [];
-                setCategories(catList.map((c: any) => ({
-                    id: c.category_id || c.id,
-                    name: c.category_name || c.name
+            if (setupsRes.ok) {
+                const setupsData = await setupsRes.json();
+                let setupList = [];
+                if (Array.isArray(setupsData)) setupList = setupsData;
+                else if (Array.isArray(setupsData.data)) setupList = setupsData.data;
+                else if (setupsData.data?.data && Array.isArray(setupsData.data.data)) setupList = setupsData.data.data;
+
+                setSetups(setupList.map((s: any) => ({
+                    id: s.setup_id || s.id,
+                    name: s.bundle_title || s.name
                 })));
             }
 
             if (prodsRes.ok) {
                 const prodsData = await prodsRes.json();
-                const prodList = Array.isArray(prodsData) ? prodsData : prodsData.data || [];
+                let prodList = [];
+                if (Array.isArray(prodsData)) prodList = prodsData;
+                else if (Array.isArray(prodsData.data)) prodList = prodsData.data;
+                else if (prodsData.data?.data && Array.isArray(prodsData.data.data)) prodList = prodsData.data.data;
+
                 setProducts(prodList.map((p: any) => ({
                     id: p.product_id || p.id,
                     name: p.product_title || p.name
@@ -107,6 +119,7 @@ export default function PromotionsSalesClient() {
             discountValue: '',
             startDate: '',
             endDate: '',
+            hasDates: true,
             applyTo: 'ALL',
             targetItems: []
         });
@@ -126,8 +139,9 @@ export default function PromotionsSalesClient() {
             name: promo.name,
             discountType: promo.discountType,
             discountValue: promo.discountValue.toString(),
-            startDate: formatForInput(promo.startDate),
-            endDate: formatForInput(promo.endDate),
+            startDate: promo.startDate ? formatForInput(promo.startDate) : '',
+            endDate: promo.endDate ? formatForInput(promo.endDate) : '',
+            hasDates: !!(promo.startDate && promo.endDate),
             applyTo: promo.applyTo,
             targetItems: promo.targetItems || []
         });
@@ -147,18 +161,26 @@ export default function PromotionsSalesClient() {
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
+        const checked = (e.target as HTMLInputElement).checked;
+
         setFormData(prev => {
             if (name === 'applyTo') {
                 return { ...prev, [name]: value as PromotionScope, targetItems: [] };
+            }
+            if (type === 'checkbox' && name === 'hasDates') {
+                return { ...prev, hasDates: checked };
             }
             return { ...prev, [name]: value };
         });
     };
 
+    console.log(promotions);
+
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.name || !formData.discountValue || !formData.startDate || !formData.endDate) return;
+        if (!formData.name || !formData.discountValue) return;
+        if (formData.hasDates && (!formData.startDate || !formData.endDate)) return;
 
         setSubmitting(true);
         try {
@@ -171,8 +193,8 @@ export default function PromotionsSalesClient() {
                 target_ids: formData.applyTo === 'ALL'
                     ? []
                     : formData.targetItems.map((id) => Number(id)),
-                start_date: formData.startDate.replace('T', ' ') + ':00',
-                end_date: formData.endDate.replace('T', ' ') + ':00',
+                start_date: formData.hasDates ? formData.startDate.replace('T', ' ') + ':00' : null,
+                end_date: formData.hasDates ? formData.endDate.replace('T', ' ') + ':00' : null,
                 is_active: true
             };
 
@@ -211,6 +233,7 @@ export default function PromotionsSalesClient() {
     }, [promotions, activeTab, searchQuery]);
 
     const isLoading = loadingPromos || loadingOptions;
+
 
     return (
         <div className={`${inter.className} flex flex-col gap-y-6 text-[#d9e3f4] pb-12`}>
@@ -276,7 +299,9 @@ export default function PromotionsSalesClient() {
                             <div className="flex items-center gap-x-2">
                                 <Tag className="w-5 h-5 text-primaryColor" />
                                 <h2 className="text-base font-bold uppercase text-white">
-                                    {editingPromoId ? 'Edit Sales Campaign' : 'Create Sales Campaign'}
+                                    {editingPromoId
+                                        ? 'Edit Sales Campaign'
+                                        : (formData.applyTo === 'ALL' ? 'Create Event Sale' : 'Create Product Discount')}
                                 </h2>
                             </div>
                             <button
@@ -290,16 +315,16 @@ export default function PromotionsSalesClient() {
                         <form onSubmit={handleFormSubmit} className="p-5 space-y-4">
                             <div>
                                 <label className="block text-xs font-semibold uppercase text-[#d9e3f4]/70 mb-1.5">
-                                    Campaign Title
+                                    {formData.applyTo === 'ALL' ? 'Campaign Title' : 'Discount Reference Name'}
                                 </label>
                                 <input
                                     type="text"
                                     name="name"
                                     required
-                                    placeholder="e.g. Mid-Year Tech Sale"
+                                    placeholder={formData.applyTo === 'ALL' ? 'e.g. Mid-Year Tech Sale' : 'e.g. Shimano Reel Clearance'}
                                     value={formData.name}
                                     onChange={handleInputChange}
-                                    className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-primaryColor transition-all"
+                                    className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-4 py-2.5 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-primaryColor transition-all"
                                 />
                             </div>
 
@@ -341,35 +366,51 @@ export default function PromotionsSalesClient() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-semibold uppercase text-[#d9e3f4]/70 mb-1.5">
-                                        Start Date & Time
-                                    </label>
-                                    <input
-                                        type="datetime-local"
-                                        name="startDate"
-                                        required
-                                        value={formData.startDate}
-                                        onChange={handleInputChange}
-                                        className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-primaryColor transition-all"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-xs font-semibold uppercase text-[#d9e3f4]/70 mb-1.5">
-                                        End Date & Time
-                                    </label>
-                                    <input
-                                        type="datetime-local"
-                                        name="endDate"
-                                        required
-                                        value={formData.endDate}
-                                        onChange={handleInputChange}
-                                        className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-primaryColor transition-all"
-                                    />
-                                </div>
+                            <div className="flex items-center gap-2 mt-4">
+                                <input
+                                    type="checkbox"
+                                    name="hasDates"
+                                    id="hasDates"
+                                    checked={formData.hasDates}
+                                    onChange={handleInputChange}
+                                    className="accent-primaryColor w-4 h-4 cursor-pointer"
+                                />
+                                <label htmlFor="hasDates" className="text-xs font-semibold text-[#d9e3f4] uppercase cursor-pointer">
+                                    Set Sale Dates (Optional)
+                                </label>
                             </div>
+
+                            {formData.hasDates && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase text-[#d9e3f4]/70 mb-1.5">
+                                            Start Date & Time
+                                        </label>
+                                        <input
+                                            type="datetime-local"
+                                            name="startDate"
+                                            required
+                                            value={formData.startDate}
+                                            onChange={handleInputChange}
+                                            className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-primaryColor transition-all"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase text-[#d9e3f4]/70 mb-1.5">
+                                            End Date & Time
+                                        </label>
+                                        <input
+                                            type="datetime-local"
+                                            name="endDate"
+                                            required
+                                            value={formData.endDate}
+                                            onChange={handleInputChange}
+                                            className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-primaryColor transition-all"
+                                        />
+                                    </div>
+                                </div>
+                            )}
 
                             <div>
                                 <label className="block text-xs font-semibold uppercase text-[#d9e3f4]/70 mb-1.5">
@@ -382,7 +423,7 @@ export default function PromotionsSalesClient() {
                                     className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-primaryColor transition-all"
                                 >
                                     <option value="ALL">Entire Store (All Products)</option>
-                                    <option value="CATEGORY">Specific Categories</option>
+                                    <option value="SETUP">Specific Setups</option>
                                     <option value="PRODUCT">Specific Products</option>
                                 </select>
                             </div>
@@ -390,10 +431,10 @@ export default function PromotionsSalesClient() {
                             {formData.applyTo !== 'ALL' && (
                                 <div className="p-3 bg-[#141A1F] border border-greyColor/20 rounded-lg space-y-2">
                                     <label className="block text-[11px] font-semibold uppercase text-primaryColor">
-                                        Select Target {formData.applyTo === 'CATEGORY' ? 'Categories' : 'Products'}
+                                        Select Target {formData.applyTo === 'SETUP' ? 'Setups' : 'Products'}
                                     </label>
                                     <div className="max-h-32 overflow-y-auto space-y-1.5 pr-2 scroller-hide">
-                                        {(formData.applyTo === 'CATEGORY' ? categories : products).map(item => {
+                                        {(formData.applyTo === 'SETUP' ? setups : products).map(item => {
                                             const isSelected = formData.targetItems.some(i => String(i) === String(item.id));
                                             return (
                                                 <div

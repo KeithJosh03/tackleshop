@@ -12,6 +12,7 @@ interface MatrixRowData {
     price: string;
     variantOptionIds: (string | number)[];
     imageUrl: File | string | null;
+    isActive: boolean;
 }
 
 interface ProductVariantMatrixProps {
@@ -280,6 +281,7 @@ export function ProductVariantMatrix({
                                     <th className="py-3 px-4">SKU Code</th>
                                     <th className="py-3 px-4">Price ($)</th>
                                     <th className="py-3 px-4">Stock Qty</th>
+                                    <th className="py-3 px-4 text-center">Active</th>
                                     <th className="py-3 px-4 text-center">Image</th>
                                 </tr>
                             </thead>
@@ -321,6 +323,14 @@ export function ProductVariantMatrix({
                                                     onChange={(e) => handleRowChange(comboId, 'stockQuantity', e.target.value)}
                                                     className="bg-[#0b0f14] border border-greyColor/20 rounded-lg px-3 py-1.5 text-xs text-[#d9e3f4] focus:outline-none focus:border-primaryColor w-20"
                                                 />
+                                            </td>
+                                            <td className="py-3 px-4 text-center">
+                                                <div 
+                                                    onClick={() => handleRowChange(comboId, 'isActive', !row.isActive)}
+                                                    className={`w-9 h-5 mx-auto flex items-center rounded-full p-1 cursor-pointer transition-colors ${row.isActive ? 'bg-primaryColor' : 'bg-greyColor/40'}`}
+                                                >
+                                                    <div className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${row.isActive ? 'translate-x-4' : 'translate-x-0'}`} />
+                                                </div>
                                             </td>
                                             <td className="py-3 px-4 text-center">
                                                 <div

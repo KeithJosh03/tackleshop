@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { worksans, inter } from "@/types/fonts";
+import { montserrat } from "@/types/fonts";
 import CardServices from "./CardServices";
+
+import { shopbg } from '@/public';
 
 /* ─── Service data ──────────────────────────────────────────────────────── */
 const services = [
@@ -108,51 +110,48 @@ const container = {
 /* ─── Component ─────────────────────────────────────────────────────────── */
 export default function StoreServices() {
     return (
-        <section className="relative w-full overflow-hidden bg-mainBackgroundColor" id="services">
+        <section className="relative w-full overflow-hidden bg-ma-background" id="services">
 
             {/* ── Background image ── */}
             <div className="absolute inset-0 w-full h-full z-0">
                 <Image
-                    src="/servicesbg.jpg"
-                    alt="Smooth Casting Tackle Shop Services"
+                    src={shopbg}
+                    alt="Smooth Casting Tackle Shop Interior"
                     fill
-                    className="object-cover object-center opacity-45"
+                    className="object-cover object-center"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-mainBackgroundColor/80 via-mainBackgroundColor/30 to-mainBackgroundColor z-10" />
-                {/* subtle radial amber glow */}
-                <div
-                    className="absolute inset-0 z-10 pointer-events-none"
-                    style={{
-                        background:
-                            "radial-gradient(ellipse 80% 50% at 50% 60%, rgba(232,147,71,0.07) 0%, transparent 70%)",
-                    }}
-                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 z-10" />
             </div>
 
             {/* ── Content ── */}
-            <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+            <div className="relative z-20 mx-auto px-4 sm:px-6 lg:px-8 py-24 flex flex-col items-center">
 
                 {/* Section header */}
                 <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true, amount: 0.3 }}
-                    transition={{ duration: 0.7, ease: "easeOut" }}
-                    className="text-center mb-16"
+                    transition={{ duration: 0.65, delay: 0.1, ease: "easeOut" }}
+                    className={`${montserrat.className} text-center flex flex-col items-center gap-0.5 mb-16 max-w-5xl`}
                 >
                     <h2
-                        className={`${worksans.className} font-extrabold text-4xl sm:text-5xl md:text-6xl text-tertiaryColor uppercase tracking-tight drop-shadow-2xl mt-4`}
+                        className="text-balance px-1 text-[2.55rem] font-extrabold uppercase leading-[0.95] tracking-tight text-ma-on-surface drop-shadow-2xl sm:text-[3.55rem] md:text-[4.35rem] lg:text-[5.3rem]"
                     >
-                        <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primaryColor via-[#ffb370] to-primaryColor pb-2">
-                            Services Fishing Gear
+                        <span className="block bg-gradient-to-r from-ma-primary via-[#ffb370] to-ma-primary bg-clip-text pb-2 text-transparent">
+                            Services
                         </span>
+                        <span className="block mt-0.5 text-ma-on-surface/95">Fishing Gear</span>
                     </h2>
-                    <p
-                        className={`${inter.className} text-tertiaryColor/70 text-base sm:text-lg max-w-2xl mx-auto mt-6 leading-relaxed font-medium`}
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, amount: 0.3 }}
+                        transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+                        className="mt-5 max-w-3xl text-balance px-1 text-[0.72rem] font-semibold uppercase leading-relaxed tracking-[0.03em] text-ma-on-surface/70 drop-shadow-md sm:text-[0.8rem] md:text-[0.92rem]"
                     >
                         FROM REEL MAINTENANCE TO FULLY CUSTOM RODS — OUR SKILLED TECHNICIANS
                         KEEP YOUR GEAR IN PEAK CONDITION SO YOU NEVER MISS A CAST.
-                    </p>
+                    </motion.p>
                 </motion.div>
 
                 {/* ── Service cards ── */}

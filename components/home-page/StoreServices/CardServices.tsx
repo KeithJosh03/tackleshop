@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { worksans, inter } from "@/types/fonts";
+import { montserrat } from "@/types/fonts";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 /* ─── Card animation variant ────────────────────────────────────────────── */
 export const cardVariant = {
@@ -31,89 +32,57 @@ export default function CardServices({ svc }: { svc: Service }) {
         <motion.div
             key={svc.id}
             variants={cardVariant}
-            whileHover={{ y: -6, scale: 1.01 }}
+            whileHover={{ y: -6, scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300, damping: 22 }}
-            className="group relative flex flex-col rounded-2xl overflow-hidden"
-            style={{
-                background: "linear-gradient(145deg, rgba(17,26,45,0.95) 0%, rgba(13,20,33,0.98) 100%)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                boxShadow: "0 8px 40px rgba(0,0,0,0.4)",
-            }}
+            className={`${montserrat.className} group relative flex flex-col rounded-2xl overflow-hidden bg-ma-surface-container/60 backdrop-blur-md border border-ma-outline hover:border-ma-primary/50 transition-all duration-300 shadow-xl`}
         >
             {/* Hover glow overlay */}
             <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                 style={{
                     background:
-                        "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(232,147,71,0.08) 0%, transparent 70%)",
-                    border: "1px solid rgba(232,147,71,0.18)",
-                }}
-            />
-            {/* Top accent line */}
-            <div
-                className="absolute top-0 left-6 right-6 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{
-                    background: "linear-gradient(90deg, transparent, #E89347, transparent)",
+                        "radial-gradient(circle at 50% 0%, rgba(232,147,71,0.1) 0%, transparent 70%)",
                 }}
             />
 
             {/* Card body */}
-            <div className="relative flex flex-col gap-y-5 p-7 flex-1">
+            <div className="relative flex flex-col gap-y-5 p-7 flex-1 z-10">
 
-                {/* Badge */}
-                <div className="flex items-start justify-between">
-                    {/* Icon container */}
-                    <div
-                        className="flex items-center justify-center w-16 h-16 rounded-xl shrink-0 transition-transform duration-300 group-hover:scale-110"
-                        style={{
-                            background: "rgba(232,147,71,0.08)",
-                            border: "1px solid rgba(232,147,71,0.2)",
-                        }}
-                    >
-                        {svc.icon}
-                    </div>
+                {/* Icon container */}
+                <div
+                    className="flex items-center justify-center w-14 h-14 rounded-xl shrink-0 transition-transform duration-300 group-hover:scale-110 bg-ma-primary/10 border border-ma-primary/20 text-ma-primary"
+                >
+                    {svc.icon}
                 </div>
 
                 {/* Title */}
                 <div>
                     <p
-                        className={`${inter.className} text-[10px] font-bold uppercase tracking-[0.2em] mb-1`}
-                        style={{ color: "#E89347" }}
+                        className="text-[10px] font-bold uppercase tracking-[0.2em] mb-1.5 text-ma-primary"
                     >
                         {svc.subtitle}
                     </p>
                     <h3
-                        className={`${worksans.className} font-extrabold text-2xl text-tertiaryColor uppercase tracking-tight`}
+                        className="font-extrabold text-2xl text-white uppercase tracking-tight"
                     >
                         {svc.title}
                     </h3>
                 </div>
 
-                {/* Divider */}
-                <div
-                    className="h-px w-full"
-                    style={{ background: "rgba(255,255,255,0.06)" }}
-                />
-
                 {/* Description */}
                 <p
-                    className={`${inter.className} text-tertiaryColor/65 text-sm leading-relaxed font-medium flex-1`}
+                    className="text-white/60 text-sm leading-relaxed font-medium flex-1"
                 >
                     {svc.description}
                 </p>
 
                 {/* Highlight */}
                 <div
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl"
-                    style={{
-                        background: "rgba(232,147,71,0.06)",
-                        border: "1px solid rgba(232,147,71,0.15)",
-                    }}
+                    className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-ma-primary/5 border border-ma-primary/10"
                 >
-                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#E89347" }} />
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0 bg-ma-primary" />
                     <p
-                        className={`${inter.className} text-xs font-bold italic`}
-                        style={{ color: "#E89347" }}
+                        className="text-xs font-bold text-ma-primary/90"
                     >
                         {svc.highlight}
                     </p>
@@ -121,20 +90,15 @@ export default function CardServices({ svc }: { svc: Service }) {
 
                 {/* CTA Link */}
                 {svc.cta && (
-                    <Link
-                        href={svc.cta.href}
-                        className={`${worksans.className} inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-primaryColor hover:text-[#FFB86C] transition-colors duration-300 mt-1 group/cta`}
-                    >
-                        {svc.cta.label}
-                        <svg
-                            className="w-4 h-4 transition-transform duration-300 group-hover/cta:translate-x-1"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                    <div className="pt-2 border-t border-white/5 mt-2">
+                        <Link
+                            href={svc.cta.href}
+                            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ma-primary hover:text-white transition-colors duration-300 group/cta"
                         >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </Link>
+                            {svc.cta.label}
+                            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/cta:translate-x-1" />
+                        </Link>
+                    </div>
                 )}
             </div>
         </motion.div>

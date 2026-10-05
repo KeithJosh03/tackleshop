@@ -6,7 +6,7 @@ import Footer from './layout/Footer/Footer';
 // Home-Page
 import Hero from './home-page/Hero/Hero';
 import Brands from './home-page/BrandsLogo/BrandsLogo';
-import Collections from './home-page/ProductCollections/page';
+import Collections from './home-page/ProductCollection/page';
 import StoreServices from './home-page/StoreServices/StoreServices';
 
 
