@@ -18,10 +18,14 @@ import {
   AlertCircle,
   RefreshCw,
   ShoppingBag,
-  Users
+  Users,
+  Upload,
+  X
 } from 'lucide-react';
 import { generateSku } from '@/lib/utils/skuGenerator';
 import { updateBundle, getSetupById } from '@/lib/api/bundleService';
+import { uploadImages } from '@/lib/api/uploadImage';
+import FileDropImage from '@/components/ui/FileDropImage';
 import { BundleItemSelector, SelectedBundleItem } from '@/components/setups/BundleItemSelector';
 import { BundleSummarySidebar } from '@/components/setups/BundleSummarySidebar';
 import { useSession } from 'next-auth/react';
@@ -37,7 +41,7 @@ export default function EditSetupPage() {
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [setupCategoryId, setSetupCategoryId] = useState('');
-  const [setupCategories, setSetupCategories] = useState<{id: number, name: string}[]>([]);
+  const [setupCategories, setSetupCategories] = useState<{ id: number, name: string }[]>([]);
 
   React.useEffect(() => {
     const fetchCategories = async () => {
@@ -54,6 +58,7 @@ export default function EditSetupPage() {
     fetchCategories();
   }, []);
   const [bannerUrl, setBannerUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const [sku, setSku] = useState('');
 
   // Pricing Strategy state
@@ -101,7 +106,7 @@ export default function EditSetupPage() {
 
     const fetchDetails = async () => {
       try {
-        const res = await getSetupById(setupId, token);
+        const res = await getSetupById(setupId);
         if (res.status && res.data) {
           const s = res.data;
           setTitle(s.bundle_title || '');
@@ -120,6 +125,8 @@ export default function EditSetupPage() {
 
           if (s.items) {
             const mappedItems = s.items.map((i: any) => ({
+              id: i.id?.toString() || `existing-${i.product_id}-${i.sku_id || 'base'}`,
+              product_id: i.product_id || i.product?.product_id || i.product?.productId || 0,
               is_custom: false,
               product_title: i.product?.product_title || 'Unknown Product',
               unit_price: parseFloat(i.product?.base_price || 0),
@@ -130,7 +137,21 @@ export default function EditSetupPage() {
               sku_id: i.sku_id,
               sku: i.sku,
             }));
-            setSelectedItems(mappedItems);
+
+            if (s.inclusions && s.inclusions.length > 0) {
+              const mappedInclusions = s.inclusions.map((inc: any) => ({
+                id: inc.id?.toString() || `custom-${inc.title}`,
+                product_id: 0,
+                is_custom: true,
+                product_title: inc.title,
+                unit_price: parseFloat(inc.price || 0),
+                quantity: inc.quantity,
+                is_required: inc.is_required,
+              }));
+              setSelectedItems([...mappedItems, ...mappedInclusions]);
+            } else {
+              setSelectedItems(mappedItems);
+            }
           }
         }
       } catch (err) {
@@ -139,6 +160,29 @@ export default function EditSetupPage() {
     };
     fetchDetails();
   }, [setupId, token]);
+
+  const handleImageUpload = async (file: File | File[]) => {
+    const singleFile = Array.isArray(file) ? file[0] : file;
+    if (!singleFile) return;
+
+    setIsUploading(true);
+    setFeedbackMsg({ type: 'success', text: 'Uploading image...' });
+
+    try {
+      const uploaded = await uploadImages([
+        { file: singleFile, originIndex: 0 }
+      ]);
+
+      if (uploaded && uploaded.length > 0) {
+        setBannerUrl(uploaded[0].url);
+        setFeedbackMsg({ type: 'success', text: 'Image uploaded successfully!' });
+      }
+    } catch (err: any) {
+      setFeedbackMsg({ type: 'error', text: err.message || 'Image upload failed' });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   // Item additions from modal
   const handleSelectItems = (newItems: SelectedBundleItem[]) => {
@@ -242,7 +286,7 @@ export default function EditSetupPage() {
         start_date: startDate || undefined,
         end_date: endDate || undefined,
         bundle_items: selectedItems.filter(i => !i.is_custom).map((item) => ({
-          product_id: item.product?.productId || 0,
+          product_id: item.product_id,
           sku_id: item.sku_id,
           quantity: item.quantity,
           is_required: item.is_required,
@@ -256,7 +300,7 @@ export default function EditSetupPage() {
         })),
       };
 
-      const res = await updateBundle(setupId, payload, token);
+      const res = await updateBundle(setupId, payload);
       setFeedbackMsg({ type: 'success', text: res.message || 'Bundle setup updated successfully!' });
     } catch (err: any) {
       setFeedbackMsg({
@@ -267,6 +311,11 @@ export default function EditSetupPage() {
       setIsSubmitting(false);
     }
   };
+
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
+  const bannerPreviewUrl = bannerUrl ? (
+    bannerUrl.startsWith('http') || bannerUrl.startsWith('blob:') ? bannerUrl : `${baseURL}${bannerUrl.startsWith('/') ? '' : '/'}${bannerUrl}`
+  ) : '';
 
   return (
     <div className="min-h-screen bg-[#0d131a] text-[#d9e3f4] p-6 lg:p-10 font-sans pb-24">
@@ -354,6 +403,54 @@ export default function EditSetupPage() {
                     <option key={cat.id} value={cat.id}>{cat.name}</option>
                   ))}
                 </select>
+              </div>
+
+              {/* Hero Banner Upload */}
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-xs font-semibold text-[#9cb3cf] uppercase tracking-wider">
+                  Hero Banner Image
+                </label>
+                <div className="mt-2">
+                  {bannerUrl ? (
+                    <div className="relative w-full max-w-sm aspect-[4/3] rounded-xl overflow-hidden border-2 border-primaryColor/50 group">
+                      <Image
+                        src={bannerPreviewUrl}
+                        alt="Setup Banner"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={() => setBannerUrl('')}
+                          className="p-2 bg-rose-500 rounded-full text-white hover:bg-rose-600 transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <FileDropImage
+                      onFileChange={handleImageUpload}
+                      maxImages={1}
+                      className={`w-full max-w-sm aspect-[4/3] border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors ${isUploading ? 'border-primaryColor bg-primaryColor/10' : 'border-greyColor/30 hover:border-primaryColor/50 bg-[#16202c]'}`}
+                    >
+                      {isUploading ? (
+                        <div className="flex flex-col items-center text-primaryColor">
+                          <RefreshCw className="w-8 h-8 animate-spin mb-3" />
+                          <span className="text-sm font-medium">Uploading...</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center text-[#788ca5]">
+                          <Upload className="w-8 h-8 mb-3 text-[#4e6178]" />
+                          <span className="text-sm font-medium text-white mb-1">Click or drag to upload banner</span>
+                          <span className="text-xs">PNG, JPG up to 5MB</span>
+                        </div>
+                      )}
+                    </FileDropImage>
+                  )}
+                </div>
               </div>
 
             </div>
@@ -511,7 +608,7 @@ export default function EditSetupPage() {
 
                   return (
                     <div
-                      key={isCustom ? item.id : `${item.product?.productId}-${item.sku_id || 'base'}`}
+                      key={isCustom ? item.id : `${item.product?.productId || item.product?.productId || index}-${item.sku_id || 'base'}`}
                       className={`p-4 rounded-xl bg-[#121922] border flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all ${isCustom ? 'border-indigo-500/30' : isFlexible ? 'border-amber-500/30' : 'border-greyColor/20 hover:border-greyColor/40'}`}
                     >
                       {/* Left: Thumbnail & Title */}

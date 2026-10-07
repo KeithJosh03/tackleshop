@@ -1,95 +1,160 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Package, Tag, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Layers, ArrowRight, Sparkles } from 'lucide-react';
+import { buildSetupDetailsPath } from '@/lib/api/setupService';
+import { montserrat } from '@/types/fonts';
+import { numericConverter } from '@/utils/priceUtils';
 
-export default function SetupCard({ setup }: { setup: any }) {
-    const { 
-        bundle_title, 
-        slug, 
-        description, 
-        bundle_price, 
-        retail_price, 
-        pricing_type, 
-        main_image, 
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000';
+
+interface SetupCardProps {
+    setup: {
+        setup_id: string | number;
+        bundle_title?: string;
+        slug?: string;
+        description?: string;
+        bundle_price: number;
+        retail_price?: number;
+        main_image?: {
+            image_url?: string;
+            url?: string;
+        };
+        items?: Array<{
+            product?: {
+                product_title?: string;
+            };
+        }>;
+        inclusions?: Array<any>;
+    };
+    index?: number;
+}
+
+export default function SetupCard({ setup, index = 0 }: SetupCardProps) {
+    const {
+        bundle_title,
+        slug,
+        bundle_price,
+        retail_price,
+        main_image,
         items,
         inclusions
     } = setup;
 
-    const imageUrl = main_image ? main_image.url : '/placeholder-setup.jpg'; // We can fallback to some default if no image
-
+    const imageUrl = main_image ? (main_image.image_url || main_image.url || '') : '';
     const price = bundle_price;
-    const oldPrice = retail_price > bundle_price ? retail_price : null;
+    const oldPrice = retail_price && retail_price > bundle_price ? retail_price : null;
+    const savingsAmount = oldPrice ? oldPrice - price : 0;
+
+    const resolvedImageUrl = imageUrl
+        ? imageUrl.startsWith('http') || imageUrl.startsWith('blob:')
+            ? imageUrl
+            : `${baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
+        : '';
+
+    const detailHref = buildSetupDetailsPath(setup.setup_id as any, slug || bundle_title || '');
+
+    const itemsList = items || [];
+    const inclusionsList = inclusions || [];
 
     return (
-        <div className="bg-ma-surface-container rounded-2xl border border-greyColor/20 overflow-hidden flex flex-col group hover:border-primaryColor/50 transition-all shadow-md">
-            <div className="relative w-full aspect-video bg-[#121922] overflow-hidden">
-                {main_image ? (
-                    <Image src={imageUrl} alt={bundle_title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                ) : (
-                    <div className="flex items-center justify-center w-full h-full text-[#788ca5]">
-                        <Package className="w-12 h-12 opacity-20" />
-                    </div>
-                )}
-                {oldPrice && (
-                    <div className="absolute top-3 right-3 bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">
-                        Save ₱{(oldPrice - price).toFixed(2)}
-                    </div>
-                )}
-            </div>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.05, ease: 'easeOut' }}
+            className="h-full flex w-full"
+        >
+            <Link
+                href={detailHref}
+                className={`${montserrat.className} group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/60 backdrop-blur-md cursor-pointer transition-all duration-300 hover:border-ma-primary/60 hover:bg-zinc-900/90 hover:-translate-y-1.5 hover:shadow-[0_20px_45px_-10px_rgba(232,147,71,0.25)] h-full w-full block`}
+            >
+                {/* Ambient glow on hover */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-ma-primary/10 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-10" />
 
-            <div className="p-5 flex flex-col flex-grow">
-                <div className="mb-2">
-                    <h3 className="text-lg font-bold text-white leading-tight line-clamp-1">{bundle_title}</h3>
-                    {description && (
-                        <p className="text-xs text-[#788ca5] line-clamp-2 mt-1.5">{description}</p>
-                    )}
-                </div>
+                {/* Image Container */}
+                <div className="relative w-full h-[260px] sm:h-[280px] overflow-hidden bg-black/50 flex items-center justify-center p-6">
+                    <Image
+                        src={resolvedImageUrl || '/logo.png'}
+                        alt={bundle_title || 'Setup Bundle'}
+                        fill
+                        className="object-cover p-2 transition-transform duration-700 ease-out group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        unoptimized
+                    />
 
-                <div className="mb-4">
-                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase text-primaryColor tracking-wider mb-2">
-                        <Tag className="w-3 h-3" />
-                        <span>Includes {items?.length || 0} items</span>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1.5">
-                        {items?.slice(0, 3).map((item: any, idx: number) => (
-                            <span key={idx} className="bg-white/5 border border-white/10 text-[#d9e3f4] text-[10px] px-2 py-0.5 rounded-md">
-                                {item.product?.product_title || 'Item'}
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-transparent to-transparent" />
+
+                    {/* Badges */}
+                    <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20 pointer-events-none">
+                        {index < 2 ? (
+                            <span className="bg-ma-primary text-black text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                                NEW
                             </span>
-                        ))}
-                        {items?.length > 3 && (
-                            <span className="bg-white/5 border border-white/10 text-[#788ca5] text-[10px] px-2 py-0.5 rounded-md">
-                                +{items.length - 3} more
-                            </span>
+                        ) : (
+                            <span />
                         )}
-                        {inclusions?.length > 0 && (
-                            <span className="bg-primaryColor/10 border border-primaryColor/20 text-primaryColor text-[10px] px-2 py-0.5 rounded-md">
-                                + Freebies
+
+                        {oldPrice && savingsAmount > 0 && (
+                            <span className="bg-red-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-lg border border-red-500/30">
+                                SAVE {numericConverter(String(savingsAmount))}
                             </span>
                         )}
                     </div>
                 </div>
 
-                <div className="mt-auto flex items-end justify-between pt-4 border-t border-greyColor/10">
-                    <div>
-                        <div className="text-[10px] text-[#788ca5] uppercase font-bold tracking-wider mb-0.5">Bundle Price</div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-xl font-black text-white">₱{Number(price).toFixed(2)}</span>
-                            {oldPrice && (
-                                <span className="text-sm text-[#788ca5] line-through decoration-rose-500/50">₱{Number(oldPrice).toFixed(2)}</span>
+                {/* Content Area */}
+                <div className="p-5 sm:p-6 flex flex-col gap-3.5 flex-1 justify-between bg-gradient-to-t from-[#0B1015] to-transparent">
+                    <div className="space-y-2.5">
+                        <div className="flex items-center gap-2 text-ma-primary text-xs font-bold uppercase tracking-[0.15em]">
+                            <Layers className="w-4 h-4" />
+                            <span>{itemsList.length} Essential Items Included</span>
+                        </div>
+
+                        <h3 className="text-white font-extrabold text-base sm:text-lg leading-snug uppercase tracking-wide group-hover:text-ma-primary transition-colors duration-200">
+                            {bundle_title}
+                        </h3>
+
+                        {/* Items list preview */}
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                            {itemsList.map((item, idx: number) => (
+                                <span key={idx} className="bg-white/5 border border-white/10 text-white/90 text-[11px] px-2.5 py-1 rounded-md font-medium">
+                                    {item.product?.product_title || 'Item'}
+                                </span>
+                            ))}
+                            {inclusionsList.length > 0 && (
+                                <span className="inline-flex items-center gap-1.5 bg-ma-primary/15 border border-ma-primary/30 text-ma-primary text-[11px] px-2.5 py-1 rounded-md font-bold">
+                                    <Sparkles className="w-3.5 h-3.5" /> Freebies Included
+                                </span>
                             )}
                         </div>
                     </div>
 
-                    <Link 
-                        href={`/setups/${slug || setup.setup_id}`}
-                        className="w-10 h-10 rounded-full bg-primaryColor text-slate-950 flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-md"
-                    >
-                        <ArrowRight className="w-4 h-4" />
-                    </Link>
+                    {/* Pricing & CTA Button */}
+                    <div className="pt-4 border-t border-white/10 flex items-center justify-between mt-2">
+                        <div>
+                            <span className="text-[11px] text-white/60 uppercase font-bold tracking-wider block">Bundle Price</span>
+                            <div className="flex items-baseline gap-2.5 mt-0.5">
+                                <span className="text-ma-primary font-black text-lg sm:text-xl tracking-tight">
+                                    {numericConverter(String(price))}
+                                </span>
+                                {oldPrice && (
+                                    <span className="text-white/40 line-through text-xs font-semibold">
+                                        {numericConverter(String(oldPrice))}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
+                        <span className="w-10 h-10 rounded-full bg-ma-primary text-black flex items-center justify-center group-hover:bg-white group-hover:scale-110 transition-all duration-300 shadow-[0_0_20px_rgba(232,147,71,0.4)]">
+                            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                        </span>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </Link>
+        </motion.div>
     );
 }

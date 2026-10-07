@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -10,14 +10,14 @@ import {
   ProductFilterBar,
   BrandCategoryPaginationButton,
   SkeletonBrandCategoryCardRoutesSkeletonCard
-} from "@/components/ui"
+} from "@/components/ui";
 
-
-import { fetchSpecificBrandProducts } from "@/lib/api/brandService";
+import { fetchSpecificBrandProducts, BrandListNameSearchHeader } from "@/lib/api/brandService";
 import { BrandProducts } from "@/types/dataprops";
-
+import { BrandProps } from "@/types/brandType";
 
 export default function BrandClient({ brandName }: { brandName: string }) {
+  const router = useRouter();
   const displayName = brandName.replaceAll("-", " ").toUpperCase();
 
   const [products, setProducts] = useState<BrandProducts[]>([]);
@@ -27,10 +27,26 @@ export default function BrandClient({ brandName }: { brandName: string }) {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  // Filter States
+  // Filter & Brands States
   const [searchQuery, setSearchQuery] = useState("");
   const [budget, setBudget] = useState("");
   const [sortOption, setSortOption] = useState("newest");
+  const [availableBrands, setAvailableBrands] = useState<BrandProps[]>([]);
+
+  // Fetch backend brands list on mount
+  useEffect(() => {
+    const loadBrands = async () => {
+      try {
+        const brands = await BrandListNameSearchHeader();
+        if (brands) {
+          setAvailableBrands(brands);
+        }
+      } catch (err) {
+        console.error("Failed to load brands:", err);
+      }
+    };
+    loadBrands();
+  }, []);
 
   const fetchProducts = useCallback(async (page: number, search: string, bdgt: string, sort: string) => {
     setLoading(true);
@@ -61,20 +77,27 @@ export default function BrandClient({ brandName }: { brandName: string }) {
     return () => clearTimeout(handler);
   }, [brandName, searchQuery, budget, sortOption, fetchProducts]);
 
-  console.log(products);
+  const handleBrandSwitch = (newBrandSlug: string) => {
+    if (newBrandSlug && newBrandSlug !== brandName) {
+      router.push(`/brand/${newBrandSlug}`);
+    }
+  };
 
   return (
-    <div className="min-h-screen px-6 pb-16 pt-4 md:px-10 flex flex-col gap-2">
-      <div className="flex flex-col gap-1 items-center justify-center pt-8 pb-4">
-        <p className="text-xs font-bold text-[#a28d7e] uppercase tracking-widest">
-          BROWSE <span className="mx-1">›</span> BRAND
-        </p>
-        <h1 className="text-[40px] sm:text-[72px] font-[900] text-[#e0e3e5] uppercase leading-none tracking-tight">
+    <div className="min-h-screen px-4 sm:px-6 md:px-10 pb-16 pt-4 flex flex-col gap-2">
+      <div className="flex flex-col gap-3 items-center justify-center pt-10 pb-8">
+        <div className="px-4 py-1.5 rounded-full bg-[#131718] border border-[#272a2c] flex items-center gap-2 shadow-inner">
+           <div className="w-1.5 h-1.5 rounded-full bg-[#ffc49a] animate-pulse"></div>
+           <p className="text-[10px] sm:text-xs font-bold text-[#a28d7e] uppercase tracking-widest">
+             BROWSE <span className="mx-1 text-[#5b6166]">/</span> BRAND
+           </p>
+        </div>
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-[#ffffff] via-[#e0e3e5] to-[#a28d7e] uppercase leading-none tracking-tight text-center">
           {displayName}
         </h1>
       </div>
 
-      {/* Reusable Filter Bar Component */}
+      {/* Reusable Filter Bar Component with Central Brand Selector */}
       <ProductFilterBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -86,6 +109,10 @@ export default function BrandClient({ brandName }: { brandName: string }) {
         currentPage={currentPage}
         lastPage={lastPage}
         initialLoading={initialLoading}
+        selectedDropdownValue={brandName}
+        onDropdownChange={handleBrandSwitch}
+        dropdownOptions={availableBrands.map(b => ({ label: b.brandName, value: b.brandName.toLowerCase().replaceAll(' ', '-') }))}
+        dropdownPlaceholder="Select Brand"
       />
 
       {initialLoading ? (

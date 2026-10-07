@@ -66,7 +66,7 @@ export default function SetupsPage() {
         // Optimistic UI update
         setSetups(prev => prev.map(s => s.setup_id === id ? { ...s, is_published: !currentStatus } : s));
         try {
-            const res = await toggleSetupStatus(id, token);
+            const res = await toggleSetupStatus(id);
             if (res.status) {
                 showToast(`Setup ${res.is_published ? 'published' : 'unpublished'} successfully`, 'success');
             } else {
@@ -82,7 +82,7 @@ export default function SetupsPage() {
     const handleDelete = async (id: number) => {
         if (!confirm('Are you sure you want to delete this setup?')) return;
         try {
-            const res = await deleteSetup(id, token);
+            const res = await deleteSetup(id);
             if (res.status) {
                 setSetups(prev => prev.filter(s => s.setup_id !== id));
                 showToast('Setup deleted successfully', 'success');

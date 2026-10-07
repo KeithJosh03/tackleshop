@@ -61,15 +61,13 @@ export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
         async jwt({ token, account, user }) {
-            // Initial sign in
             if (account && user) {
                 if (account.provider === 'credentials') {
-                    // For credentials, data comes cleanly from authorize()
-                    token.id = parseInt(user.id);
+                    token.id = Number(user.id);
                     token.role = user.role;
+                    token.email = user.email;
                     token.accessToken = user.accessToken;
                 } else {
-                    // For Social Logins, we hit the Laravel register endpoint
                     const payload = {
                         provider_name: account.provider,
                         provider_id: account.providerAccountId,
@@ -90,9 +88,9 @@ export const authOptions: NextAuthOptions = {
 
                         if (res.ok) {
                             const data = await res.json();
-                            // NextAuth 'user' object is augmented with the clean API response
-                            token.id = data.user.id;
+                            token.id = Number(data.user.id);
                             token.role = data.user.role;
+                            token.email = data.user.email;
                             token.accessToken = data.token;
                         } else {
                             const errorText = await res.text();
@@ -106,10 +104,10 @@ export const authOptions: NextAuthOptions = {
             return token;
         },
         async session({ session, token }) {
-            // Map the token properties strictly to the flattened session structure
             if (token) {
-                session.user.id = token.id as number;
+                session.user.id = Number(token.id);
                 session.user.role = token.role as string;
+                session.user.email = token.email as string;
                 session.accessToken = token.accessToken as string;
             }
             return session;

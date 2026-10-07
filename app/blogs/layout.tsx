@@ -8,7 +8,7 @@ export default function BlogsLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className={`${montserrat.className} bg-ma-background min-h-screen text-ma-on-background selection:bg-ma-primary selection:text-ma-on-primary`}>
+        <div className={`${montserrat.className} bg-[#0b0f10] min-h-screen text-[#e0e3e5] selection:bg-[#ffc49a] selection:text-[#4f2500]`}>
             <Header />
             {children}
             <Footer />

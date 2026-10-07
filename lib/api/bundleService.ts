@@ -34,28 +34,20 @@ export interface CreateBundlePayload {
     custom_inclusions?: CustomInclusionPayload[];
 }
 
+import { apiClient } from './apiClient';
+
 export const createBundle = async (payload: CreateBundlePayload): Promise<any> => {
     console.log('Submitting Bundle Payload:', payload);
-    const response = await fetch(`${BASE_URL}/api/setups`, {
+    const response = await apiClient('/api/setups', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
         body: JSON.stringify(payload)
     });
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        try {
-            const errorJson = JSON.parse(errorText);
-            throw new Error(errorJson.message || 'Failed to create bundle setup.');
-        } catch {
-            throw new Error('A server error occurred while creating the bundle setup.');
-        }
+    if (!response) {
+        throw new Error('A server error occurred while creating the bundle setup.');
     }
 
-    return await response.json();
+    return response;
 };
 
 export const getSetups = async (token: string): Promise<any> => {
@@ -73,71 +65,48 @@ export const getSetups = async (token: string): Promise<any> => {
     return await response.json();
 };
 
-export const toggleSetupStatus = async (id: number, token: string): Promise<any> => {
-    const response = await fetch(`${BASE_URL}/api/admin/setups/${id}/status`, {
-        method: 'PATCH',
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
+export const toggleSetupStatus = async (id: number): Promise<any> => {
+    const response = await apiClient(`/api/admin/setups/${id}/status`, {
+        method: 'PATCH'
     });
 
-    if (!response.ok) {
+    if (!response) {
         throw new Error('Failed to toggle status');
     }
-    return await response.json();
+    return response;
 };
 
-export const deleteSetup = async (id: number, token: string): Promise<any> => {
-    const response = await fetch(`${BASE_URL}/api/admin/setups/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
+export const deleteSetup = async (id: number): Promise<any> => {
+    const response = await apiClient(`/api/setups/${id}`, {
+        method: 'DELETE'
     });
 
-    if (!response.ok) {
+    if (!response) {
         throw new Error('Failed to delete setup');
     }
-    return await response.json();
+    return response;
 };
 
-export const getSetupById = async (id: number, token: string): Promise<any> => {
-    const response = await fetch(`${BASE_URL}/api/admin/setups/${id}`, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
+export const getSetupById = async (id: number): Promise<any> => {
+    const response = await apiClient(`/api/setups/${id}`, {
+        method: 'GET'
     });
 
-    if (!response.ok) {
+    if (!response) {
         throw new Error('Failed to fetch setup details');
     }
-    return await response.json();
+    return response;
 };
 
-export const updateBundle = async (id: number, payload: CreateBundlePayload, token: string): Promise<any> => {
-    const response = await fetch(`${BASE_URL}/api/admin/setups/${id}`, {
+export const updateBundle = async (id: number, payload: CreateBundlePayload): Promise<any> => {
+    const response = await apiClient(`/api/setups/${id}`, {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
         body: JSON.stringify(payload)
     });
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        try {
-            const errorJson = JSON.parse(errorText);
-            throw new Error(errorJson.message || 'Failed to update bundle setup.');
-        } catch {
-            throw new Error('A server error occurred while updating the bundle setup.');
-        }
+    if (!response) {
+        throw new Error('A server error occurred while updating the bundle setup.');
     }
 
-    return await response.json();
+    return response;
 };

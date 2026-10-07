@@ -12,7 +12,7 @@ const services = [
     {
         id: "reel-repair",
         icon: (
-            <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10" stroke="#E89347" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 64 64" fill="none" className="w-8 h-8 sm:w-10 sm:h-10" stroke="#E89347" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 {/* Reel body */}
                 <circle cx="32" cy="32" r="20" />
                 <circle cx="32" cy="32" r="10" />
@@ -42,7 +42,7 @@ const services = [
     {
         id: "custom-rods",
         icon: (
-            <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10" stroke="#E89347" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 64 64" fill="none" className="w-8 h-8 sm:w-10 sm:h-10" stroke="#E89347" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 {/* Custom rod */}
                 <line x1="8" y1="56" x2="56" y2="8" strokeWidth="3" />
                 {/* Decorative wraps */}
@@ -70,7 +70,7 @@ const services = [
     {
         id: "gear-tuneup",
         icon: (
-            <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10" stroke="#E89347" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 64 64" fill="none" className="w-8 h-8 sm:w-10 sm:h-10" stroke="#E89347" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 {/* Rod blank diagonal */}
                 <line x1="8" y1="56" x2="56" y2="8" strokeWidth="4" />
                 {/* Guides */}
@@ -123,8 +123,8 @@ export default function StoreServices() {
                 <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90 z-10" />
             </div>
 
-            {/* ── Content ── */}
-            <div className="relative z-20 mx-auto px-4 sm:px-6 lg:px-8 py-24 flex flex-col items-center">
+            {/* ── Content with proper max-width container wrapper ── */}
+            <div className="relative z-20 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 flex flex-col items-center">
 
                 {/* Section header */}
                 <motion.div
@@ -132,25 +132,25 @@ export default function StoreServices() {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true, amount: 0.3 }}
                     transition={{ duration: 0.65, delay: 0.1, ease: "easeOut" }}
-                    className={`${montserrat.className} text-center flex flex-col items-center gap-0.5 mb-16 max-w-5xl`}
+                    className={`${montserrat.className} text-center flex flex-col items-center gap-0.5 mb-12 sm:mb-16 max-w-3xl`}
                 >
                     <h2
-                        className="text-balance px-1 text-[2.55rem] font-extrabold uppercase leading-[0.95] tracking-tight text-ma-on-surface drop-shadow-2xl sm:text-[3.55rem] md:text-[4.35rem] lg:text-[5.3rem]"
+                        className="text-balance px-1 text-[2.2rem] font-extrabold uppercase leading-[1.05] tracking-tight text-ma-on-surface drop-shadow-2xl sm:text-[3.2rem] md:text-[3.8rem]"
                     >
-                        <span className="block bg-gradient-to-r from-ma-primary via-[#ffb370] to-ma-primary bg-clip-text pb-2 text-transparent">
+                        <span className="block bg-gradient-to-r from-ma-primary via-[#ffb370] to-ma-primary bg-clip-text pb-1 sm:pb-2 text-transparent">
                             Services
                         </span>
-                        <span className="block mt-0.5 text-ma-on-surface/95">Fishing Gear</span>
+                        <span className="block mt-1 text-ma-on-surface/95">Fishing Gear</span>
                     </h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, amount: 0.3 }}
                         transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-                        className="mt-5 max-w-3xl text-balance px-1 text-[0.72rem] font-semibold uppercase leading-relaxed tracking-[0.03em] text-ma-on-surface/70 drop-shadow-md sm:text-[0.8rem] md:text-[0.92rem]"
+                        className="mt-4 sm:mt-5 max-w-2xl text-balance px-1 text-[0.78rem] sm:text-[0.8rem] md:text-[0.92rem] font-semibold uppercase leading-relaxed tracking-[0.03em] text-ma-on-surface/70 drop-shadow-md"
                     >
-                        FROM REEL MAINTENANCE TO FULLY CUSTOM RODS — OUR SKILLED TECHNICIANS
-                        KEEP YOUR GEAR IN PEAK CONDITION SO YOU NEVER MISS A CAST.
+                        From reel maintenance to fully custom rods — our skilled technicians
+                        keep your gear in peak condition so you never miss a cast.
                     </motion.p>
                 </motion.div>
 
@@ -160,7 +160,7 @@ export default function StoreServices() {
                     initial="hidden"
                     whileInView="show"
                     viewport={{ once: true, amount: 0.15 }}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8"
+                    className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 w-full"
                 >
                     {services.map((svc) => (
                         <CardServices key={svc.id} svc={svc} />

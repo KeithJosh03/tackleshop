@@ -42,8 +42,12 @@ export default function CollapsibleTextarea({
     error,
 }: CollapsibleTextareaProps) {
     const editor = useEditor({
+        immediatelyRender: true,
         extensions: [
-            StarterKit,
+            StarterKit.configure({
+                underline: false,
+                link: false,
+            }),
             Underline,
             TextStyle,
             Color,
@@ -52,7 +56,6 @@ export default function CollapsibleTextarea({
         content: value || '',
         onUpdate: ({ editor }) => {
             const html = editor.getHTML();
-            // Return empty string if editor contains only an empty paragraph
             onChange(html === '<p></p>' ? '' : html);
         },
         editorProps: {
@@ -62,10 +65,13 @@ export default function CollapsibleTextarea({
         },
     });
 
-    // Keep editor synchronized with external state resets
+    // Safely keep editor synchronized with external state resets
     useEffect(() => {
-        if (editor && value !== editor.getHTML()) {
-            editor.commands.setContent(value || '');
+        if (editor && !editor.isDestroyed) {
+            const currentHtml = editor.getHTML();
+            if (value !== currentHtml) {
+                editor.commands.setContent(value || '');
+            }
         }
     }, [value, editor]);
 
@@ -182,46 +188,33 @@ export default function CollapsibleTextarea({
 
                         {/* Color Options */}
                         <div className="flex items-center gap-1">
-                            {/* White Text */}
                             <button
                                 type="button"
                                 onClick={() => editor.chain().focus().setColor('#ffffff').run()}
-                                className={`p-1.5 rounded transition-colors flex items-center justify-center ${editor.isActive('textStyle', { color: '#ffffff' })
-                                    ? 'bg-white/20 ring-1 ring-white'
-                                    : 'hover:bg-[#2c3542]'
-                                    }`}
+                                className={`p-1.5 rounded transition-colors flex items-center justify-center ${editor.isActive('textStyle', { color: '#ffffff' }) ? 'bg-white/20 ring-1 ring-white' : 'hover:bg-[#2c3542]'}`}
                                 title="White Text"
                             >
                                 <span className="w-3.5 h-3.5 rounded-full bg-white border border-gray-400" />
                             </button>
 
-                            {/* Grey Text */}
                             <button
                                 type="button"
                                 onClick={() => editor.chain().focus().setColor('#9ca3af').run()}
-                                className={`p-1.5 rounded transition-colors flex items-center justify-center ${editor.isActive('textStyle', { color: '#9ca3af' })
-                                    ? 'bg-gray-500/20 ring-1 ring-gray-400'
-                                    : 'hover:bg-[#2c3542]'
-                                    }`}
+                                className={`p-1.5 rounded transition-colors flex items-center justify-center ${editor.isActive('textStyle', { color: '#9ca3af' }) ? 'bg-gray-500/20 ring-1 ring-gray-400' : 'hover:bg-[#2c3542]'}`}
                                 title="Grey Text"
                             >
                                 <span className="w-3.5 h-3.5 rounded-full bg-gray-400" />
                             </button>
 
-                            {/* Red Text */}
                             <button
                                 type="button"
                                 onClick={() => editor.chain().focus().setColor('#ef4444').run()}
-                                className={`p-1.5 rounded transition-colors flex items-center justify-center ${editor.isActive('textStyle', { color: '#ef4444' })
-                                    ? 'bg-red-500/20 ring-1 ring-red-400'
-                                    : 'hover:bg-[#2c3542]'
-                                    }`}
+                                className={`p-1.5 rounded transition-colors flex items-center justify-center ${editor.isActive('textStyle', { color: '#ef4444' }) ? 'bg-red-500/20 ring-1 ring-red-400' : 'hover:bg-[#2c3542]'}`}
                                 title="Red Text"
                             >
                                 <span className="w-3.5 h-3.5 rounded-full bg-red-500" />
                             </button>
 
-                            {/* Reset Color */}
                             <button
                                 type="button"
                                 onClick={() => editor.chain().focus().unsetColor().run()}

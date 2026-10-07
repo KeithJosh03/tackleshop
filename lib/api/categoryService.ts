@@ -268,7 +268,7 @@ export const fetchSpecificCategoryProducts = async (
 ): Promise<CategoryProductResponse | null> => {
   try {
     const encodedCategory = encodeURIComponent(category);
-    
+
     const params = new URLSearchParams();
     params.append('page', page.toString());
     if (search) params.append('search', search);

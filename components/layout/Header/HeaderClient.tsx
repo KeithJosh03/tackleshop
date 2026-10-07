@@ -6,7 +6,7 @@ import Link from 'next/link';
 import slugify from 'slugify';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, ShoppingCart, User, Search, LogOut } from 'lucide-react';
+import { Menu, X, ChevronDown, ShoppingCart, User, Search, LogOut, PlusCircle } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 import { useCart } from '@/contexts/CartContext';
 
@@ -31,6 +31,10 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
+  // Mobile Accordion States
+  const [mobileBrandsOpen, setMobileBrandsOpen] = useState(false);
+  const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
+
   const pathname = usePathname();
   const isHome = pathname === '/';
   const shouldShowSearch =
@@ -53,6 +57,8 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
     setMenuOpen(false);
     setActiveDropdown(null);
     setProfileDropdownOpen(false);
+    setMobileBrandsOpen(false);
+    setMobileCategoriesOpen(false);
   }, [pathname]);
 
   // Prevent background scrolling when mobile menu is open
@@ -70,15 +76,14 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
     { label: 'BRANDS', href: '#', isActive: pathname.startsWith('/brand'), hasDropdown: 'brands' as const },
     { label: 'CATEGORIES', href: '#', isActive: pathname.startsWith('/category'), hasDropdown: 'categories' as const },
     { label: 'APPAREL', href: '/category/apparel', isActive: pathname === '/category/apparel' },
-    { label: 'BLOGS', href: '/blogs', isActive: pathname === '/category/blogs' },
-
+    { label: 'BLOGS', href: '/blogs', isActive: pathname === '/blogs' },
   ];
 
   return (
     <header
       className={`${montserrat.className} fixed top-0 w-full z-[999] transition-all duration-300 ${scrolled
-        ? 'bg-ma-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.5)]'
-        : 'bg-ma-surface'
+          ? 'bg-ma-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.5)]'
+          : 'bg-ma-surface'
         }`}
     >
       {/* ── Thin accent line at top ── */}
@@ -122,8 +127,8 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
             <Link href="/" className="relative flex items-center justify-center">
               <div
                 className={`relative transition-all duration-300 ease-out ${scrolled
-                  ? 'w-36 h-12 md:w-44 md:h-14'
-                  : 'w-44 h-14 md:w-60 md:h-18'
+                    ? 'w-36 h-12 md:w-44 md:h-14'
+                    : 'w-44 h-14 md:w-60 md:h-18'
                   }`}
               >
                 <Image
@@ -198,7 +203,7 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.96 }}
                         transition={{ duration: 0.18, ease: 'easeOut' }}
-                        className="absolute top-full right-0 mt-1 w-48 bg-ma-surface/95 backdrop-blur-xl border border-ma-primary/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] rounded-xl overflow-hidden py-2 z-50"
+                        className="absolute top-full right-0 mt-1 w-52 bg-ma-surface/95 backdrop-blur-xl border border-ma-primary/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] rounded-xl overflow-hidden py-2 z-50"
                       >
                         <div className="px-4 py-2 border-b border-ma-primary/10 mb-1">
                           <p className="text-[13px] font-semibold text-ma-primary truncate">
@@ -209,6 +214,16 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
                           </p>
                         </div>
                         <ul className="flex flex-col px-1.5 gap-0.5">
+                          <li>
+                            <Link
+                              href="/blogs/create"
+                              className="flex items-center gap-x-2 px-3 py-2 text-[13px] font-bold text-[#ffc49a] hover:bg-ma-primary/8 rounded-lg transition-all"
+                              onClick={() => setProfileDropdownOpen(false)}
+                            >
+                              <PlusCircle className="w-4 h-4" />
+                              Post a Catch
+                            </Link>
+                          </li>
                           <li>
                             <Link
                               href="/profile"
@@ -279,8 +294,8 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
                 >
                   <button
                     className={`group flex items-center gap-x-1 transition-colors outline-none cursor-pointer py-1 text-[12px] lg:text-[13px] font-bold uppercase tracking-[0.1em] leading-none ${item.isActive || activeDropdown === dropdownKey
-                      ? 'text-ma-primary'
-                      : 'text-ma-primary/60 hover:text-ma-primary'
+                        ? 'text-ma-primary'
+                        : 'text-ma-primary/60 hover:text-ma-primary'
                       }`}
                   >
                     {item.label}
@@ -293,9 +308,7 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
 
                   {/* Underline indicator */}
                   <span
-                    className={`absolute bottom-0 left-0 h-[1.5px] bg-ma-primary rounded-full transition-all duration-300 ${item.isActive || activeDropdown === dropdownKey
-                      ? 'w-full'
-                      : 'w-0'
+                    className={`absolute bottom-0 left-0 h-[1.5px] bg-ma-primary rounded-full transition-all duration-300 ${item.isActive || activeDropdown === dropdownKey ? 'w-full' : 'w-0'
                       }`}
                   />
 
@@ -333,9 +346,7 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
               <div key={item.label} className="relative group">
                 <Link
                   href={item.href}
-                  className={`block transition-colors py-1 text-[12px] lg:text-[13px] font-bold uppercase tracking-[0.1em] leading-none ${item.isActive
-                    ? 'text-ma-primary'
-                    : 'text-ma-primary/60 hover:text-ma-primary'
+                  className={`block transition-colors py-1 text-[12px] lg:text-[13px] font-bold uppercase tracking-[0.1em] leading-none ${item.isActive ? 'text-ma-primary' : 'text-ma-primary/60 hover:text-ma-primary'
                     }`}
                 >
                   {item.label}
@@ -406,80 +417,138 @@ export default function HeaderClient({ initialBrands = [], initialCategories = [
                   href="/newarrival"
                   onClick={() => setMenuOpen(false)}
                   className={`px-4 py-3 rounded-lg text-[14px] font-bold uppercase tracking-wide transition-colors ${pathname === '/newarrival'
-                    ? 'text-ma-primary bg-ma-primary/10'
-                    : 'text-ma-primary/70 hover:text-ma-primary hover:bg-ma-primary/5'
+                      ? 'text-ma-primary bg-ma-primary/10'
+                      : 'text-ma-primary/70 hover:text-ma-primary hover:bg-ma-primary/5'
                     }`}
                 >
                   NEW ARRIVALS
                 </Link>
 
-                {/* Brands section */}
-                <div className="mt-4 mb-1">
-                  <div className="px-4 mb-2 text-[10px] text-ma-primary/30 uppercase tracking-[0.15em] font-bold">
-                    Brands
-                  </div>
-                  <ul className="flex flex-col gap-0.5">
-                    {initialBrands.map(({ brandName, brandId }) => {
-                      const brandSlug = `/brand/${slugify(brandName).toLowerCase()}`;
-                      return (
-                        <li key={brandId}>
-                          <Link
-                            href={brandSlug}
-                            onClick={() => setMenuOpen(false)}
-                            className={`block px-4 py-2.5 rounded-lg text-[13px] font-semibold transition-colors ${pathname === brandSlug
-                              ? 'text-ma-primary bg-ma-primary/10'
-                              : 'text-ma-primary/60 hover:text-ma-primary hover:bg-ma-primary/5'
-                              }`}
-                          >
-                            {brandName}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                {/* Brands Accordion Section */}
+                <div className="mt-1">
+                  <button
+                    onClick={() => setMobileBrandsOpen(!mobileBrandsOpen)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-[14px] font-bold uppercase tracking-wide text-ma-primary/70 hover:text-ma-primary hover:bg-ma-primary/5 rounded-lg transition-colors"
+                  >
+                    <span>Brands</span>
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform duration-200 ${mobileBrandsOpen ? 'rotate-180' : ''
+                        }`}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {mobileBrandsOpen && (
+                      <motion.ul
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden flex flex-col gap-0.5 pl-3 pr-2 py-1"
+                      >
+                        {initialBrands.map(({ brandName, brandId }) => {
+                          const brandSlug = `/brand/${slugify(brandName).toLowerCase()}`;
+                          return (
+                            <li key={brandId}>
+                              <Link
+                                href={brandSlug}
+                                onClick={() => setMenuOpen(false)}
+                                className={`block px-3 py-2 rounded-lg text-[13px] font-semibold transition-colors ${pathname === brandSlug
+                                    ? 'text-ma-primary bg-ma-primary/10'
+                                    : 'text-ma-primary/60 hover:text-ma-primary'
+                                  }`}
+                              >
+                                {brandName}
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </motion.ul>
+                    )}
+                  </AnimatePresence>
                 </div>
 
-                {/* Categories section */}
-                <div className="mt-4 mb-1">
-                  <div className="px-4 mb-2 text-[10px] text-ma-primary/30 uppercase tracking-[0.15em] font-bold">
-                    Categories
-                  </div>
-                  <ul className="flex flex-col gap-0.5">
-                    {initialCategories.map(({ categoryName, categoryId }) => {
-                      const categorySlug = `/category/${slugify(categoryName).toLowerCase()}`;
-                      return (
-                        <li key={categoryId}>
-                          <Link
-                            href={categorySlug}
-                            onClick={() => setMenuOpen(false)}
-                            className={`block px-4 py-2.5 rounded-lg text-[13px] font-semibold transition-colors ${pathname === categorySlug
-                              ? 'text-ma-primary bg-ma-primary/10'
-                              : 'text-ma-primary/60 hover:text-ma-primary hover:bg-ma-primary/5'
-                              }`}
-                          >
-                            {categoryName}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                {/* Categories Accordion Section */}
+                <div className="mt-1">
+                  <button
+                    onClick={() => setMobileCategoriesOpen(!mobileCategoriesOpen)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-[14px] font-bold uppercase tracking-wide text-ma-primary/70 hover:text-ma-primary hover:bg-ma-primary/5 rounded-lg transition-colors"
+                  >
+                    <span>Categories</span>
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform duration-200 ${mobileCategoriesOpen ? 'rotate-180' : ''
+                        }`}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {mobileCategoriesOpen && (
+                      <motion.ul
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden flex flex-col gap-0.5 pl-3 pr-2 py-1"
+                      >
+                        {initialCategories.map(({ categoryName, categoryId }) => {
+                          const categorySlug = `/category/${slugify(categoryName).toLowerCase()}`;
+                          return (
+                            <li key={categoryId}>
+                              <Link
+                                href={categorySlug}
+                                onClick={() => setMenuOpen(false)}
+                                className={`block px-3 py-2 rounded-lg text-[13px] font-semibold transition-colors ${pathname === categorySlug
+                                    ? 'text-ma-primary bg-ma-primary/10'
+                                    : 'text-ma-primary/60 hover:text-ma-primary'
+                                  }`}
+                              >
+                                {categoryName}
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </motion.ul>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 <Link
                   href="/category/apparel"
                   onClick={() => setMenuOpen(false)}
-                  className={`mt-4 px-4 py-3 rounded-lg text-[14px] font-bold uppercase tracking-wide transition-colors ${pathname === '/category/apparel'
-                    ? 'text-ma-primary bg-ma-primary/10'
-                    : 'text-ma-primary/70 hover:text-ma-primary hover:bg-ma-primary/5'
+                  className={`mt-1 px-4 py-3 rounded-lg text-[14px] font-bold uppercase tracking-wide transition-colors ${pathname === '/category/apparel'
+                      ? 'text-ma-primary bg-ma-primary/10'
+                      : 'text-ma-primary/70 hover:text-ma-primary hover:bg-ma-primary/5'
                     }`}
                 >
                   APPAREL
+                </Link>
+
+                <Link
+                  href="/blogs"
+                  onClick={() => setMenuOpen(false)}
+                  className={`mt-1 px-4 py-3 rounded-lg text-[14px] font-bold uppercase tracking-wide transition-colors ${pathname === '/blogs'
+                      ? 'text-ma-primary bg-ma-primary/10'
+                      : 'text-ma-primary/70 hover:text-ma-primary hover:bg-ma-primary/5'
+                    }`}
+                >
+                  BLOGS
                 </Link>
               </nav>
             </div>
 
             {/* Drawer footer */}
             <div className="px-5 py-4 border-t border-ma-primary/10 flex flex-col gap-3 shrink-0">
+              {session?.user && (
+                <Link
+                  href="/blogs/create"
+                  onClick={() => setMenuOpen(false)}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-[#ffc49a] text-[#4f2500] text-[12px] font-bold uppercase tracking-wider hover:bg-[#ffb47c] transition-colors"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  Post a Catch
+                </Link>
+              )}
+
               <div className="flex items-center gap-3 w-full">
                 <Link
                   href="/cart"

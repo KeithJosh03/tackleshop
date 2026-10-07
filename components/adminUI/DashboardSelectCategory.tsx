@@ -40,6 +40,7 @@ export default function DashboardSelectCategory({
     const fetchCategories = async () => {
       try {
         const categoriesList: CategoryPropsResponse = await showCategories();
+        console.log(categoriesList);
         setCategories(categoriesList.categories || []);
         setFilteredCategories(categoriesList.categories || []);
       } catch (error) {

@@ -242,3 +242,24 @@ body {
 .animate-hero-bounce {
   animation: hero-bounce 2s ease-in-out infinite;
 }
+
+
+.mentions__control {
+  position: relative !important;
+}
+
+.mentions__highlighter {
+  padding: 16px !important;
+  border: 1px solid transparent !important;
+}
+
+.mentions__input {
+  padding: 16px !important;
+  margin: 0 !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+}

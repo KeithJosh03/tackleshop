@@ -15,7 +15,6 @@ export default function CollectionClient({ categoryProductsProps }: Props) {
     const [categoryProducts] = useState(categoryProductsProps);
     const [loading, setLoading] = useState(true);
 
-    console.log(categoryProducts);
     useEffect(() => {
         setLoading(false);
     }, []);

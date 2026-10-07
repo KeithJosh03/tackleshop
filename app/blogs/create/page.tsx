@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
     return (
-        <main className="min-h-screen pt-20 pb-16 bg-[#0b0f10]">
+        <main className="min-h-screen mt-10 pt-20 pb-16 bg-[#0b0f10]">
             <div className="max-w-2xl mx-auto px-4">
                 <CreateBlogClient />
             </div>

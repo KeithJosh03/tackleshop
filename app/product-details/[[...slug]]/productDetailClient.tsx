@@ -67,6 +67,24 @@ export default function ProductDetailClient({
         }) || null;
     }, [variantSelections, productDetails?.productSkus, hasVariants]);
 
+    // Current stock calculation
+    const currentStock = useMemo(() => {
+        return hasVariants
+            ? (currentSku ? currentSku.stockQuantity : 0)
+            : (productDetails?.stockQuantity || 0);
+    }, [hasVariants, currentSku, productDetails?.stockQuantity]);
+
+    const isOutOfStock = currentStock === 0;
+
+    // Ensure quantity never exceeds available stock when stock/variant changes
+    useEffect(() => {
+        if (quantity > currentStock && currentStock > 0) {
+            setQuantity(currentStock);
+        } else if (quantity < 1 && currentStock > 0) {
+            setQuantity(1);
+        }
+    }, [currentStock, quantity]);
+
     useEffect(() => {
         if (!productDetails) return;
 
@@ -102,8 +120,7 @@ export default function ProductDetailClient({
         }
 
         setVariantSelections(initialSelections);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [hasVariants, productDetails.productVariants, initialVariantId]);
 
     // Set initial image when SKU matches initially
     useEffect(() => {
@@ -113,8 +130,7 @@ export default function ProductDetailClient({
             );
             if (uiImage) setSelectedImageId(uiImage.id);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentSku?.skuId, productImages.length]);
+    }, [currentSku, productImages]);
 
     const pushVariantUrl = useCallback(
         (option: ProductVariantOptions) => {
@@ -159,7 +175,7 @@ export default function ProductDetailClient({
         pushVariantUrl(option);
     };
 
-    // Calculate effective price: Uses matched SKU price, basePrice, or lowest available SKU price fallback
+    // Calculate effective price
     const displayPrice = (): string => {
         if (!productDetails) return '0.00';
 
@@ -206,16 +222,9 @@ export default function ProductDetailClient({
 
     const currentImage = productImages.find((img) => img.id === selectedImageId);
 
-    const currentStock = hasVariants
-        ? (currentSku ? currentSku.stockQuantity : 0)
-        : (productDetails?.stockQuantity || 0);
-
-    const isOutOfStock = currentStock === 0;
-
     const handleAddToCart = async () => {
         if (!productDetails || isOutOfStock) return;
 
-        // If has variants but no sku is matched, block adding
         if (hasVariants && !currentSku) {
             alert('Please select all options before adding to cart.');
             return;
@@ -230,9 +239,7 @@ export default function ProductDetailClient({
             });
 
             if (success) {
-                // Reset quantity after adding
                 setQuantity(1);
-                // Optionally show a success toast here
             } else {
                 alert('Failed to add item to cart. Please try again.');
             }
@@ -243,10 +250,8 @@ export default function ProductDetailClient({
 
     return (
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
-
             {/* ─── LEFT COLUMN: Image Gallery ─── */}
             <div className="w-full lg:w-1/2 flex flex-col gap-6 lg:sticky lg:top-32 self-start">
-
                 {/* Main Image */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.98 }}
@@ -319,10 +324,8 @@ export default function ProductDetailClient({
 
             {/* ─── RIGHT COLUMN: Product Info ─── */}
             <div className="w-full lg:w-1/2 flex flex-col gap-10">
-
                 {/* Header Section */}
                 <div className="flex flex-col gap-4">
-                    {/* Brand / Category crumb */}
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -344,7 +347,6 @@ export default function ProductDetailClient({
                         )}
                     </motion.div>
 
-                    {/* Title */}
                     <motion.h1
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -354,7 +356,6 @@ export default function ProductDetailClient({
                         {productDetails?.productTitle}
                     </motion.h1>
 
-                    {/* Price & Stock */}
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -373,17 +374,9 @@ export default function ProductDetailClient({
                         </div>
 
                         {/* Display Stock Status */}
-                        {hasVariants ? (
-                            currentSku ? (
-                                <div className={`text-sm font-semibold tracking-wide ${currentSku.inStock ? 'text-green-400' : 'text-red-400'}`}>
-                                    {currentSku.inStock ? `${currentSku.stockQuantity} in stock` : 'Out of Stock'}
-                                </div>
-                            ) : null
-                        ) : (
-                            <div className={`text-sm font-semibold tracking-wide ${productDetails?.stockQuantity ? 'text-green-400' : 'text-red-400'}`}>
-                                {productDetails?.stockQuantity ? `${productDetails?.stockQuantity} in stock` : 'Out of Stock'}
-                            </div>
-                        )}
+                        <div className={`text-sm font-semibold tracking-wide ${currentStock > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {currentStock > 0 ? `${currentStock} in stock` : 'Out of Stock'}
+                        </div>
                     </motion.div>
                 </div>
 
@@ -429,7 +422,6 @@ export default function ProductDetailClient({
                                                     handleSelectVariantOption(variant.variantTypeName, option)
                                                 }
                                             >
-                                                {/* Image preview badge for options with images */}
                                                 {variantImg && (
                                                     <span className="relative w-6 h-6 rounded-md overflow-hidden shrink-0 ring-1 ring-white/20 shadow-sm">
                                                         <Image
@@ -455,7 +447,6 @@ export default function ProductDetailClient({
 
                 {/* ─── Quantity & Add to Cart ─── */}
                 <div className="flex flex-col sm:flex-row gap-4 mt-2 mb-4">
-                    {/* Quantity Selector */}
                     <div className="flex items-center justify-between bg-ma-surface-container-low border border-white/10 rounded-xl px-4 py-3 h-14 sm:w-32 shrink-0">
                         <button
                             onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -476,7 +467,6 @@ export default function ProductDetailClient({
                         </button>
                     </div>
 
-                    {/* Add to Cart Button */}
                     <button
                         onClick={handleAddToCart}
                         disabled={isOutOfStock || isAdding || (hasVariants && !currentSku)}

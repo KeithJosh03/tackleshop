@@ -15,6 +15,7 @@ import IconButton from '@/components/ui/IconButton';
 import DashboardHeader from './adminUI/DashboardHeader';
 import DashboardVariantsComponent from './DashboardVariantsComponent';
 import ProductVariantBuilder from './ProductVariantBuilder';
+import AddToCartButton from './AddToCartButton';
 // export * from './adminUI/ProductForm';
 
 
@@ -57,6 +58,7 @@ export {
     SectionCard,
 
     // ui
+    AddToCartButton,
     DropDownText,
     ImageIconUpload,
     SearchText,

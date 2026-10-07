@@ -24,18 +24,17 @@ export default function Hero() {
 
       <div className="relative z-20 mx-auto mt-20 flex w-full max-w-6xl flex-col items-center text-center sm:mt-10">
 
-
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.65, delay: 0.1, ease: "easeOut" }}
           className={`${montserrat.className} mt-0 flex max-w-5xl flex-col gap-0.5`}
         >
-          <h1 className="text-balance px-1 text-[2.55rem] font-extrabold uppercase leading-[0.95] tracking-tight text-ma-on-surface drop-shadow-2xl sm:text-[3.55rem] md:text-[4.35rem] lg:text-[5.3rem]">
-            <span className="block bg-gradient-to-r from-ma-primary via-[#ffb370] to-ma-primary bg-clip-text pb-2 text-transparent">
+          <h1 className="text-balance px-1 text-[2.2rem] font-extrabold uppercase leading-[1.05] tracking-tight text-ma-on-surface drop-shadow-2xl sm:text-[3.55rem] md:text-[4.35rem] lg:text-[5.3rem]">
+            <span className="block bg-gradient-to-r from-ma-primary via-[#ffb370] to-ma-primary bg-clip-text pb-1 sm:pb-2 text-transparent">
               Branded & Affordable
             </span>
-            <span className="block mt-0.5 text-ma-on-surface/95">Fishing Gears</span>
+            <span className="block mt-1 text-ma-on-surface/95">Fishing Gears</span>
           </h1>
         </motion.div>
 
@@ -43,33 +42,32 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-          className={`${montserrat.className} mt-5 max-w-3xl text-balance px-1 text-[0.72rem] font-semibold uppercase leading-relaxed tracking-[0.03em] text-ma-on-surface/70 drop-shadow-md sm:text-[0.8rem] md:text-[0.92rem]`}
+          className={`${montserrat.className} mt-4 sm:mt-5 max-w-2xl sm:max-w-3xl text-balance px-2 text-[0.78rem] sm:text-[0.8rem] md:text-[0.92rem] font-semibold uppercase leading-relaxed tracking-[0.03em] text-ma-on-surface/70 drop-shadow-md`}
         >
           Smooth Casting tackles shop offers a wide selection of affordable, branded, and
           premium-quality fishing gear for every angler.
         </motion.p>
 
-
-
+        {/* Responsive CTA Buttons: Stacks on mobile, 3 columns on tablet/desktop */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
-          className="mt-7 grid w-full max-w-3xl grid-cols-1 gap-3 sm:grid-cols-3"
+          className="mt-6 sm:mt-7 flex flex-col sm:grid w-full max-w-md sm:max-w-3xl grid-cols-1 gap-3 sm:grid-cols-3"
         >
-          <Link href="/#brands" className="group inline-flex items-center justify-center rounded border border-ma-outline bg-transparent px-6 py-3.5 text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-sm transition-all duration-300 hover:bg-ma-primary/5 hover:border-ma-primary">
+          <Link href="/#brands" className="group inline-flex items-center justify-center rounded border border-ma-outline bg-black/40 sm:bg-transparent px-6 py-3.5 text-[0.7rem] sm:text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-sm transition-all duration-300 hover:bg-ma-primary/10 hover:border-ma-primary">
             <span className="relative flex items-center gap-2">
               Explore Brands
               <ArrowRight className="h-3.5 w-3.5 text-white/85 transition-transform duration-300 group-hover:translate-x-1" />
             </span>
           </Link>
-          <Link href="/#services" className="group inline-flex items-center justify-center rounded border border-ma-outline bg-transparent px-6 py-3.5 text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-sm transition-all duration-300 hover:bg-ma-primary/5 hover:border-ma-primary">
+          <Link href="/#services" className="group inline-flex items-center justify-center rounded border border-ma-outline bg-black/40 sm:bg-transparent px-6 py-3.5 text-[0.7rem] sm:text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-sm transition-all duration-300 hover:bg-ma-primary/10 hover:border-ma-primary">
             <span className="relative flex items-center gap-2">
               Explore Services
               <ArrowRight className="h-3.5 w-3.5 text-white/85 transition-transform duration-300 group-hover:translate-x-1" />
             </span>
           </Link>
-          <Link href="/#collections" className="group inline-flex items-center justify-center rounded border border-ma-outline bg-transparent px-6 py-3.5 text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-sm transition-all duration-300 hover:bg-ma-primary/5 hover:border-ma-primary">
+          <Link href="/#collections" className="group inline-flex items-center justify-center rounded border border-ma-outline bg-black/40 sm:bg-transparent px-6 py-3.5 text-[0.7rem] sm:text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-sm transition-all duration-300 hover:bg-ma-primary/10 hover:border-ma-primary">
             <span className="relative flex items-center gap-2">
               Explore Collections
               <ArrowRight className="h-3.5 w-3.5 text-white/85 transition-transform duration-300 group-hover:translate-x-1" />

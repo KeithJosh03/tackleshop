@@ -1,14 +1,25 @@
 import { apiClient } from './apiClient';
+import { SetupCartChoice } from '@/lib/utils/setupBundleGroups';
 
 // Types for Cart
 export interface CartItem {
     cart_item_id: number;
     cart_id: number;
-    product_id: number;
+    setup_id?: number | null;
+    product_id: number | null;
     sku_id: number | null;
     quantity: number;
-    product: any; // Ideally replace with Product interface
-    sku: any | null; // Ideally replace with ProductSku interface
+    product?: any;
+    sku?: any | null;
+    setup?: {
+        setup_id: number;
+        bundle_title: string;
+        slug?: string;
+        bundle_price: string | number;
+        sku?: string;
+        images?: { image_url?: string; isMain?: boolean; is_main?: boolean }[];
+    } | null;
+    selections?: SetupCartChoice[] | null;
 }
 
 export interface Cart {
@@ -18,11 +29,20 @@ export interface Cart {
     items: CartItem[];
 }
 
-export interface AddToCartPayload {
-    product_id: number;
-    sku_id?: number | null;
-    quantity: number;
-}
+export type AddToCartPayload =
+    | {
+          product_id: number;
+          sku_id?: number | null;
+          quantity: number;
+          setup_id?: never;
+      }
+    | {
+          setup_id: number;
+          quantity: number;
+          choices?: SetupCartChoice[];
+          product_id?: never;
+          sku_id?: never;
+      };
 
 // Get or generate a guest session ID for the cart
 const getCartSessionId = () => {

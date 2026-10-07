@@ -43,7 +43,9 @@ export default function CartClient() {
     }
 
     const calculateItemPrice = (item: any) => {
-        // Laravel returns snake_case attributes
+        if (item.setup_id && item.setup) {
+            return parseFloat(String(item.setup.bundle_price ?? 0));
+        }
         if (item.sku && parseFloat(item.sku.price) > 0) {
             return parseFloat(item.sku.price);
         }
@@ -63,17 +65,31 @@ export default function CartClient() {
             <div className="w-full lg:w-2/3 flex flex-col gap-4">
                 {cart.items.map((item) => {
                     const price = calculateItemPrice(item);
-                    
+                    const isSetupLine = Boolean(item.setup_id && item.setup);
+
                     let imageUrl = null;
-                    if (item.product?.images?.length > 0) {
-                        imageUrl = item.product.images.find((img: any) => img.is_main)?.image_url 
-                            || item.product.images[0].image_url;
+                    if (isSetupLine && item.setup?.images?.length) {
+                        imageUrl =
+                            item.setup.images.find((img: any) => img.isMain || img.is_main)?.image_url ||
+                            item.setup.images[0]?.image_url;
+                    } else if (item.product?.images?.length > 0) {
+                        imageUrl =
+                            item.product.images.find((img: any) => img.is_main || img.isMain)?.image_url ||
+                            item.product.images[0].image_url;
                     }
+
+                    const detailHref = isSetupLine
+                        ? `/setup-details/${item.setup_id}/${item.setup?.slug || 'setup'}`
+                        : `/product-details/${item.product_id}`;
+
+                    const title = isSetupLine
+                        ? item.setup?.bundle_title
+                        : item.product?.product_title;
 
                     return (
                         <div key={item.cart_item_id} className="flex gap-4 sm:gap-6 bg-ma-surface-container-low p-4 rounded-2xl border border-white/5 shadow-xl transition-all hover:border-white/10">
                             {/* Image */}
-                            <Link href={`/product-details/${item.product_id}`} className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0 bg-black/40 rounded-xl overflow-hidden border border-white/10 group">
+                            <Link href={detailHref} className="relative w-24 h-24 sm:w-32 sm:h-32 shrink-0 bg-black/40 rounded-xl overflow-hidden border border-white/10 group">
                                 {imageUrl ? (
                                     <Image src={getImageUrl(imageUrl)} alt="Product" fill sizes="128px" className="object-contain p-3 group-hover:scale-110 transition-transform duration-500" />
                                 ) : (
@@ -85,16 +101,21 @@ export default function CartClient() {
                             <div className="flex-1 flex flex-col justify-between py-1">
                                 <div className="flex flex-col sm:flex-row justify-between gap-2 items-start">
                                     <div>
-                                        <Link href={`/product-details/${item.product_id}`}>
+                                        <Link href={detailHref}>
                                             <h3 className="text-white font-bold text-sm sm:text-base leading-snug hover:text-ma-primary transition-colors">
-                                                {item.product?.product_title}
+                                                {title}
                                             </h3>
                                         </Link>
-                                        {item.sku && (
+                                        {isSetupLine ? (
+                                            <p className="text-ma-on-surface-variant text-[11px] font-semibold mt-1.5 uppercase tracking-wider">
+                                                Bundle · SKU:{' '}
+                                                <span className="text-ma-primary/80">{item.setup?.sku}</span>
+                                            </p>
+                                        ) : item.sku ? (
                                             <p className="text-ma-on-surface-variant text-[11px] font-semibold mt-1.5 uppercase tracking-wider">
                                                 SKU: <span className="text-ma-primary/80">{item.sku.sku_code}</span>
                                             </p>
-                                        )}
+                                        ) : null}
                                     </div>
                                     <div className="text-ma-primary font-black text-lg">
                                         {numericConverter(price.toFixed(2))}

@@ -10,7 +10,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { category } = await params;
     const displayName = category.replaceAll("-", " ").toUpperCase();
-    
+
     const title = `${displayName} Fishing Gear & Tackle | SmoothCast`;
     const description = `Shop our top selection of ${displayName} fishing gear. Explore high-quality products for your next fishing trip at SmoothCast.`;
 
@@ -33,7 +33,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function Page({ params }: PageProps) {
     const { category } = await params;
 
-    // Construct CollectionPage Schema (JSON-LD)
     const jsonLd = {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
@@ -44,7 +43,6 @@ export default async function Page({ params }: PageProps) {
 
     return (
         <>
-            {/* Inject JSON-LD Structured Data */}
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

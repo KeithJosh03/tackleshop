@@ -34,7 +34,7 @@ export default function CardServices({ svc }: { svc: Service }) {
             variants={cardVariant}
             whileHover={{ y: -6, scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300, damping: 22 }}
-            className={`${montserrat.className} group relative flex flex-col rounded-2xl overflow-hidden bg-ma-surface-container/60 backdrop-blur-md border border-ma-outline hover:border-ma-primary/50 transition-all duration-300 shadow-xl`}
+            className={`${montserrat.className} group relative flex flex-col rounded-2xl overflow-hidden bg-ma-surface-container/60 backdrop-blur-md border border-ma-outline hover:border-ma-primary/50 transition-all duration-300 shadow-xl h-full`}
         >
             {/* Hover glow overlay */}
             <div
@@ -46,11 +46,11 @@ export default function CardServices({ svc }: { svc: Service }) {
             />
 
             {/* Card body */}
-            <div className="relative flex flex-col gap-y-5 p-7 flex-1 z-10">
+            <div className="relative flex flex-col gap-y-4 sm:gap-y-5 p-5 sm:p-6 flex-1 z-10">
 
                 {/* Icon container */}
                 <div
-                    className="flex items-center justify-center w-14 h-14 rounded-xl shrink-0 transition-transform duration-300 group-hover:scale-110 bg-ma-primary/10 border border-ma-primary/20 text-ma-primary"
+                    className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl shrink-0 transition-transform duration-300 group-hover:scale-110 bg-ma-primary/10 border border-ma-primary/20 text-ma-primary"
                 >
                     {svc.icon}
                 </div>
@@ -58,12 +58,12 @@ export default function CardServices({ svc }: { svc: Service }) {
                 {/* Title */}
                 <div>
                     <p
-                        className="text-[10px] font-bold uppercase tracking-[0.2em] mb-1.5 text-ma-primary"
+                        className="text-[10px] font-bold uppercase tracking-[0.2em] mb-1 text-ma-primary"
                     >
                         {svc.subtitle}
                     </p>
                     <h3
-                        className="font-extrabold text-2xl text-white uppercase tracking-tight"
+                        className="font-extrabold text-xl sm:text-2xl text-white uppercase tracking-tight"
                     >
                         {svc.title}
                     </h3>
@@ -71,14 +71,14 @@ export default function CardServices({ svc }: { svc: Service }) {
 
                 {/* Description */}
                 <p
-                    className="text-white/60 text-sm leading-relaxed font-medium flex-1"
+                    className="text-white/70 text-xs sm:text-sm leading-relaxed font-medium flex-1"
                 >
                     {svc.description}
                 </p>
 
                 {/* Highlight */}
                 <div
-                    className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-ma-primary/5 border border-ma-primary/10"
+                    className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-ma-primary/5 border border-ma-primary/10"
                 >
                     <div className="w-1.5 h-1.5 rounded-full shrink-0 bg-ma-primary" />
                     <p
@@ -90,7 +90,7 @@ export default function CardServices({ svc }: { svc: Service }) {
 
                 {/* CTA Link */}
                 {svc.cta && (
-                    <div className="pt-2 border-t border-white/5 mt-2">
+                    <div className="pt-2 border-t border-white/5 mt-1">
                         <Link
                             href={svc.cta.href}
                             className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ma-primary hover:text-white transition-colors duration-300 group/cta"

@@ -8,8 +8,6 @@ import { Search, X, Loader2 } from "lucide-react";
 import { ProductSearchProps } from "@/types/dataprops";
 import slugify from "slugify";
 
-
-
 export default function SearchBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -25,7 +23,7 @@ export default function SearchBar() {
     }
   }, [isOpen]);
 
-  // handle search debounce
+  // Handle search debounce
   useEffect(() => {
     if (!search.trim()) {
       setResults([]);
@@ -41,102 +39,92 @@ export default function SearchBar() {
         .finally(() => setIsLoading(false));
     }, 400);
 
-    console.log(results);
     return () => clearTimeout(delayDebounce);
   }, [search]);
 
   return (
-    <div className="relative flex items-center justify-start md:justify-center w-full h-11 z-[1001]">
-      {/* Search Input Container */}
-      <AnimatePresence mode="wait">
-        {!isOpen ? (
-          <motion.button
-            key="search-btn"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.1 } }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setIsOpen(true)}
-            className="p-2.5 rounded-xl bg-blackgroundColor/50 hover:bg-primaryColor/20 text-primaryColor transition-colors border border-greyColor/30 hover:border-primaryColor/50 shadow-sm flex items-center justify-center cursor-pointer"
-          >
-            <Search className="w-5 h-5" strokeWidth={2.5} />
-          </motion.button>
-        ) : (
+    <>
+      {/* Search Trigger Button */}
+      {!isOpen ? (
+        <button
+          onClick={() => setIsOpen(true)}
+          aria-label="Open search"
+          className="p-1.5 text-ma-primary/70 hover:text-ma-primary transition-colors flex items-center justify-center cursor-pointer"
+        >
+          <Search className="w-5 h-5 md:w-[18px] md:h-[18px]" strokeWidth={1.8} />
+        </button>
+      ) : (
+        /* Full Viewport Header Overlay Search */
+        <AnimatePresence>
           <motion.div
-            key="search-input"
-            initial={{ width: 40, opacity: 0 }}
-            animate={{ width: "100%", opacity: 1 }}
-            exit={{ width: 40, opacity: 0, transition: { duration: 0.1 } }}
-            transition={{ type: "spring", damping: 22, stiffness: 250 }}
-            className="flex items-center w-full bg-ma-surface-container/50 border-2 border-greyColor/20 backdrop-blur-md rounded-xl h-11 px-3 shadow-[0_0_15px_rgba(232,147,71,0.2)] z-40 overflow-hidden"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-x-0 top-0 bg-[#14181a] border-b border-[#ffc49a]/30 px-4 py-3 flex items-center justify-center z-[9999] shadow-2xl"
           >
-            <Search className="w-5 h-5 text-primaryColor shrink-0 hidden sm:block mr-2" strokeWidth={2.5} />
-            <input
-              ref={inputRef}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              type="text"
-              placeholder="Search products..."
-              className="w-full bg-transparent py-1 text-sm font-semibold focus:outline-none placeholder-primaryColor/50 text-tertiaryColor"
-            />
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 text-primaryColor/70 animate-spin shrink-0 ml-2" />
-            ) : (
+            <div className="w-full max-w-4xl flex items-center gap-3 bg-black/80 border border-[#ffc49a]/40 rounded-xl h-12 px-4 shadow-inner">
+              <Search className="w-5 h-5 text-[#ffc49a] shrink-0" strokeWidth={2.2} />
+              <input
+                ref={inputRef}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                type="text"
+                placeholder="Search products..."
+                className="w-full bg-transparent text-sm md:text-base font-semibold focus:outline-none placeholder-[#ffc49a]/40 text-white"
+              />
+              {isLoading && <Loader2 className="w-5 h-5 text-[#ffc49a] animate-spin shrink-0" />}
               <button
                 onClick={() => {
                   setIsOpen(false);
                   setSearch("");
                   setResults([]);
                 }}
-                className="p-1.5 ml-2 text-primaryColor/70 hover:text-primaryColor hover:bg-primaryColor/10 rounded-lg transition-colors shrink-0 cursor-pointer"
+                aria-label="Close search"
+                className="p-1.5 text-[#ffc49a]/70 hover:text-[#ffc49a] rounded-lg transition-colors cursor-pointer"
               >
-                <X className="w-5 h-5" strokeWidth={2.5} />
+                <X className="w-6 h-6" strokeWidth={2.2} />
               </button>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
 
-      {/* Search Results Dropdown */}
-      <AnimatePresence>
-        {isOpen && search.trim() && (results.length > 0 || isLoading) && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-[3.25rem] left-0 w-full bg-ma-surface-container/50 border-2 border-greyColor/20 backdrop-blur-xl rounded-2xl overflow-hidden py-2 z-50 pointer-events-auto"
-          >
-            {isLoading && results.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-primaryColor/60 font-semibold flex flex-col items-center justify-center gap-3">
-                <Loader2 className="w-6 h-6 animate-spin text-primaryColor" />
-                Searching for "{search}"...
+            {/* Search Results Dropdown */}
+            {search.trim() && (results.length > 0 || isLoading) && (
+              <div className="absolute top-full left-0 right-0 bg-[#14181a] border-b border-[#ffc49a]/30 backdrop-blur-2xl shadow-2xl py-3 max-h-[60vh] overflow-y-auto custom-scrollbar px-4 z-[10000]">
+                <div className="max-w-4xl mx-auto">
+                  {isLoading && results.length === 0 ? (
+                    <div className="py-8 text-center text-sm text-[#ffc49a]/60 font-semibold flex items-center justify-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin text-[#ffc49a]" />
+                      Searching for "{search}"...
+                    </div>
+                  ) : results.length === 0 ? (
+                    <div className="py-8 text-center text-sm text-[#ffc49a]/60 font-semibold text-white/75">
+                      No products found for "{search}"
+                    </div>
+                  ) : (
+                    <ul className="flex flex-col gap-1.5">
+                      {results.map(({ productTitle, productId }) => (
+                        <li key={productId}>
+                          <Link
+                            href={`/product-details/${productId}/${slugify(productTitle).toLowerCase()}`}
+                            onClick={() => {
+                              setIsOpen(false);
+                              setSearch("");
+                              setResults([]);
+                            }}
+                            className="block px-4 py-3 text-sm font-semibold text-[#ffc49a]/90 hover:text-white hover:bg-[#ffc49a]/15 rounded-xl transition-all truncate"
+                          >
+                            {productTitle}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
-            ) : results.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-primaryColor/60 font-semibold">
-                No products found for "{search}"
-              </div>
-            ) : (
-              <ul className="flex flex-col max-h-[60vh] overflow-y-auto custom-scrollbar px-2 gap-1 font-bold text-left">
-                {results.map(({ productTitle, productId }) => (
-                  <li key={productId}>
-                    <Link
-                      href={`/product-details/${productId}/${slugify(productTitle).toLowerCase()}`}
-                      onClick={() => {
-                        setIsOpen(false);
-                        setSearch("");
-                      }}
-                      className="block px-4 py-3 text-[15px] leading-tight text-primaryColor/80 hover:text-primaryColor hover:bg-primaryColor/15 rounded-xl transition-all truncate"
-                    >
-                      {productTitle}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
             )}
           </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+        </AnimatePresence>
+      )}
+    </>
   );
 }

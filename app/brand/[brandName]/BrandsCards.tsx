@@ -13,15 +13,15 @@ interface BrandsCardsProps {
 }
 
 export default function BrandsCards({ product, index = 0 }: BrandsCardsProps) {
-  const { 
-    basePrice, 
+  const {
+    basePrice,
     minPrice,
     maxPrice,
     formattedPrice,
-    categoryType, 
-    mainImage, 
-    productId, 
-    productName 
+    categoryType,
+    mainImage,
+    productId,
+    productName
   } = product;
 
   // 1. Resolve Price Rendering Logic

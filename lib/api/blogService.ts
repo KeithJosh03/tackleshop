@@ -17,8 +17,11 @@ export interface BlogPost {
     user: {
         id: number;
         name: string;
+        email?: string | null;
+        avatar?: string | null;
     };
     title: string;
+    location?: string | null;
     caption_html: string;
     likes_count: number;
     is_liked: boolean;
@@ -40,6 +43,17 @@ export const fetchBlogs = async (page = 1): Promise<BlogResponse | null> => {
         });
     } catch (error) {
         console.error('Error fetching blogs:', error);
+        return null;
+    }
+};
+
+export const fetchBlogById = async (id: string | number): Promise<{ blog: BlogPost } | null> => {
+    try {
+        return await apiClient<{ blog: BlogPost }>(`/api/blogs/${id}`, {
+            method: 'GET',
+        });
+    } catch (error) {
+        console.error('Error fetching blog by id:', error);
         return null;
     }
 };
@@ -67,7 +81,13 @@ export const searchProductsForMentions = async (query: string): Promise<{ id: st
     }
 };
 
-export const storeBlog = async (data: { title: string; caption_html: string; images: string[]; tagged_products: number[] }): Promise<boolean> => {
+export const storeBlog = async (data: {
+    title: string;
+    location?: string | null;
+    caption_html: string;
+    images: string[];
+    tagged_products: number[]
+}): Promise<boolean> => {
     try {
         await apiClient('/api/blogs', {
             method: 'POST',
@@ -76,6 +96,25 @@ export const storeBlog = async (data: { title: string; caption_html: string; ima
         return true;
     } catch (error) {
         console.error('Error creating blog:', error);
+        return false;
+    }
+};
+
+export const updateBlog = async (id: string | number, data: {
+    title: string;
+    location?: string | null;
+    caption_html: string;
+    images: string[];
+    tagged_products: number[]
+}): Promise<boolean> => {
+    try {
+        await apiClient(`/api/blogs/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        });
+        return true;
+    } catch (error) {
+        console.error('Error updating blog:', error);
         return false;
     }
 };

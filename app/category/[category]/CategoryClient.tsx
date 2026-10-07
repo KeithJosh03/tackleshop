@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -10,10 +10,12 @@ import CategoryCards from "./CategoryCards";
 import {
   ProductFilterBar,
   BrandCategoryPaginationButton
-} from "@/components/ui"
+} from "@/components/ui";
 
-import { fetchSpecificCategoryProducts } from "@/lib/api/categoryService";
+import { fetchSpecificCategoryProducts, CategoryListNameSearchHeader } from "@/lib/api/categoryService";
+
 import { CategorizeProduct } from "@/types/dataprops";
+import { CategoryPropsListAdmin } from "@/types/categoryType";
 
 function SkeletonCard() {
   return (
@@ -29,6 +31,7 @@ function SkeletonCard() {
 }
 
 export default function CategoryClient({ category }: { category: string }) {
+  const router = useRouter();
   const displayName = category.replaceAll("-", " ").toUpperCase();
 
   const [products, setProducts] = useState<CategorizeProduct[]>([]);
@@ -42,6 +45,7 @@ export default function CategoryClient({ category }: { category: string }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [budget, setBudget] = useState("");
   const [sortOption, setSortOption] = useState("newest");
+  const [availableCategories, setAvailableCategories] = useState<CategoryPropsListAdmin[]>([]);
 
   const fetchProducts = useCallback(async (page: number, search: string, bdgt: string, sort: string) => {
     setLoading(true);
@@ -69,20 +73,36 @@ export default function CategoryClient({ category }: { category: string }) {
     return () => clearTimeout(handler);
   }, [category, searchQuery, budget, sortOption, fetchProducts]);
 
-  console.log(products);
+  useEffect(() => {
+    const loadBrands = async () => {
+      try {
+        const categories = await CategoryListNameSearchHeader();
+        if (categories) {
+          console.log(categories);
+          setAvailableCategories(categories);
+        }
+      } catch (err) {
+        console.error("Failed to load brands:", err);
+      }
+    };
+    loadBrands();
+  }, []);
 
   return (
-    <div className="min-h-screen px-6 pb-16 pt-4 md:px-10 flex flex-col gap-2">
-      <div className="flex flex-col gap-1 items-center justify-center pt-8 pb-4">
-        <p className="text-xs font-bold text-[#a28d7e] uppercase tracking-widest">
-          BROWSE <span className="mx-1">›</span> CATEGORY
-        </p>
-        <h1 className="text-[40px] sm:text-[72px] font-[900] text-[#e0e3e5] uppercase leading-none tracking-tight">
+    <div className="min-h-screen px-4 sm:px-6 md:px-10 pb-16 pt-4 flex flex-col gap-2">
+      <div className="flex flex-col gap-3 items-center justify-center pt-10 pb-8">
+        <div className="px-4 py-1.5 rounded-full bg-[#131718] border border-[#272a2c] flex items-center gap-2 shadow-inner">
+           <div className="w-1.5 h-1.5 rounded-full bg-[#ffc49a] animate-pulse"></div>
+           <p className="text-[10px] sm:text-xs font-bold text-[#a28d7e] uppercase tracking-widest">
+             BROWSE <span className="mx-1 text-[#5b6166]">/</span> CATEGORY
+           </p>
+        </div>
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-[#ffffff] via-[#e0e3e5] to-[#a28d7e] uppercase leading-none tracking-tight text-center">
           {displayName}
         </h1>
       </div>
 
-      {/* Reusable Filter Bar Component */}
+      {/* Reusable Filter Bar Component (Brand props are omitted safely) */}
       <ProductFilterBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -94,6 +114,14 @@ export default function CategoryClient({ category }: { category: string }) {
         currentPage={currentPage}
         lastPage={lastPage}
         initialLoading={initialLoading}
+        selectedDropdownValue={category}
+        onDropdownChange={(newCat) => {
+          if (newCat && newCat !== category) {
+            router.push(`/category/${newCat}`);
+          }
+        }}
+        dropdownOptions={availableCategories.map(c => ({ label: c.categoryName, value: c.categoryName.toLowerCase().replaceAll(' ', '-') }))}
+        dropdownPlaceholder="Select Category"
       />
 
       {initialLoading ? (
