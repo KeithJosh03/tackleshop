@@ -101,6 +101,47 @@ export default function ProductDetailClient({
         setSelectedImageId(defaultImage?.id ?? null);
     }, [productDetails]);
 
+    const isOptionDisabled = useCallback(
+        (variantTypeName: string, optionId: number): boolean => {
+            if (!productDetails?.productSkus || productDetails.productSkus.length === 0) {
+                return false;
+            }
+
+            // Find all SKUs that include this option
+            const skusWithOption = productDetails.productSkus.filter((sku) =>
+                sku.variantOptionIds.includes(optionId)
+            );
+
+            // If no SKU has this option, consider it unavailable
+            if (skusWithOption.length === 0) return true;
+
+            // If all SKUs having this option are explicitly inactive, it's disabled
+            const hasAnyActive = skusWithOption.some(
+                (sku) => (sku.isActive ?? sku.is_active ?? true)
+            );
+            if (!hasAnyActive) return true;
+
+            // If other variant types are selected, check compatibility
+            const otherSelectedOptionIds = Object.entries(variantSelections)
+                .filter(([typeName]) => typeName !== variantTypeName)
+                .map(([, opt]) => opt.variantOptionId);
+
+            if (otherSelectedOptionIds.length > 0) {
+                const compatibleSku = skusWithOption.find((sku) =>
+                    otherSelectedOptionIds.every((id) => sku.variantOptionIds.includes(id))
+                );
+
+                if (compatibleSku) {
+                    const isSkuActive = compatibleSku.isActive ?? compatibleSku.is_active ?? true;
+                    return !isSkuActive;
+                }
+            }
+
+            return false;
+        },
+        [productDetails?.productSkus, variantSelections]
+    );
+
     useEffect(() => {
         if (!hasVariants || !productDetails.productVariants) return;
 
@@ -115,12 +156,18 @@ export default function ProductDetailClient({
                 )
                 : null;
 
+            // Prefer active option if available
+            const firstActiveOption = variantType.variantOptions.find((opt) => {
+                const skus = productDetails?.productSkus?.filter((s) => s.variantOptionIds.includes(opt.variantOptionId));
+                return skus && skus.length > 0 && skus.some((s) => (s.isActive ?? s.is_active ?? true));
+            });
+
             initialSelections[variantType.variantTypeName] =
-                matchedOption ?? variantType.variantOptions[0];
+                matchedOption ?? firstActiveOption ?? variantType.variantOptions[0];
         }
 
         setVariantSelections(initialSelections);
-    }, [hasVariants, productDetails.productVariants, initialVariantId]);
+    }, [hasVariants, productDetails.productVariants, initialVariantId, productDetails.productSkus]);
 
     // Set initial image when SKU matches initially
     useEffect(() => {
@@ -215,15 +262,19 @@ export default function ProductDetailClient({
     };
 
     const currentDiscountLabel = (): string | null => {
-        if (hasVariants && currentSku && currentSku.hasDiscount) return currentSku.discountLabel;
-        if (!hasVariants && productDetails.hasDiscount) return productDetails.discountLabel;
+        if (hasVariants && currentSku && currentSku.hasDiscount) return currentSku.discountLabel ?? null;
+        if (!hasVariants && productDetails.hasDiscount) return productDetails.discountLabel ?? null;
         return null;
     };
 
     const currentImage = productImages.find((img) => img.id === selectedImageId);
 
+    const isProductInactive = productDetails?.isActive === false || productDetails?.is_active === false;
+    const isCurrentSkuInactive = Boolean(currentSku && (currentSku.isActive === false || currentSku.is_active === false));
+    const isUnavailable = isProductInactive || isCurrentSkuInactive;
+
     const handleAddToCart = async () => {
-        if (!productDetails || isOutOfStock) return;
+        if (!productDetails || isOutOfStock || isUnavailable) return;
 
         if (hasVariants && !currentSku) {
             alert('Please select all options before adding to cart.');
@@ -373,10 +424,22 @@ export default function ProductDetailClient({
                             )}
                         </div>
 
-                        {/* Display Stock Status */}
-                        <div className={`text-sm font-semibold tracking-wide ${currentStock > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {currentStock > 0 ? `${currentStock} in stock` : 'Out of Stock'}
-                        </div>
+                        {/* Display Stock & Availability Status */}
+                        {isProductInactive ? (
+                            <div className="bg-zinc-800/90 border border-zinc-600 text-zinc-300 px-3.5 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider flex items-center gap-2 self-start shadow-sm mt-1">
+                                <span className="w-2 h-2 rounded-full bg-zinc-400" />
+                                Product Currently Unavailable
+                            </div>
+                        ) : isCurrentSkuInactive ? (
+                            <div className="bg-zinc-800/90 border border-zinc-600 text-zinc-300 px-3.5 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider flex items-center gap-2 self-start shadow-sm mt-1">
+                                <span className="w-2 h-2 rounded-full bg-zinc-400" />
+                                Selected Variant Unavailable
+                            </div>
+                        ) : (
+                            <div className={`text-sm font-semibold tracking-wide ${currentStock > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                {currentStock > 0 ? `${currentStock} in stock` : 'Out of Stock'}
+                            </div>
+                        )}
                     </motion.div>
                 </div>
 
@@ -408,6 +471,8 @@ export default function ProductDetailClient({
                                             variantSelections[variant.variantTypeName]?.variantOptionId ===
                                             option.variantOptionId;
 
+                                        const isDisabled = isOptionDisabled(variant.variantTypeName, option.variantOptionId);
+
                                         const variantImg = productImages.find(
                                             (img) =>
                                                 img.source === 'variant' &&
@@ -417,13 +482,16 @@ export default function ProductDetailClient({
                                         return (
                                             <CustomPrimaryButton
                                                 key={option.variantOptionId}
-                                                isSelected={isSelected}
-                                                onClick={() =>
-                                                    handleSelectVariantOption(variant.variantTypeName, option)
-                                                }
+                                                isSelected={isSelected && !isDisabled}
+                                                disabled={isDisabled}
+                                                onClick={() => {
+                                                    if (!isDisabled) {
+                                                        handleSelectVariantOption(variant.variantTypeName, option);
+                                                    }
+                                                }}
                                             >
                                                 {variantImg && (
-                                                    <span className="relative w-6 h-6 rounded-md overflow-hidden shrink-0 ring-1 ring-white/20 shadow-sm">
+                                                    <span className={`relative w-6 h-6 rounded-md overflow-hidden shrink-0 ring-1 ring-white/20 shadow-sm ${isDisabled ? 'grayscale opacity-40' : ''}`}>
                                                         <Image
                                                             src={getImageUrl(variantImg.imageUrl)}
                                                             alt={option.variantOptionValue}
@@ -433,7 +501,9 @@ export default function ProductDetailClient({
                                                         />
                                                     </span>
                                                 )}
-                                                <span className="relative z-10 tracking-wide">{option.variantOptionValue}</span>
+                                                <span className={`relative z-10 tracking-wide ${isDisabled ? 'line-through text-zinc-500' : ''}`}>
+                                                    {option.variantOptionValue}
+                                                </span>
                                             </CustomPrimaryButton>
                                         );
                                     })}
@@ -450,7 +520,7 @@ export default function ProductDetailClient({
                     <div className="flex items-center justify-between bg-ma-surface-container-low border border-white/10 rounded-xl px-4 py-3 h-14 sm:w-32 shrink-0">
                         <button
                             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                            disabled={quantity <= 1 || isOutOfStock}
+                            disabled={quantity <= 1 || isOutOfStock || isUnavailable}
                             className="text-white/60 hover:text-white disabled:opacity-30 transition-colors"
                         >
                             <Minus className="w-5 h-5" strokeWidth={2.5} />
@@ -460,7 +530,7 @@ export default function ProductDetailClient({
                         </span>
                         <button
                             onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
-                            disabled={quantity >= currentStock || isOutOfStock}
+                            disabled={quantity >= currentStock || isOutOfStock || isUnavailable}
                             className="text-white/60 hover:text-white disabled:opacity-30 transition-colors"
                         >
                             <Plus className="w-5 h-5" strokeWidth={2.5} />
@@ -469,9 +539,9 @@ export default function ProductDetailClient({
 
                     <button
                         onClick={handleAddToCart}
-                        disabled={isOutOfStock || isAdding || (hasVariants && !currentSku)}
+                        disabled={isOutOfStock || isAdding || (hasVariants && !currentSku) || isUnavailable}
                         className={`flex-1 flex items-center justify-center gap-x-3 h-14 rounded-xl font-bold uppercase tracking-widest text-sm transition-all duration-300 relative overflow-hidden
-                            ${isOutOfStock || (hasVariants && !currentSku)
+                            ${isUnavailable || isOutOfStock || (hasVariants && !currentSku)
                                 ? 'bg-ma-surface-container-low text-white/30 cursor-not-allowed'
                                 : 'bg-ma-primary text-black hover:bg-ma-primary/90 hover:scale-[1.02] shadow-[0_4px_20px_rgba(255,196,154,0.3)] hover:shadow-[0_4px_30px_rgba(255,196,154,0.4)]'
                             }
@@ -482,7 +552,11 @@ export default function ProductDetailClient({
                         ) : (
                             <>
                                 <ShoppingCart className="w-5 h-5" strokeWidth={2.5} />
-                                {isOutOfStock ? 'Out of Stock' : (hasVariants && !currentSku ? 'Select Options' : 'Add to Cart')}
+                                {isUnavailable
+                                    ? (isProductInactive ? 'Product Unavailable' : 'Variant Unavailable')
+                                    : isOutOfStock
+                                    ? 'Out of Stock'
+                                    : (hasVariants && !currentSku ? 'Select Options' : 'Add to Cart')}
                             </>
                         )}
                     </button>

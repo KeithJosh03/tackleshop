@@ -12,14 +12,21 @@ export type Category = CategoryProps;
 
 export interface ProductCollections {
     productId: number;
+    categoryId?: number;
     productTitle: string;
     basePrice: number | string;
     minPrice?: number;
     maxPrice?: number;
+    discountedMinPrice?: number;
+    hasDiscount?: boolean;
+    discountLabel?: string;
+    promotionName?: string;
     formattedPrice?: string;
     brandName?: string;
     productThumbNail?: string;
     subCategoryName?: string;
+    isActive?: boolean;
+    is_active?: boolean;
 }
 
 export interface CategoryCollectionProps {

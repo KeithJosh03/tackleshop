@@ -24,6 +24,8 @@ export default function ProductListItem({
     onToggleSkuStatus,
     onDeleteRequest,
 }: ProductListItemProps) {
+    const isProductActive = Boolean(product.isActive ?? (product as any).is_active ?? false);
+
     return (
         <div className="flex flex-col border-b border-[#212b37] last:border-b-0">
             <div
@@ -33,7 +35,12 @@ export default function ProductListItem({
                 {/* Product Info */}
                 <div className="flex items-center gap-3">
                     <div className="flex flex-col min-w-0">
-                        <span className="text-white font-bold text-sm truncate">{product.productTitle}</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-white font-bold text-sm truncate">{product.productTitle}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${isProductActive ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                                {isProductActive ? 'Active' : 'Inactive'}
+                            </span>
+                        </div>
                         <span className="text-[#a6a7a6] text-xs truncate">
                             Category {'>'} {product.subCategoryName}
                         </span>
@@ -68,9 +75,9 @@ export default function ProductListItem({
                                 {product.productTypeVariant?.length || 0} Attributes
                             </div>
                             <div className="flex items-center gap-2 text-xs">
-                                <span className="text-[#a6a7a6] font-medium">{product.productSkus.length} Total SKUs</span>
+                                <span className="text-[#a6a7a6] font-medium">{product.productSkus?.length || 0} Total SKUs</span>
                                 <span className="bg-[#1a2e1d] text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full text-[10px] font-bold">
-                                    [ {product.productSkus.reduce((acc, sku) => acc + sku.stockQuantity, 0)} Units ]
+                                    [ {product.productSkus?.reduce((acc, sku) => acc + sku.stockQuantity, 0) || 0} Units ]
                                 </span>
                             </div>
                         </>
@@ -98,11 +105,11 @@ export default function ProductListItem({
                             e.stopPropagation();
                             onToggleStatus(product);
                         }}
-                        className={`p-1 transition-colors ${product.isActive ? 'text-green-400 hover:text-red-400' : 'text-red-400 hover:text-green-400'
+                        className={`p-1 transition-colors ${isProductActive ? 'text-green-400 hover:text-red-400' : 'text-red-400 hover:text-green-400'
                             }`}
-                        title={product.isActive ? 'Deactivate Product' : 'Activate Product'}
+                        title={isProductActive ? 'Deactivate Product' : 'Activate Product'}
                     >
-                        {product.isActive ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4 opacity-80" />}
+                        {isProductActive ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4 opacity-80" />}
                     </button>
 
                     {/* Edit Link */}
@@ -119,10 +126,10 @@ export default function ProductListItem({
                             e.stopPropagation();
                             onDeleteRequest(product);
                         }}
-                        className={`transition-colors p-1 ${product.isActive ? 'text-secondary opacity-30 cursor-not-allowed' : 'text-[#a6a7a6] hover:text-[#ffb4ab]'
+                        className={`transition-colors p-1 ${isProductActive ? 'text-secondary opacity-30 cursor-not-allowed' : 'text-[#a6a7a6] hover:text-[#ffb4ab]'
                             }`}
-                        title={product.isActive ? 'Cannot delete active product' : 'Delete Product'}
-                        disabled={product.isActive}
+                        title={isProductActive ? 'Cannot delete active product' : 'Delete Product'}
+                        disabled={isProductActive}
                     >
                         <Trash2 className="w-4 h-4" />
                     </button>
@@ -180,35 +187,46 @@ export default function ProductListItem({
                                             <td className="py-3 text-white font-medium text-xs">{numericConverter(product.basePrice)}</td>
                                             <td className="py-3 text-[#d9e3f4] text-xs">{product.stockQuantity || 0} units</td>
                                             <td className="py-3 flex justify-end pr-2">
-                                                <div className="w-8 h-4 bg-emerald-500 rounded-full relative">
-                                                    <div className="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5 shadow-sm"></div>
+                                                <div
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onToggleStatus(product);
+                                                    }}
+                                                    className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${isProductActive ? 'bg-emerald-500' : 'bg-[#ffb4ab]'}`}
+                                                    title={isProductActive ? 'Deactivate Product' : 'Activate Product'}
+                                                >
+                                                    <div className={`w-3 h-3 bg-white rounded-full absolute top-0.5 shadow-sm transition-all ${isProductActive ? 'right-0.5' : 'left-0.5'}`}></div>
                                                 </div>
                                             </td>
                                         </tr>
                                     ) : (
-                                        product.productSkus.map((sku) => (
-                                            <tr key={sku.skuId} className="border-b border-[#212b37] last:border-0 hover:bg-[#212b37]/50">
-                                                <td className="py-3 text-[#d9e3f4] font-medium text-xs">
-                                                    {sku.variantOptions.map((opt) => opt.optionName).join(' / ')}
-                                                </td>
-                                                <td className="py-3 text-[#a6a7a6] font-mono text-[11px]">{sku.skuCode}</td>
-                                                <td className="py-3 text-white font-medium text-xs">{numericConverter(sku.price)}</td>
-                                                <td className="py-3 text-[#d9e3f4] text-xs">{sku.stockQuantity} units</td>
-                                                <td className="py-3 flex justify-end pr-2">
-                                                    <div
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            onToggleSkuStatus(product.productId, sku.skuId);
-                                                        }}
-                                                        className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${sku.isActive ? 'bg-emerald-500' : 'bg-[#ffb4ab]'}`}
-                                                    >
+                                        product.productSkus?.map((sku) => {
+                                            const isSkuActive = Boolean(sku.isActive ?? (sku as any).is_active ?? false);
+                                            return (
+                                                <tr key={sku.skuId} className="border-b border-[#212b37] last:border-0 hover:bg-[#212b37]/50">
+                                                    <td className="py-3 text-[#d9e3f4] font-medium text-xs">
+                                                        {sku.variantOptions?.map((opt) => opt.optionName).join(' / ') || 'Variant'}
+                                                    </td>
+                                                    <td className="py-3 text-[#a6a7a6] font-mono text-[11px]">{sku.skuCode}</td>
+                                                    <td className="py-3 text-white font-medium text-xs">{numericConverter(sku.price)}</td>
+                                                    <td className="py-3 text-[#d9e3f4] text-xs">{sku.stockQuantity} units</td>
+                                                    <td className="py-3 flex justify-end pr-2">
                                                         <div
-                                                            className={`w-3 h-3 bg-white rounded-full absolute top-0.5 shadow-sm transition-all ${sku.isActive ? 'right-0.5' : 'left-0.5'}`}
-                                                        ></div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                onToggleSkuStatus(product.productId, sku.skuId);
+                                                            }}
+                                                            className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${isSkuActive ? 'bg-emerald-500' : 'bg-[#ffb4ab]'}`}
+                                                            title={isSkuActive ? 'Deactivate SKU' : 'Activate SKU'}
+                                                        >
+                                                            <div
+                                                                className={`w-3 h-3 bg-white rounded-full absolute top-0.5 shadow-sm transition-all ${isSkuActive ? 'right-0.5' : 'left-0.5'}`}
+                                                            ></div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
                                     )}
                                 </tbody>
                             </table>

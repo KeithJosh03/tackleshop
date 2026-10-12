@@ -24,7 +24,11 @@ export default function CategoryCards({ product, index = 0 }: CategoryCardsProps
     productTitle,
     productThumbNail,
     subCategoryName,
+    isActive,
+    is_active,
   } = product;
+
+  const isProductActive = isActive ?? is_active ?? true;
 
   // 1. Resolve Price Rendering Logic
   const renderPrice = () => {
@@ -56,9 +60,20 @@ export default function CategoryCards({ product, index = 0 }: CategoryCardsProps
       className="h-full"
     >
       <Link
-        href={`/product-details/${productId}/${slugify(productTitle || '').toLowerCase()}`}
-        className="group relative flex flex-col overflow-hidden rounded-md border border-[#323537]
-          bg-[#1d2022] cursor-pointer transition-all duration-300 hover:border-[#ffc49a] min-h-[360px] h-full block"
+        href={isProductActive ? `/product-details/${productId}/${slugify(productTitle || '').toLowerCase()}` : '#'}
+        onClick={(e) => {
+          if (!isProductActive) {
+            e.preventDefault();
+          }
+        }}
+        aria-disabled={!isProductActive}
+        tabIndex={!isProductActive ? -1 : undefined}
+        className={`group relative flex flex-col overflow-hidden rounded-md border border-[#323537]
+          bg-[#1d2022] transition-all duration-300 min-h-[360px] h-full block ${
+            !isProductActive
+              ? 'opacity-60 grayscale cursor-not-allowed pointer-events-none'
+              : 'cursor-pointer hover:border-[#ffc49a]'
+          }`}
       >
         {/* Image Area */}
         <div className="relative w-full flex-1 overflow-hidden bg-[#0b0f10]" style={{ minHeight: '240px' }}>
@@ -71,10 +86,16 @@ export default function CategoryCards({ product, index = 0 }: CategoryCardsProps
           />
 
           {/* Badge */}
-          {index < 2 && (
-            <div className="absolute top-4 left-4 bg-[#ffc49a] text-[#4f2500] text-[0.65rem] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider z-10">
-              NEW
+          {!isProductActive ? (
+            <div className="absolute top-4 left-4 bg-zinc-800 text-zinc-300 border border-zinc-600 text-[0.65rem] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider z-20 shadow-md">
+              Unavailable
             </div>
+          ) : (
+            index < 2 && (
+              <div className="absolute top-4 left-4 bg-[#ffc49a] text-[#4f2500] text-[0.65rem] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider z-10">
+                NEW
+              </div>
+            )
           )}
         </div>
 

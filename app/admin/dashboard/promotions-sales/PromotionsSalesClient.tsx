@@ -12,7 +12,7 @@ import { PromotionCard } from './PromotionCard';
 import { PromotionFilterBar } from './PromotionFilterBar';
 
 export type DiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT';
-export type PromotionScope = 'ALL' | 'SETUP' | 'PRODUCT';
+export type PromotionScope = 'ALL' | 'PRODUCT';
 
 export interface OptionItem {
     id: number | string;
@@ -41,8 +41,8 @@ export default function PromotionsSalesClient() {
     const [searchQuery, setSearchQuery] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
-    const [setups, setSetups] = useState<OptionItem[]>([]);
     const [products, setProducts] = useState<OptionItem[]>([]);
+    const [productSearch, setProductSearch] = useState('');
     const [loadingOptions, setLoadingOptions] = useState(true);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,28 +70,14 @@ export default function PromotionsSalesClient() {
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {})
             };
 
-            const [setupsRes, prodsRes] = await Promise.all([
-                fetch(`${API_BASE_URL}/setups`, { headers }),
-                fetch(`${API_BASE_URL}/products`, { headers })
-            ]);
-
-            if (setupsRes.ok) {
-                const setupsData = await setupsRes.json();
-                let setupList = [];
-                if (Array.isArray(setupsData)) setupList = setupsData;
-                else if (Array.isArray(setupsData.data)) setupList = setupsData.data;
-                else if (setupsData.data?.data && Array.isArray(setupsData.data.data)) setupList = setupsData.data.data;
-
-                setSetups(setupList.map((s: any) => ({
-                    id: s.setup_id || s.id,
-                    name: s.bundle_title || s.name
-                })));
-            }
+            const prodsRes = await fetch(`${API_BASE_URL}/products`, { headers });
 
             if (prodsRes.ok) {
                 const prodsData = await prodsRes.json();
                 let prodList = [];
                 if (Array.isArray(prodsData)) prodList = prodsData;
+                else if (Array.isArray(prodsData.products?.data)) prodList = prodsData.products.data;
+                else if (Array.isArray(prodsData.products)) prodList = prodsData.products;
                 else if (Array.isArray(prodsData.data)) prodList = prodsData.data;
                 else if (prodsData.data?.data && Array.isArray(prodsData.data.data)) prodList = prodsData.data.data;
 
@@ -293,9 +279,9 @@ export default function PromotionsSalesClient() {
 
             {/* Create / Edit Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-[#0D1216] border border-greyColor/20 rounded-xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-150">
-                        <div className="p-5 border-b border-greyColor/20 flex items-center justify-between">
+                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300">
+                    <div className="bg-[#0D1216]/90 border border-white/10 rounded-2xl w-full max-w-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl animate-in fade-in zoom-in duration-300">
+                        <div className="p-6 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-white/5 to-transparent">
                             <div className="flex items-center gap-x-2">
                                 <Tag className="w-5 h-5 text-primaryColor" />
                                 <h2 className="text-base font-bold uppercase text-white">
@@ -315,7 +301,7 @@ export default function PromotionsSalesClient() {
                         <form onSubmit={handleFormSubmit} className="p-5 space-y-4">
                             <div>
                                 <label className="block text-xs font-semibold uppercase text-[#d9e3f4]/70 mb-1.5">
-                                    {formData.applyTo === 'ALL' ? 'Campaign Title' : 'Discount Reference Name'}
+                                    {formData.applyTo === 'ALL' ? 'Campaign Title' : 'Internal Reference Name (For Dashboard)'}
                                 </label>
                                 <input
                                     type="text"
@@ -324,7 +310,7 @@ export default function PromotionsSalesClient() {
                                     placeholder={formData.applyTo === 'ALL' ? 'e.g. Mid-Year Tech Sale' : 'e.g. Shimano Reel Clearance'}
                                     value={formData.name}
                                     onChange={handleInputChange}
-                                    className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-4 py-2.5 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-primaryColor transition-all"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-primaryColor focus:bg-white/10 transition-all duration-300 shadow-inner"
                                 />
                             </div>
 
@@ -337,10 +323,10 @@ export default function PromotionsSalesClient() {
                                         name="discountType"
                                         value={formData.discountType}
                                         onChange={handleInputChange}
-                                        className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-primaryColor transition-all"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primaryColor focus:bg-white/10 transition-all duration-300 shadow-inner"
                                     >
-                                        <option value="PERCENTAGE">Percentage (%)</option>
-                                        <option value="FIXED_AMOUNT">Fixed Amount (₱)</option>
+                                        <option value="PERCENTAGE" className="bg-[#0D1216] text-white">Percentage (%)</option>
+                                        <option value="FIXED_AMOUNT" className="bg-[#0D1216] text-white">Fixed Amount (₱)</option>
                                     </select>
                                 </div>
 
@@ -357,7 +343,7 @@ export default function PromotionsSalesClient() {
                                             placeholder={formData.discountType === 'PERCENTAGE' ? '10' : '500'}
                                             value={formData.discountValue}
                                             onChange={handleInputChange}
-                                            className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-primaryColor transition-all"
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primaryColor focus:bg-white/10 transition-all duration-300 shadow-inner"
                                         />
                                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#d9e3f4]/40 font-bold">
                                             {formData.discountType === 'PERCENTAGE' ? '%' : '₱'}
@@ -392,7 +378,7 @@ export default function PromotionsSalesClient() {
                                             required
                                             value={formData.startDate}
                                             onChange={handleInputChange}
-                                            className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-primaryColor transition-all"
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primaryColor focus:bg-white/10 transition-all duration-300 shadow-inner"
                                         />
                                     </div>
 
@@ -406,7 +392,7 @@ export default function PromotionsSalesClient() {
                                             required
                                             value={formData.endDate}
                                             onChange={handleInputChange}
-                                            className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-primaryColor transition-all"
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primaryColor focus:bg-white/10 transition-all duration-300 shadow-inner"
                                         />
                                     </div>
                                 </div>
@@ -420,67 +406,80 @@ export default function PromotionsSalesClient() {
                                     name="applyTo"
                                     value={formData.applyTo}
                                     onChange={handleInputChange}
-                                    className="w-full bg-[#141A1F] border border-greyColor/20 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-primaryColor transition-all"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primaryColor focus:bg-white/10 transition-all duration-300 shadow-inner"
                                 >
-                                    <option value="ALL">Entire Store (All Products)</option>
-                                    <option value="SETUP">Specific Setups</option>
-                                    <option value="PRODUCT">Specific Products</option>
+                                    <option value="ALL" className="bg-[#0D1216] text-white">Entire Store (All Products)</option>
+                                    <option value="PRODUCT" className="bg-[#0D1216] text-white">Specific Products</option>
                                 </select>
                             </div>
 
-                            {formData.applyTo !== 'ALL' && (
-                                <div className="p-3 bg-[#141A1F] border border-greyColor/20 rounded-lg space-y-2">
-                                    <label className="block text-[11px] font-semibold uppercase text-primaryColor">
-                                        Select Target {formData.applyTo === 'SETUP' ? 'Setups' : 'Products'}
-                                    </label>
-                                    <div className="max-h-32 overflow-y-auto space-y-1.5 pr-2 scroller-hide">
-                                        {(formData.applyTo === 'SETUP' ? setups : products).map(item => {
-                                            const isSelected = formData.targetItems.some(i => String(i) === String(item.id));
-                                            return (
-                                                <div
-                                                    key={item.id}
-                                                    role="button"
-                                                    tabIndex={0}
-                                                    onClick={() => toggleTargetItem(item.id)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter' || e.key === ' ') {
-                                                            e.preventDefault();
-                                                            toggleTargetItem(item.id);
-                                                        }
-                                                    }}
-                                                    className={`flex items-center justify-between p-2 rounded-md text-xs cursor-pointer transition-all ${isSelected
-                                                        ? 'bg-primaryColor/20 text-white border border-primaryColor/30'
-                                                        : 'bg-black/20 text-[#d9e3f4]/60 hover:text-white hover:bg-white/5'
-                                                        }`}
-                                                >
-                                                    <span>{item.name}</span>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={isSelected}
-                                                        readOnly
-                                                        className="accent-primaryColor pointer-events-none"
-                                                    />
-                                                </div>
-                                            );
-                                        })}
+                            {formData.applyTo === 'PRODUCT' && (
+                                <div className="p-5 bg-gradient-to-br from-black/40 to-black/10 border border-white/5 rounded-2xl space-y-4 shadow-inner">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <label className="block text-[11px] font-bold uppercase tracking-widest text-primaryColor">
+                                            Select Target Products
+                                        </label>
+                                        <span className="text-[10px] text-white/60 bg-white/10 px-2.5 py-1 rounded-full font-medium">
+                                            {formData.targetItems.length} selected
+                                        </span>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Search products..."
+                                        value={productSearch}
+                                        onChange={(e) => setProductSearch(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-primaryColor/50 focus:bg-white/10 transition-all duration-300"
+                                    />
+                                    <div className="max-h-52 overflow-y-auto space-y-2 pr-2 scroller-hide">
+                                        {products
+                                            .filter(p => (p.name || '').toLowerCase().includes((productSearch || '').toLowerCase()))
+                                            .map(item => {
+                                                const isSelected = formData.targetItems.some(i => String(i) === String(item.id));
+                                                return (
+                                                    <div
+                                                        key={item.id}
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        onClick={() => toggleTargetItem(item.id)}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                                e.preventDefault();
+                                                                toggleTargetItem(item.id);
+                                                            }
+                                                        }}
+                                                        className={`group flex items-center justify-between p-3.5 rounded-xl text-xs cursor-pointer transition-all duration-300 border ${isSelected
+                                                            ? 'bg-primaryColor/10 text-white border-primaryColor/40 shadow-[0_0_15px_rgba(202,176,13,0.15)]'
+                                                            : 'bg-white/5 text-[#d9e3f4]/70 border-transparent hover:text-white hover:bg-white/10 hover:border-white/10'
+                                                            }`}
+                                                    >
+                                                        <span className="font-medium tracking-wide">{item.name}</span>
+                                                        <div className={`w-4 h-4 rounded flex items-center justify-center transition-all duration-300 ${isSelected ? 'bg-primaryColor text-black scale-110' : 'bg-white/10 group-hover:bg-white/20'}`}>
+                                                            {isSelected && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        {products.filter(p => (p.name || '').toLowerCase().includes((productSearch || '').toLowerCase())).length === 0 && (
+                                            <div className="text-center py-6 text-xs text-white/40 italic bg-white/5 rounded-xl">No products found.</div>
+                                        )}
                                     </div>
                                 </div>
                             )}
 
-                            <div className="pt-4 border-t border-greyColor/20 flex items-center justify-end gap-x-3">
+                            <div className="pt-6 mt-4 border-t border-white/5 flex items-center justify-end gap-x-4">
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 rounded-lg text-xs font-semibold text-[#d9e3f4]/60 hover:text-white transition-all"
+                                    className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase text-[#d9e3f4]/60 hover:text-white hover:bg-white/5 transition-all duration-300"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className="bg-primaryColor hover:bg-primaryColor/90 text-black font-bold text-xs uppercase px-5 py-2.5 rounded-lg transition-all shadow-md flex items-center gap-2"
+                                    className="bg-primaryColor hover:bg-primaryColor/90 text-black font-bold text-xs uppercase px-6 py-3 rounded-xl transition-all duration-300 shadow-[0_4px_14px_rgba(202,176,13,0.3)] hover:shadow-[0_6px_20px_rgba(202,176,13,0.4)] hover:-translate-y-0.5 flex items-center gap-2"
                                 >
-                                    {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                                    {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                                     {editingPromoId ? 'Update Campaign' : 'Save & Launch'}
                                 </button>
                             </div>

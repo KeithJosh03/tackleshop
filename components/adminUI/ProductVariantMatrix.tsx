@@ -6,14 +6,7 @@ import Image from 'next/image';
 import { ProductFormState, ProductFormAction } from '@/lib/reducer/productFormReducer';
 import { FileDropImage } from '@/components/ui';
 
-interface MatrixRowData {
-    skuCode: string;
-    stockQuantity: string;
-    price: string;
-    variantOptionIds: (string | number)[];
-    imageUrl: File | string | null;
-    isActive: boolean;
-}
+import { MatrixRowData } from '@/types/productTypes';
 
 interface ProductVariantMatrixProps {
     ProductDetailState: ProductFormState;
@@ -91,13 +84,21 @@ export function ProductVariantMatrix({
 
     const handleRowChange = (comboId: string, field: keyof MatrixRowData, value: any) => {
         // 1. Update Matrix Table local state
-        setVariantMatrixRows(prev => ({
-            ...prev,
-            [comboId]: {
+        setVariantMatrixRows(prev => {
+            const updatedRow = {
                 ...prev[comboId],
                 [field]: value
+            };
+
+            if (field === 'packaging_type') {
+                updatedRow.isBulky = value === 'BOX_L' || value === 'LONG_PARCEL';
             }
-        }));
+
+            return {
+                ...prev,
+                [comboId]: updatedRow
+            };
+        });
 
         // 2. Sync image changes directly with ProductDetailState.variants
         if (field === 'imageUrl') {
@@ -281,6 +282,9 @@ export function ProductVariantMatrix({
                                     <th className="py-3 px-4">SKU Code</th>
                                     <th className="py-3 px-4">Price ($)</th>
                                     <th className="py-3 px-4">Stock Qty</th>
+                                    <th className="py-3 px-4">Weight (g)</th>
+                                    <th className="py-3 px-4">Packaging Tier</th>
+                                    <th className="py-3 px-4 text-center">Bulky?</th>
                                     <th className="py-3 px-4 text-center">Active</th>
                                     <th className="py-3 px-4 text-center">Image</th>
                                 </tr>
@@ -293,6 +297,9 @@ export function ProductVariantMatrix({
                                     const previewUrl = typeof row.imageUrl === 'string'
                                         ? row.imageUrl
                                         : objectUrls[comboId];
+
+                                    const selectedTier = row.packaging_type || ProductDetailState.packaging_type || 'POUCH_S';
+                                    const isBulkyRow = row.isBulky ?? (selectedTier === 'BOX_L' || selectedTier === 'LONG_PARCEL');
 
                                     return (
                                         <tr key={comboId} className="hover:bg-[#12171e]/50 transition-colors">
@@ -324,8 +331,43 @@ export function ProductVariantMatrix({
                                                     className="bg-[#0b0f14] border border-greyColor/20 rounded-lg px-3 py-1.5 text-xs text-[#d9e3f4] focus:outline-none focus:border-primaryColor w-20"
                                                 />
                                             </td>
+                                            <td className="py-3 px-4">
+                                                <input
+                                                    type="number"
+                                                    value={row.weight_g ?? row.weight ?? ''}
+                                                    onChange={(e) => {
+                                                        handleRowChange(comboId, 'weight', e.target.value);
+                                                        handleRowChange(comboId, 'weight_g', e.target.value);
+                                                    }}
+                                                    className="bg-[#0b0f14] border border-greyColor/20 rounded-lg px-3 py-1.5 text-xs text-[#d9e3f4] focus:outline-none focus:border-primaryColor w-20"
+                                                    placeholder="185"
+                                                />
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <select
+                                                    value={selectedTier}
+                                                    onChange={(e) => handleRowChange(comboId, 'packaging_type', e.target.value)}
+                                                    className="bg-[#0b0f14] border border-greyColor/20 rounded-lg px-2 py-1.5 text-xs text-[#d9e3f4] focus:outline-none focus:border-primaryColor cursor-pointer"
+                                                >
+                                                    <option value="POUCH_S">✉️ Pouch S (Small)</option>
+                                                    <option value="POUCH_L">✉️ Pouch L (Reels)</option>
+                                                    <option value="BOX_S">📦 Box S (Std Box)</option>
+                                                    <option value="BOX_M">📦 Box M (Med Case)</option>
+                                                    <option value="BOX_L">📦 Box L (Large Mebao)</option>
+                                                    <option value="LONG_PARCEL">🎣 Long Parcel / Tube</option>
+                                                </select>
+                                            </td>
                                             <td className="py-3 px-4 text-center">
-                                                <div 
+                                                {isBulkyRow ? (
+                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 whitespace-nowrap">
+                                                        ⚠️ Bulky (+₱150)
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-[10px] text-[#a6a7a6]/60">Standard</span>
+                                                )}
+                                            </td>
+                                            <td className="py-3 px-4 text-center">
+                                                <div
                                                     onClick={() => handleRowChange(comboId, 'isActive', !row.isActive)}
                                                     className={`w-9 h-5 mx-auto flex items-center rounded-full p-1 cursor-pointer transition-colors ${row.isActive ? 'bg-primaryColor' : 'bg-greyColor/40'}`}
                                                 >

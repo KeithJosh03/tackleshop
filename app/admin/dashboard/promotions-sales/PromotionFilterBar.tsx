@@ -33,8 +33,8 @@ export const PromotionFilterBar: React.FC<PromotionFilterBarProps> = ({
                         type="button"
                         onClick={() => setActiveTab(tab.value)}
                         className={`px-3.5 py-2 text-xs font-semibold rounded-lg uppercase transition-all whitespace-nowrap ${activeTab === tab.value
-                                ? 'bg-primaryColor text-black font-bold shadow-md'
-                                : 'text-[#d9e3f4]/60 hover:text-white hover:bg-white/5'
+                            ? 'bg-primaryColor text-black font-bold shadow-md'
+                            : 'text-[#d9e3f4]/60 hover:text-white hover:bg-white/5'
                             }`}
                     >
                         {tab.label}

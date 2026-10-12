@@ -9,6 +9,19 @@ export interface ProductSkuImage {
   isMain: boolean;
 }
 
+export interface MatrixRowData {
+  skuCode: string;
+  stockQuantity: string;
+  price: string;
+  variantOptionIds: (string | number)[];
+  imageUrl: File | string | null;
+  isActive: boolean;
+  weight?: string;
+  weight_g?: string;
+  packaging_type?: string;
+  isBulky?: boolean;
+}
+
 export interface ProductSku {
   skuId: number;
   skuCode: string;
@@ -20,6 +33,13 @@ export interface ProductSku {
   inStock: boolean;
   variantOptionIds: number[];
   skuImages: ProductSkuImage[] | null;
+  isActive?: boolean;
+  is_active?: boolean;
+  weight?: number;
+  weight_g?: number;
+  packaging_type?: string;
+  isBulky?: boolean;
+  is_bulky?: boolean;
 }
 
 export interface ProductDetailsViewProps {
@@ -39,6 +59,8 @@ export interface ProductDetailsViewProps {
   sku: string | null;
   stockQuantity: number | null;
   inStock: boolean;
+  isActive?: boolean;
+  is_active?: boolean;
   productMedias: ProductMedias[];
   productVariants: ProductVariantTypes[] | null;
   productSkus: ProductSku[] | null;

@@ -63,10 +63,18 @@ export interface MatrixRowInput {
     stockQuantity?: number | string;
     stock_quantity?: number | string;
     imageUrl?: File | string | null;
+    weight?: number | string;
+    weight_g?: number | string;
+    packaging_type?: string;
+    packagingType?: string;
+    isBulky?: boolean;
+    is_bulky?: boolean;
     variantOptionIds?: number[];
     variant_option_ids?: number[];
     variantOptionValues?: (string | { value: string })[];
     variant_option_values?: (string | { value: string })[];
+    isActive?: boolean;
+    is_active?: boolean;
 }
 
 export interface ProductDetails {
@@ -82,6 +90,11 @@ export interface ProductDetails {
     medias: ProductImageInput[];
     masterSku?: string;
     initialStock?: string | number;
+    weight?: string | number;
+    isBulky?: boolean;
+    is_bulky?: boolean;
+    isActive?: boolean;
+    is_active?: boolean;
     variantMatrixRows: MatrixRowInput[];
 }
 
@@ -96,6 +109,11 @@ export interface ProductEditData {
         specifications: string;
         features: string;
         description: string;
+        weight?: number | string;
+        isBulky?: boolean;
+        is_bulky?: boolean;
+        isActive?: boolean;
+        is_active?: boolean;
         brand: { brandId: number; brandName: string };
         category: { categoryId: number; categoryName: string };
         subCategory: { subCategoryId: number; subCategoryName: string };
@@ -168,6 +186,17 @@ async function prepareProductPayload(productDetails: ProductDetails, isUpdate = 
         category_id,
         sub_category_id: sub_category_id || null,
         brand_id: brand_id || null,
+        weight: Number((productDetails as any).weight_g ?? productDetails.weight) || 0,
+        weight_g: Number((productDetails as any).weight_g ?? productDetails.weight) || 0,
+        packaging_type: (productDetails as any).packaging_type || (productDetails as any).packagingType || 'POUCH_S',
+        is_bulky: Boolean(
+            productDetails.isBulky ??
+            productDetails.is_bulky ??
+            (['BOX_L', 'LONG_PARCEL'].includes((productDetails as any).packaging_type || (productDetails as any).packagingType || ''))
+        ),
+        is_active: productDetails.isActive !== undefined 
+            ? Boolean(productDetails.isActive) 
+            : (productDetails.is_active !== undefined ? Boolean(productDetails.is_active) : true),
     };
 
     // 1. Process Global Medias
@@ -246,12 +275,28 @@ async function prepareProductPayload(productDetails: ProductDetails, isUpdate = 
     payload.variant_matrix = (productDetails.variantMatrixRows || []).map((row, idx) => {
         const match = uploadedMatrixImages?.find(img => img.originIndex === idx);
         const image_url = match ? match.url : (typeof row.imageUrl === 'string' ? row.imageUrl : null);
+        const isSkuActive = row.isActive !== undefined 
+            ? Boolean(row.isActive) 
+            : (row.is_active !== undefined ? Boolean(row.is_active) : true);
+
+        const skuPkg = row.packaging_type || (productDetails as any).packaging_type || 'POUCH_S';
+        const skuWeightG = Number(row.weight_g ?? row.weight ?? (productDetails as any).weight_g ?? productDetails.weight ?? 0);
+        const isSkuBulky = Boolean(
+            row.isBulky ??
+            row.is_bulky ??
+            (['BOX_L', 'LONG_PARCEL'].includes(skuPkg))
+        );
 
         return {
             ...(isUpdate && (row.skuId || row.sku_id) ? { sku_id: row.skuId || row.sku_id } : {}),
             sku_code: row.sku_code || row.skuCode || '',
             price: Number(row.price) || 0,
             stock_quantity: parseInt(String(row.stock_quantity || row.stockQuantity).replace(/[^0-9]/g, ''), 10) || 0,
+            weight: skuWeightG,
+            weight_g: skuWeightG,
+            packaging_type: skuPkg,
+            is_bulky: isSkuBulky,
+            is_active: isSkuActive,
             variant_option_ids: row.variant_option_ids || row.variantOptionIds || [],
             variant_option_values: row.variant_option_values || row.variantOptionValues || [],
             image_url,
@@ -300,6 +345,12 @@ export const getProductByIdForEdit = async (productId: number | string): Promise
             specifications: raw.specifications || '',
             masterSku: raw.sku || '',
             initialStock: raw.stockQuantity ?? 0,
+            weight: raw.weight_g ?? raw.weightG ?? raw.weight ?? 0,
+            weight_g: raw.weight_g ?? raw.weightG ?? raw.weight ?? 0,
+            packaging_type: raw.packaging_type ?? raw.packagingType ?? 'POUCH_S',
+            isBulky: Boolean(raw.isBulky ?? raw.is_bulky ?? (['BOX_L', 'LONG_PARCEL'].includes(String(raw.packaging_type || raw.packagingType || '')))),
+            isActive: Boolean(raw.isActive ?? raw.is_active ?? true),
+            is_active: Boolean(raw.isActive ?? raw.is_active ?? true),
             brand: raw.brand || {},
             category: resolvedCategory,
             subCategory: raw.subCategory || {},
@@ -319,20 +370,30 @@ export const getProductByIdForEdit = async (productId: number | string): Promise
                     imageUrl: opt.imageUrl,
                 })),
             })),
-            variantMatrixRows: ((raw.variantMatrix || []) as Array<Record<string, unknown>>).map((m) => ({
-                skuId: m.skuId,
-                skuCode: m.skuCode || m.sku_code || '',
-                sku_code: m.skuCode || m.sku_code || '',
-                price: m.price,
-                stockQuantity: m.stockQuantity || m.stock_quantity || 0,
-                stock_quantity: m.stockQuantity || m.stock_quantity || 0,
-                isActive: m.isActive,
-                imageUrl: m.imageUrl,
-                variantOptionIds: m.variantOptionIds || [],
-                variant_option_ids: m.variantOptionIds || [],
-                variantOptionValues: m.variantOptionValues || [],
-                variant_option_values: m.variantOptionValues || [],
-            })),
+            variantMatrixRows: ((raw.variantMatrix || []) as Array<Record<string, unknown>>).map((m) => {
+                const skuPkg = m.packaging_type || m.packagingType || raw.packaging_type || raw.packagingType || 'POUCH_S';
+                const skuWeightG = m.weight_g ?? m.weightG ?? m.weight ?? 0;
+                return {
+                    skuId: m.skuId,
+                    skuCode: m.skuCode || m.sku_code || '',
+                    sku_code: m.skuCode || m.sku_code || '',
+                    price: m.price,
+                    stockQuantity: m.stockQuantity || m.stock_quantity || 0,
+                    stock_quantity: m.stockQuantity || m.stock_quantity || 0,
+                    isActive: Boolean(m.isActive ?? m.is_active ?? true),
+                    is_active: Boolean(m.is_active ?? m.isActive ?? true),
+                    imageUrl: m.imageUrl,
+                    weight: skuWeightG,
+                    weight_g: skuWeightG,
+                    packaging_type: skuPkg,
+                    isBulky: Boolean(m.isBulky ?? m.is_bulky ?? (skuPkg === 'BOX_L' || skuPkg === 'LONG_PARCEL')),
+                    is_bulky: Boolean(m.isBulky ?? m.is_bulky ?? (skuPkg === 'BOX_L' || skuPkg === 'LONG_PARCEL')),
+                    variantOptionIds: m.variantOptionIds || [],
+                    variant_option_ids: m.variantOptionIds || [],
+                    variantOptionValues: m.variantOptionValues || [],
+                    variant_option_values: m.variantOptionValues || [],
+                };
+            }),
         };
     } catch (error) {
         console.error(`[Fetch Error] getProductByIdForEdit:`, error);
@@ -386,13 +447,15 @@ export const ProductListDashboardSearch = async (
     search: string,
     page: number,
     brandId?: number | null,
-    categoryId?: number | null
+    categoryId?: number | null,
+    status?: string | null
 ): Promise<{ products: ProductListDashboard[]; pagination: PaginationProps }> => {
     const queryParams = new URLSearchParams();
     if (search) queryParams.append('productTitle', search);
     if (page) queryParams.append('page', page.toString());
     if (brandId) queryParams.append('brandId', brandId.toString());
     if (categoryId) queryParams.append('categoryId', categoryId.toString());
+    if (status && status !== 'all') queryParams.append('status', status);
 
     const data = await apiClient<{ products: ProductListDashboard[]; pagination: PaginationProps }>(
         `/api/products/productlistdashboardsearch?${queryParams.toString()}`
@@ -410,15 +473,17 @@ export const DeleteProductDashboard = async (productId: number): Promise<void> =
     });
 };
 
-export const ToggleProductStatus = async (productId: number): Promise<{ is_active: boolean }> => {
-    return apiClient<{ is_active: boolean }>(`/api/admin/products/${productId}/status`, {
+export const ToggleProductStatus = async (productId: number, isActive?: boolean): Promise<{ is_active: boolean; isActive?: boolean }> => {
+    return apiClient<{ is_active: boolean; isActive?: boolean }>(`/api/admin/products/${productId}/status`, {
         method: 'PATCH',
+        body: isActive !== undefined ? JSON.stringify({ is_active: isActive }) : undefined,
     });
 };
 
-export const ToggleSkuStatus = async (skuId: number): Promise<{ is_active: boolean }> => {
-    return apiClient<{ is_active: boolean }>(`/api/admin/products/sku/${skuId}/status`, {
+export const ToggleSkuStatus = async (skuId: number, isActive?: boolean): Promise<{ is_active: boolean; isActive?: boolean }> => {
+    return apiClient<{ is_active: boolean; isActive?: boolean }>(`/api/admin/products/sku/${skuId}/status`, {
         method: 'PATCH',
+        body: isActive !== undefined ? JSON.stringify({ is_active: isActive }) : undefined,
     });
 };
 

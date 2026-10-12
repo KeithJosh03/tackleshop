@@ -17,12 +17,9 @@ export const usePromotions = () => {
         endDate: p.end_date,
         isActive: p.is_active,
         status: p.status || (p.is_active ? 'ACTIVE' : 'EXPIRED'),
-        targetItems: p.apply_to === 'SETUP' && p.setups
-            ? p.setups.map((s: any) => s.setup_id || s.id)
-            : p.apply_to === 'PRODUCT' && p.products
-                ? p.products.map((prod: any) => prod.product_id || prod.id)
-                : [],
-        setups: p.setups || [],
+        targetItems: p.apply_to === 'PRODUCT' && p.products
+            ? p.products.map((prod: any) => prod.product_id || prod.id)
+            : [],
         products: p.products || []
     } as Promotion);
 

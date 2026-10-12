@@ -92,7 +92,7 @@ export default function Page() {
       try {
         const brandId = selectedBrand ? selectedBrand.brandId : null;
         const categoryId = selectedCategory ? selectedCategory.categoryId : null;
-        const res = await ProductListDashboardSearch(debouncedSearch, page, brandId, categoryId);
+        const res = await ProductListDashboardSearch(debouncedSearch, page, brandId, categoryId, selectedStatus);
         setProductLists(res.products);
         setPagination(res.pagination);
       } catch (error) {
@@ -103,7 +103,7 @@ export default function Page() {
     };
 
     fetchProducts();
-  }, [debouncedSearch, page, selectedBrand, selectedCategory]);
+  }, [debouncedSearch, page, selectedBrand, selectedCategory, selectedStatus]);
 
   const toggleRow = (id: number) => {
     setExpandedRows(prev =>
@@ -161,8 +161,17 @@ export default function Page() {
                 customPlaceholder="Category: All"
               />
             </div>
-            <select className={`${inter.className} bg-[#212b37] border border-[#303a47] rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none appearance-none pr-8 cursor-pointer`}>
-              <option>Status: All</option>
+            <select
+              value={selectedStatus}
+              onChange={(e) => {
+                setSelectedStatus(e.target.value);
+                setPage(1);
+              }}
+              className={`${inter.className} bg-[#212b37] border border-[#303a47] rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none appearance-none pr-8 cursor-pointer`}
+            >
+              <option value="">Status: All</option>
+              <option value="active">Active Only</option>
+              <option value="inactive">Inactive Only</option>
             </select>
             <button className="bg-[#212b37] border border-[#303a47] hover:bg-[#303a47] text-white p-2.5 rounded-lg transition-colors flex items-center justify-center">
               <Filter className="w-5 h-5" />
@@ -230,12 +239,15 @@ export default function Page() {
                     onToggleRow={toggleRow}
                     onToggleStatus={async (p) => {
                       try {
-                        const res = await ToggleProductStatus(p.productId);
+                        const currentStatus = Boolean(p.isActive ?? (p as any).is_active ?? false);
+                        const targetStatus = !currentStatus;
+                        const res = await ToggleProductStatus(p.productId, targetStatus);
+                        const nextActive = res.is_active ?? res.isActive ?? targetStatus;
                         setProductLists(prev => prev.map(item =>
-                          item.productId === p.productId ? { ...item, isActive: res.is_active } : item
+                          item.productId === p.productId ? { ...item, isActive: nextActive, is_active: nextActive } : item
                         ));
                         setStatusType('success');
-                        setStatusMessage(`Product ${res.is_active ? 'Activated' : 'Deactivated'}`);
+                        setStatusMessage(`Product ${nextActive ? 'Activated' : 'Deactivated'}`);
                         setTimeout(() => setStatusMessage(null), 3000);
                       } catch (error) {
                         setStatusType('error');
@@ -245,20 +257,25 @@ export default function Page() {
                     }}
                     onToggleSkuStatus={async (productId, skuId) => {
                       try {
-                        const res = await ToggleSkuStatus(skuId);
+                        const targetProduct = productsLists.find(p => p.productId === productId);
+                        const targetSku = targetProduct?.productSkus?.find(s => s.skuId === skuId);
+                        const currentStatus = Boolean(targetSku?.isActive ?? (targetSku as any)?.is_active ?? false);
+                        const targetStatus = !currentStatus;
+                        const res = await ToggleSkuStatus(skuId, targetStatus);
+                        const nextActive = res.is_active ?? res.isActive ?? targetStatus;
                         setProductLists(prev => prev.map(p => {
                           if (p.productId === productId) {
                             return {
                               ...p,
-                              productSkus: p.productSkus.map(s =>
-                                s.skuId === skuId ? { ...s, isActive: res.is_active } : s
+                              productSkus: (p.productSkus || []).map(s =>
+                                s.skuId === skuId ? { ...s, isActive: nextActive, is_active: nextActive } : s
                               )
                             };
                           }
                           return p;
                         }));
                         setStatusType('success');
-                        setStatusMessage(`SKU ${res.is_active ? 'Activated' : 'Deactivated'}`);
+                        setStatusMessage(`SKU ${nextActive ? 'Activated' : 'Deactivated'}`);
                         setTimeout(() => setStatusMessage(null), 3000);
                       } catch (error) {
                         setStatusType('error');

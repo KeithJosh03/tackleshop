@@ -63,6 +63,10 @@ export default function BuildSetupPage() {
   const [stockMode, setStockMode] = useState<'manual' | 'calculated'>('calculated');
   const [manualStock, setManualStock] = useState<number>(50);
 
+  // Logistics state
+  const [weight, setWeight] = useState<string>('');
+  const [isBulky, setIsBulky] = useState<boolean>(false);
+
   // Items List state
   const [selectedItems, setSelectedItems] = useState<SelectedBundleItem[]>([]);
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
@@ -210,7 +214,7 @@ export default function BuildSetupPage() {
         slug,
         setup_category_id: setupCategoryId ? parseInt(setupCategoryId) : undefined,
         description,
-        hero_banner: bannerUrl,
+        hero_banner: bannerUrl ? bannerUrl : null,
         sku,
         pricing_type: 'fixed',
         retail_price: retailPrice,
@@ -219,6 +223,8 @@ export default function BuildSetupPage() {
         is_published: isPublished,
         start_date: startDate || undefined,
         end_date: endDate || undefined,
+        weight: weight ? parseFloat(weight) : null,
+        is_bulky: Boolean(isBulky),
         bundle_items: selectedItems.filter(i => !i.is_custom).map((item) => ({
           product_id: item.product_id,
           sku_id: item.sku_id,
@@ -337,6 +343,37 @@ export default function BuildSetupPage() {
                     <option key={cat.id} value={cat.id}>{cat.name}</option>
                   ))}
                 </select>
+              </div>
+
+              {/* Setup Weight */}
+              <div className="space-y-1.5 md:col-span-1">
+                <label className="text-xs font-semibold text-[#9cb3cf] uppercase tracking-wider">
+                  Setup Package Weight (g)
+                </label>
+                <input
+                  type="number"
+                  placeholder="Leave blank for auto-calc"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  className="w-full px-4 py-3 bg-[#16202c] border border-greyColor/30 rounded-xl text-sm text-[#d9e3f4] placeholder-[#4e6178] focus:outline-none focus:border-primaryColor transition-all"
+                />
+                <p className="text-[10px] text-[#788ca5] mt-1">Leave blank to automatically calculate weight from components.</p>
+              </div>
+
+              {/* Is Bulky Setup */}
+              <div className="space-y-1.5 md:col-span-1 flex flex-col justify-center">
+                <label className="text-xs font-semibold text-[#9cb3cf] uppercase tracking-wider">
+                  Is Bulky Setup?
+                </label>
+                <div className="flex flex-col gap-2 mt-2">
+                  <div
+                    onClick={() => setIsBulky(!isBulky)}
+                    className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition-colors ${isBulky ? 'bg-primaryColor' : 'bg-greyColor/40'}`}
+                  >
+                    <div className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${isBulky ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </div>
+                  <span className="text-[10px] text-[#788ca5] max-w-xs leading-tight">Leave unchecked to flag bulkiness automatically if a bulky item is included. Check to force bulky.</span>
+                </div>
               </div>
 
               {/* Hero Banner Upload */}

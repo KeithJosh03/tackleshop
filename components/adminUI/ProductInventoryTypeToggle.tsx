@@ -5,14 +5,7 @@ import { Layers, Box } from 'lucide-react';
 import { ProductFormState, ProductFormAction } from '@/lib/reducer/productFormReducer';
 import { ProductTypeConversionModal } from './ProductTypeConversionModal';
 
-interface MatrixRowData {
-    skuCode: string;
-    stockQuantity: string;
-    price: string;
-    variantOptionIds: (string | number)[];
-    imageUrl: File | string | null;
-    isActive: boolean;
-}
+import { MatrixRowData } from '@/types/productTypes';
 
 interface ProductInventoryTypeToggleProps {
     productType: 'simple' | 'variant';

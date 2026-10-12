@@ -18,14 +18,7 @@ import {
     ProductSimpleInventory
 } from '@/components/adminUI';
 
-interface MatrixRowData {
-    skuCode: string;
-    stockQuantity: string;
-    price: string;
-    variantOptionIds: (string | number)[];
-    imageUrl: File | string | null;
-    isActive: boolean;
-}
+import { MatrixRowData } from '@/types/productTypes';
 
 interface ProductFormProps {
     mode: 'add' | 'edit';
@@ -122,7 +115,11 @@ const mapInitialProductState = (data?: any): ProductFormState => {
         masterSku: p?.sku || p?.masterSku || p?.master_sku || '',
         initialStock,
         hasVariations,
-        isActive: p?.is_active ?? p?.isActive ?? true
+        isActive: p?.is_active ?? p?.isActive ?? true,
+        weight: p?.weight_g !== undefined && p?.weight_g !== null ? String(p.weight_g) : (p?.weight !== undefined && p?.weight !== null ? String(p.weight) : ''),
+        weight_g: p?.weight_g !== undefined && p?.weight_g !== null ? String(p.weight_g) : (p?.weight !== undefined && p?.weight !== null ? String(p.weight) : ''),
+        packaging_type: p?.packaging_type ?? p?.packagingType ?? 'POUCH_S',
+        isBulky: p?.is_bulky ?? p?.isBulky ?? (['BOX_L', 'LONG_PARCEL'].includes(p?.packaging_type || p?.packagingType || ''))
     };
 };
 
@@ -152,6 +149,10 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
             const primaryKey = optionIdsKey || optionValuesKey || row.skuCode || row.sku_code;
 
             if (primaryKey) {
+                const pkg = row.packaging_type ?? row.packagingType ?? p?.packaging_type ?? p?.packagingType ?? 'POUCH_S';
+                const bulkyVal = row.isBulky ?? row.is_bulky ?? (pkg === 'BOX_L' || pkg === 'LONG_PARCEL');
+                const weightVal = String(row.weight_g ?? row.weightG ?? row.weight ?? '0');
+
                 rowMap[primaryKey] = {
                     skuCode: row.skuCode || row.sku_code || '',
                     stockQuantity: String(row.stockQuantity ?? row.stock_quantity ?? '0'),
@@ -159,6 +160,10 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                     variantOptionIds: row.variantOptionIds || row.variant_option_ids || [],
                     imageUrl: row.imageUrl || row.image_url || null,
                     isActive: row.isActive ?? row.is_active ?? true,
+                    weight: weightVal,
+                    weight_g: weightVal,
+                    packaging_type: pkg,
+                    isBulky: bulkyVal,
                 };
             }
         });
@@ -228,6 +233,8 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                         variantOptionIds: combo.optionIds,
                         imageUrl: null,
                         isActive: true,
+                        weight: '0',
+                        isBulky: false,
                     };
                 });
 
@@ -254,6 +261,10 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
     const buildVariantMatrixPayload = () =>
         combinations.map(combo => {
             const row = variantMatrixRows[combo.id] || variantMatrixRows[combo.optionIds.join('-')];
+            const pkgTier = row?.packaging_type || ProductDetailState.packaging_type || 'POUCH_S';
+            const weightG = Number(row?.weight_g ?? row?.weight) || Number(ProductDetailState.weight_g ?? ProductDetailState.weight) || 0;
+            const isBulky = row?.isBulky ?? (pkgTier === 'BOX_L' || pkgTier === 'LONG_PARCEL');
+
             return {
                 sku_code: row?.skuCode ?? '',
                 checkout_price: Number(row?.price) || 0,
@@ -263,6 +274,10 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                 variant_option_values: combo.optionValues,
                 imageUrl: row?.imageUrl ?? null,
                 is_active: row?.isActive ?? true,
+                weight: weightG,
+                weight_g: weightG,
+                packaging_type: pkgTier,
+                is_bulky: isBulky,
             };
         });
 
@@ -272,6 +287,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
     };
 
     const handleFormSubmit = async () => {
+        console.log(ProductDetailState);
         const matrixPayload = hasProductVariant ? buildVariantMatrixPayload() : [];
 
         // 1. Run base validation passing clean variants array based on mode
@@ -374,7 +390,11 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
             initialStock: hasProductVariant ? '' : ProductDetailState.initialStock,
             variants: (hasProductVariant ? ProductDetailState.variants : []) as any,
             variantMatrixRows: matrixPayload,
-            is_active: ProductDetailState.isActive
+            is_active: ProductDetailState.isActive,
+            weight: Number(ProductDetailState.weight_g ?? ProductDetailState.weight) || 0,
+            weight_g: Number(ProductDetailState.weight_g ?? ProductDetailState.weight) || 0,
+            packaging_type: ProductDetailState.packaging_type || 'POUCH_S',
+            is_bulky: Boolean(ProductDetailState.isBulky || (['BOX_L', 'LONG_PARCEL'].includes(ProductDetailState.packaging_type || '')))
         } as any;
 
         try {

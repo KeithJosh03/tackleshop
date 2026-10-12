@@ -1,7 +1,7 @@
 // types/promotions.ts
 
 export type DiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT';
-export type PromotionScope = 'ALL' | 'SETUP' | 'PRODUCT';
+export type PromotionScope = 'ALL' | 'PRODUCT';
 export type PromotionStatus = 'ACTIVE' | 'SCHEDULED' | 'EXPIRED';
 
 /**

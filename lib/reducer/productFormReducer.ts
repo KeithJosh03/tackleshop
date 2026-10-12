@@ -22,6 +22,8 @@ export interface FormMedia {
     isMain: boolean;
 }
 
+import { PackagingType } from '@/lib/constants/jntPackaging';
+
 export interface ProductFormState {
     productId?: number | string;
     productTitle: string;
@@ -38,6 +40,10 @@ export interface ProductFormState {
     initialStock: string;
     hasVariations: boolean;
     isActive: boolean;
+    weight: string;
+    weight_g: string;
+    packaging_type: PackagingType;
+    isBulky: boolean;
 }
 
 export type ProductFormAction =
@@ -57,6 +63,10 @@ export type ProductFormAction =
     | { type: 'ADD_MEDIAS'; payload: FormMedia[] }
     | { type: 'REMOVE_MEDIA'; payload: string | number }
     | { type: 'SET_MAIN_MEDIA'; payload: string | number }
+    | { type: 'UPDATE_WEIGHT'; payload: string }
+    | { type: 'UPDATE_WEIGHT_G'; payload: string }
+    | { type: 'UPDATE_PACKAGING_TYPE'; payload: PackagingType }
+    | { type: 'TOGGLE_IS_BULKY'; payload: boolean }
     | { type: 'ADD_VARIANT_TYPE'; payload: FormVariantType }
     | { type: 'REMOVE_VARIANT_TYPE'; payload: string | number }
     | { type: 'UPDATE_VARIANT_TYPE_NAME'; payload: { typeId: string | number; name: string } }
@@ -80,13 +90,23 @@ export const defaultFormState: ProductFormState = {
     masterSku: '',
     initialStock: '',
     hasVariations: false,
-    isActive: true
+    isActive: true,
+    weight: '',
+    weight_g: '',
+    packaging_type: 'POUCH_S',
+    isBulky: false
 };
 
 export function productFormReducer(state: ProductFormState, action: ProductFormAction): ProductFormState {
     switch (action.type) {
         case 'SET_FORM_STATE':
-            return { ...action.payload };
+            return {
+                ...action.payload,
+                packaging_type: action.payload.packaging_type || 'POUCH_S',
+                weight_g: action.payload.weight_g || action.payload.weight || '',
+                weight: action.payload.weight_g || action.payload.weight || '',
+                isBulky: Boolean(action.payload.isBulky || (['BOX_L', 'LONG_PARCEL'].includes(action.payload.packaging_type || '')))
+            };
 
         case 'CLEAR_VARIANTS':
             return { ...state, variants: [] };
@@ -111,6 +131,22 @@ export function productFormReducer(state: ProductFormState, action: ProductFormA
 
         case 'UPDATE_INITIAL_STOCK':
             return { ...state, initialStock: action.payload };
+
+        case 'UPDATE_WEIGHT':
+        case 'UPDATE_WEIGHT_G':
+            return { ...state, weight: action.payload, weight_g: action.payload };
+
+        case 'UPDATE_PACKAGING_TYPE': {
+            const isBulky = action.payload === 'BOX_L' || action.payload === 'LONG_PARCEL';
+            return {
+                ...state,
+                packaging_type: action.payload,
+                isBulky
+            };
+        }
+
+        case 'TOGGLE_IS_BULKY':
+            return { ...state, isBulky: action.payload };
 
         case 'TOGGLE_HAS_VARIATIONS':
             return {

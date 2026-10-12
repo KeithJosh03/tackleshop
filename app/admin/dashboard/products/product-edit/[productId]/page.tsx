@@ -21,5 +21,7 @@ export default async function Page({ params }: PageProps) {
     console.error(`Error loading product #${productId}:`, error);
   }
 
+  console.log(initialData);
+
   return <ProductClientEdit productId={productId} initialData={initialData} />;
 }

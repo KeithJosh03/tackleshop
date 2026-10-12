@@ -58,9 +58,11 @@ export const validateProduct = (
     const parsedBasePrice = parsePrice(state.basePrice);
 
     // 3. PRODUCT TYPE VALIDATION (SIMPLE VS VARIANT)
+    const isProductActive = state.is_active ?? state.isActive ?? true;
+
     if (activeVariants.length === 0) {
-        if (parsedBasePrice <= 0) {
-            errors.basePrice = 'Base price must be greater than ₱0.00 for simple products.';
+        if (isProductActive && parsedBasePrice <= 0) {
+            errors.basePrice = 'Base price must be greater than ₱0.00 for active simple products.';
         }
 
         const effectiveSku = state.masterSku || state.sku;
@@ -94,6 +96,8 @@ export const validateProduct = (
                     return;
                 }
 
+                const rowIsActive = row.is_active ?? row.isActive ?? true;
+
                 const rowSku = row.sku_code || row.skuCode;
                 if (!rowSku || typeof rowSku !== 'string' || !rowSku.trim()) {
                     errors[`matrixSku_${rIdx}`] = 'SKU code is required for this variation.';
@@ -106,8 +110,8 @@ export const validateProduct = (
 
                 // Check pricing for EACH individual matrix row
                 const rowPrice = parsePrice(row.checkout_price ?? row.price ?? state.basePrice);
-                if (rowPrice <= 0) {
-                    errors[`matrixPrice_${rIdx}`] = 'Every variant row must have a checkout price greater than ₱0.00.';
+                if (rowIsActive && rowPrice <= 0) {
+                    errors[`matrixPrice_${rIdx}`] = 'Every active variant row must have a checkout price greater than ₱0.00.';
                 }
             });
         }

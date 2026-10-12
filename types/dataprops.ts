@@ -37,6 +37,8 @@ export interface BrandProducts {
     categoryType?: string;
     subCategoryName?: string;
     mainImage?: string;
+    isActive?: boolean;
+    is_active?: boolean;
 }
 
 // ProductDetails
@@ -85,6 +87,8 @@ export interface ProductCollectionProps {
     brandName: string;
     productName: string;
     imageThumbNail: string;
+    isActive?: boolean;
+    is_active?: boolean;
 }
 
 export interface ProductVariantProps {
@@ -116,8 +120,8 @@ export interface CategorizeProduct {
     brandName?: string;
     subCategoryName?: string;
     productThumbNail?: string;
-    // discountType: discountType | null;
-    // discountValue: string;
+    isActive?: boolean;
+    is_active?: boolean;
 }
 
 export interface CategoryProducts {
